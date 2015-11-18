@@ -28,22 +28,22 @@ par0 <- switch(testExp,
 )
 
 ## Create simulator
-simCpp <- sim.vam.cpp(formSim)
+simCpp <- sim.vam(formSim)
 
 ## for single system:
 nExp <- 1000
 ## simulate data for model and mle estimator  
 simulate(simCpp,nExp) -> simDf
 ## create model to plot data with respect to any model
-modelCpp <- model.vam.cpp( formModel ,data=simDf)
+modelCpp <- model.vam( formModel ,data=simDf)
 ## create ML Estimator
-mleCpp <- mle.vam.cpp( formMle ,data=simDf)
+mleCpp <- mle.vam( formMle ,data=simDf)
 
 ## for multi-systems:
 nExp <- rep(1000,2)
 ## simulate data for model and mle estimator  
 simulate(simCpp,nExp) -> simDf
 ## create model to plot data with respect to any model
-modelMultiCpp <- model.vam.cpp( formModelMulti ,data=simDf)
+modelMultiCpp <- model.vam( formModelMulti ,data=simDf)
 ## create ML Estimator
-mleCppMulti <- mle.vam.cpp( formMleMulti ,data=simDf)
+mleCppMulti <- mle.vam( formMleMulti ,data=simDf)

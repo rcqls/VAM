@@ -3,7 +3,7 @@ tmp1<-tmp[1:4,]
 tmp2<-tmp[2:5,]
 require(VAM)
 
-mleCpp <- mle.vam.cpp(Time & Type ~ (ARA1(.4) | Weibull(.001,2.5)) & (ARA1(.7) + ARA1(.7) | Periodic(1000,prob=c(.5,.5)) ),data=tmp2)
+mleCpp <- mle.vam(Time & Type ~ (ARA1(.4) | Weibull(.001,2.5)) & (ARA1(.7) + ARA1(.7) | Periodic(1000,prob=c(.5,.5)) ),data=tmp2)
 print(mleCpp$rcpp$contrast(c(1,1.75,.65,.7,.7)->par0))
 
 mle <- mle.vam(Time & Type ~ (ARA1(.4) | Weibull(.001,2.5)) & (ARA1(.7) + ARA1(.7) | Periodic(1000,prob=c(.5,.5)) ),data=tmp2)

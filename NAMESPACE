@@ -9,6 +9,6 @@ exportPattern(".")
 #  	lm.cqls
 # )
 
-export("VAM","rcpp","newEnv")
+#export("VAM","rcpp","newEnv")
 
 import(Rcpp)

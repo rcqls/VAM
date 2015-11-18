@@ -14,20 +14,20 @@ formMle <- formModel
 formModelMulti <- update(formSim,System & Time & Type ~ .)
 formMleMulti <- formModelMulti
 
-simCpp <- sim.vam.cpp(formSim)
+simCpp <- sim.vam(formSim)
 
 nExp <- 1000
 simulate(simCpp,nExp) -> simDf
 
 for(i  in 1:2) {
 	# cat("simCpp",i,"\n")
-	# simCpp <- sim.vam.cpp(formSim)
+	# simCpp <- sim.vam(formSim)
 	# gc()
 	# cat("simulate\n")
 	# simulate(simCpp,nExp) -> simDf
 	# gc()
 	cat("mleCpp\n")
-	mleCpp <- mle.vam.cpp( formMle ,data=simDf)
+	mleCpp <- mle.vam( formMle ,data=simDf)
 	gc()
 	cat("coef\n")
 	print(coef(mleCpp,
@@ -45,12 +45,12 @@ for(i  in 1:2) {
 
 
 
-# modelCpp <- model.vam.cpp( formModel ,data=simDf)
+# modelCpp <- model.vam( formModel ,data=simDf)
 
 
-# mleCpp <- mle.vam.cpp( formMle ,data=simDf)
+# mleCpp <- mle.vam( formMle ,data=simDf)
 
 
 # nExp <- rep(1000,2)
 # simulate(simCpp,nExp) -> simDf
-# mleCppMulti <- mle.vam.cpp( formMleMulti ,data=simDf)
+# mleCppMulti <- mle.vam( formMleMulti ,data=simDf)

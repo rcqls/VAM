@@ -33,25 +33,25 @@ selectExp <- function(idExp) {
 			par0Exp <- par0Exps[[idExp]]
 
 			## Create simulator
-			simCppExp <- sim.vam.cpp(formSimExp)
+			simCppExp <- sim.vam(formSimExp)
 
 			## for single system:
 			nExp <- 100
 			## simulate data for model and mle estimator  
 			simulate(simCppExp,nExp) -> simDfExp
 			## create model to plot data with respect to any model
-			modelCppExp <- model.vam.cpp( formModelExp ,data=simDfExp)
+			modelCppExp <- model.vam( formModelExp ,data=simDfExp)
 			## create ML Estimator
-			mleCppExp <- mle.vam.cpp( formMleExp ,data=simDfExp)
+			mleCppExp <- mle.vam( formMleExp ,data=simDfExp)
 
 			## for multi-systems:
 			nExp <- rep(10,10)
 			## simulate data for model and mle estimator  
 			simulate(simCppExp,nExp) -> simDfMultiExp
 			## create model to plot data with respect to any model
-			modelCppMultiExp <- model.vam.cpp( formModelMultiExp ,data=simDfMultiExp)
+			modelCppMultiExp <- model.vam( formModelMultiExp ,data=simDfMultiExp)
 			## create ML Estimator
-			mleCppMultiExp <- mle.vam.cpp( formMleMultiExp ,data=simDfMultiExp)
+			mleCppMultiExp <- mle.vam( formMleMultiExp ,data=simDfMultiExp)
 		
 			## set single system as the default
 			nExp <- 100
