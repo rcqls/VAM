@@ -1,0 +1,14 @@
+useDynLib(VAM)
+
+# Export all names
+exportPattern(".")
+
+# export(
+# 	lmm.cqls,
+#   lmer.cqls,
+#  	lm.cqls
+# )
+
+export("VAM","rcpp","newEnv")
+
+import(Rcpp)
