@@ -15,13 +15,15 @@ public:
 
 	virtual void set_params(double, double) = 0;
 
-	virtual double density(double x) = 0; 
+	virtual double density(double x) = 0;  //TODO: hazard_rate
 
 	virtual double cumulative_density(double x) = 0;
 
 	virtual double inverse_cumulative_density(double x) = 0;
 
 	virtual double density_derivative(double x) = 0;
+
+  virtual double inverse_density(double x) = 0;
 
 	virtual double density_param_derivative(double x) = 0;
 
@@ -30,48 +32,52 @@ public:
 
 class WeibullFamilyModel : public FamilyModel {
 public:
-    WeibullFamilyModel(double alpha_, double beta_) {
-    	alpha=alpha_;beta=beta_;
-    }
+  WeibullFamilyModel(double alpha_, double beta_) {
+  	alpha=alpha_;beta=beta_;
+  }
 
-    ~WeibullFamilyModel() {};
+  ~WeibullFamilyModel() {};
 
-    double alpha, beta;
+  double alpha, beta;
 
-    NumericVector get_params() {
-    	NumericVector out(2);
-    	out[0]=alpha;out[1]=beta;
-    	return out;
-    }
+  NumericVector get_params() {
+  	NumericVector out(2);
+  	out[0]=alpha;out[1]=beta;
+  	return out;
+  }
 
-    void set_params(double alpha_, double beta_) {
-    		alpha=alpha_;beta=beta_;
-    }
+  void set_params(double alpha_, double beta_) {
+  		alpha=alpha_;beta=beta_;
+  }
 
-    double density(double x) {
-    	return (x<=0 ? 0 : alpha*beta*pow(x,beta-1));
-    }
+  double density(double x) {
+  	return (x<=0 ? 0 : alpha*beta*pow(x,beta-1));
+  }
 
-	double cumulative_density(double x) {
-		return alpha*pow(x,beta);
-	}
+  double inverse_density(double x) {
+    return pow(x/alpha/beta,beta-1);
+  }
 
-	double inverse_cumulative_density(double x) {
-		 return pow(x/alpha,1/beta);
+  double cumulative_density(double x) {
+  	return alpha*pow(x,beta);
+  }
 
-	}
+  double inverse_cumulative_density(double x) {
+  	 return pow(x/alpha,1/beta);
 
-	double density_derivative(double x) {
-		return (x<=0 ? 0 : alpha*beta*(beta-1)*pow(x,beta-2));
-	}
+  }
 
-	double density_param_derivative(double x) {
-		return (x==0 ? 0 : alpha*(1+beta*log(x))*pow(x,beta-1));
-	}
+  double density_derivative(double x) {
+  	return (x<=0 ? 0 : alpha*beta*(beta-1)*pow(x,beta-2));
+  }
 
-	double cumulative_density_param_derivative(double x) {
-		return (x==0 ? 0 : alpha*log(x)*pow(x,beta));
-	}
+  double density_param_derivative(double x) {
+  	return (x==0 ? 0 : alpha*(1+beta*log(x))*pow(x,beta-1));
+  }
+
+  double cumulative_density_param_derivative(double x) {
+  	return (x==0 ? 0 : alpha*log(x)*pow(x,beta));
+  }
  
 };
 
@@ -98,6 +104,10 @@ class LogLinearFamilyModel : public FamilyModel {
   
   double density(double x) {
     return (x<=0 ? 0 : alpha*exp(beta*x));
+  }
+
+  double inverse_density(double x) {
+    return log(x/alpha)/beta;
   }
   
   double cumulative_density(double x) {
