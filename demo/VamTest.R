@@ -17,6 +17,15 @@ selectExp <- function(idExp) {
 				~ (ARAInf(.4) | Weibull(.001,2.5)) & (ARA1(.7) + ARA1(.7) | Periodic(10,prob=c(.5,.5)) ),
 				~ (ARA1(.8) | LogLinear(exp(-5),0.5))
 			)
+			formModelExps <- list(
+				~ (ARA1(.4) | Weibull(.001,2.5)),
+				~ (ARAInf(.4) | Weibull(.001,2.5)),
+				~ (ARA1(.4) | Weibull(.001,2.5)) & (ARA1(.7) + ARA1(.7)),
+				~ (ARA1(.4) | Weibull(.001,2.5)) & (ARAInf(.7)),
+				~ (ARA1(.4) | Weibull(.001,2.5)) & (ARAInf(.7)),
+				~ (ARAInf(.4) | Weibull(.001,2.5)) & (ARA1(.7) + ARA1(.7) ),
+				~ (ARA1(.8) | LogLinear(exp(-5),0.5))
+			)
 			## and initial parameters values!
 			par0Exps <- list(
 				c(1,2.5,.5),
@@ -29,10 +38,11 @@ selectExp <- function(idExp) {
 			)
 
 			## set the infos related to idExp 
-			formSimExp <- formSimExps[[idExp]] 
-			formModelExp <- update(formSimExp,Time & Type ~ .)
+			formSimExp <- formSimExps[[idExp]]
+			formModelExp <-  formModelExps[[idExp]]
+			formModelMultiExp <- update(formModelExp, System & Time & Type ~ .)
+			formModelExp <- update(formModelExp,Time & Type ~ .)
 			formMleExp <- formModelExp
-			formModelMultiExp <- update(formSimExp, System & Time & Type ~ .)
 			formMleMultiExp <- formModelMultiExp
 			par0Exp <- par0Exps[[idExp]]
 

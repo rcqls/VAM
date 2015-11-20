@@ -208,15 +208,19 @@ parse.vam.formula <- function(obj,formula) {
 		# deal with PM part
 		if(pm[[1]] == as.name("(")) {
 			pm <- pm[[2]]
-			if(pm[[1]] != as.name("|")) stop("Need a policy to manage Preventive Maintenance")
-			policy <- pm[[3]]
-			if(is.name(policy[[1]])) {
-				policy[[1]] <- as.name(paste0(as.character(policy[[1]]),".maintenance.policy"))
-			}
-			# TODO: add obj as argument of policy when needed
+			if(pm[[1]] != as.name("|")) {
+				#stop("Need a policy to manage Preventive Maintenance")
+				policy <- NULL
+			} else {
+				policy <- pm[[3]]
+				if(is.name(policy[[1]])) {
+					policy[[1]] <- as.name(paste0(as.character(policy[[1]]),".maintenance.policy"))
+				}
+				# TODO: add obj as argument of policy when needed
 		
-			# PMs
-			pm <- pm[[2]]
+				# PMs
+				pm <- pm[[2]]
+			}
 			# parser for pm
 			parse.pm <- function(pm) {
 				if(is.name(pm[[1]])) {
