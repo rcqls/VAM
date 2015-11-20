@@ -55,7 +55,7 @@ public:
   }
 
   double inverse_density(double x) {
-    return pow(x/alpha/beta,beta-1);
+    return pow(x/alpha/beta,1/(beta-1));
   }
 
   double cumulative_density(double x) {

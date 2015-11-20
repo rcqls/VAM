@@ -72,6 +72,13 @@ data.frame.to.list.multi.vam <- function(data,response) {
 	data2
 }
 
+# TODO: check data
+check.data.vam <-function(data,response) { 
+	if(all(data[[response[[-length(response)]]]])) {
+
+	}
+}
+
 update.model.vam <- function(self,data) {
 	if(!missing(data)) {
 		model <- parse.vam.formula(NULL,self$formula)
