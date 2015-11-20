@@ -23,7 +23,7 @@ public:
 
 };
 
-//IMPORTANT: Names of params of R are automatically determined when given the formula!
+//IMPORTANT: Names of params of R has to be registered in maintenance-policy-register.R or in any other R file (if you think about plugin)  
 // Ex: AtIntensity(level=1.2)
 // Since in vam.R (inside convert.mp),  "level" is defined by default at 0.5, 
 // this allow us to magically call AtIntensity(1.2) instead of AtIntensity(level=1.2). 

@@ -286,22 +286,20 @@ parse.vam.formula <- function(obj,formula) {
 	convert.mp <- function(mp) {#maintenance policy
 		if(is.null(mp)) list(name="None") 
 		else {
-			## NOTICE that the following declaration could be made in any R file, i.e. not necessarily just below (if we investigate to create a new mainteance policy in another package).
-			## Thanks to declarations of functions <class>.maintenance.policy declared below (with empty body):			  
-			Periodic.maintenance.policy <- function(by,from,prob) {}
-			AtIntensity.maintenance.policy <- 
-			AtVirtualAge.maintenance.policy <- 
-			AtFailureProbability.maintenance.policy <- function(level) {}
-			## the following line allows us the parsing of the parameters names 
-			## used to declare <Class>MaintenancePolicy in Rcpp.  
-			pars=as.list(match.call(eval(mp[[1]]),mp))[-1]
+			
+			## The function defining the maintenance policy 
+			## (registered in maintenance-policy-register.R or in any other R file)
+			mp.fct <- eval(mp[[1]])
+			## params used in the call mp
+			pars <- as.list(match.call(mp.fct,mp))[-1]
 
-			# default values are then completed (if not fulfilled in the user expression):
-			# Periodic.maintenance.policy 
-			# The parameter "by" is mandatory for Periodic.maintenance.policy
-			if(is.null(pars[["from"]])) pars["from"]<-0
-			if(is.null(pars[["prob"]])) pars["prob"]<-1
-			# The parameter "level" is mandatory for At<...>.maintenance.policy
+			## Default values are then automatically completed using declaration of maintenance policy
+			pars.default <- (as.list(mp.fct)->tmp)[-length(tmp)]
+			pars.default <- pars.default[sapply(pars.default,function(e) nchar(as.character(e)))!=0]
+			for(e in names(pars.default)) if(is.null(pars[[e]])) pars[[e]] <- pars.default[[e]]
+			
+			print(list(pars=pars))
+
 			list(
 				name=as.character(mp[[1]]),
 				params=lapply(pars,eval)
