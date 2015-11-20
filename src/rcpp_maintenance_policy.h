@@ -1,8 +1,11 @@
 #ifndef RCPP_MAINTENANCE_POLICY_H
 #define RCPP_MAINTENANCE_POLICY_H
 #include <Rcpp.h>
+#include "rcpp_maintenance_policy.h"
+#include "rcpp_vam_model.h"
 
 using namespace Rcpp ;
+class VamModel;
 
 class MaintenancePolicy {
 public:
@@ -11,13 +14,21 @@ public:
 
 	virtual ~MaintenancePolicy() {};
 
-	virtual List update(double current) = 0;
+	virtual List update(VamModel* model) = 0;
+    //virtual List update(double current) = 0;
 
 	virtual List get_params() = 0;
 
 	virtual void set_params(List params) = 0;
 
 };
+
+//IMPORTANT: Names of params of R are automatically determined when given the formula!
+// Ex: AtIntensity(level=1.2)
+// Since in vam.R (inside convert.mp),  "level" is defined by default at 0.5, 
+// this allow us to magically call AtIntensity(1.2) instead of AtIntensity(level=1.2). 
+//THEN, if you want to provide this feature for other parameters you could set the default
+// inside convert.mp of file vam.R
 
 class PeriodicMaintenancePolicy : public MaintenancePolicy {
 public:
@@ -39,14 +50,79 @@ public:
     	from=params["from"];by=params["by"];prob=params["prob"];
     }
 
-    List update(double current) {
-  		Function sample_int = Environment::base_env()["sample.int"];
-  		List res;
-  		res["time"] = from + (floor((current - from)/by) + 1) * by;
-        //First argument not automatically wrapped in RcppWin64bits 
-		res["type"]=sample_int(NumericVector::create(prob.size()),1,true,prob);
-		return res;
+    List update(VamModel* model);
+ 
+};
+
+class AtIntensityMaintenancePolicy : public MaintenancePolicy {
+public:
+    AtIntensityMaintenancePolicy(List params) {
+        set_params(params);
     }
+
+    ~AtIntensityMaintenancePolicy() {};
+
+    NumericVector level;
+
+    List get_params() {
+        List out;
+        out["level"]=level;
+        return out;
+    }
+
+    void set_params(List params) {
+        level=params["level"];
+    }
+
+    List update(VamModel* model);
+ 
+};
+
+class AtVirtualAgeMaintenancePolicy : public MaintenancePolicy {
+public:
+    AtVirtualAgeMaintenancePolicy(List params) {
+        set_params(params);
+    }
+
+    ~AtVirtualAgeMaintenancePolicy() {};
+
+    NumericVector level;
+
+    List get_params() {
+        List out;
+        out["level"]=level;
+        return out;
+    }
+
+    void set_params(List params) {
+        level=params["level"];
+    }
+
+    List update(VamModel* model);
+ 
+};
+
+class AtFailureProbabilityMaintenancePolicy : public MaintenancePolicy {
+public:
+    AtFailureProbabilityMaintenancePolicy(List params) {
+        set_params(params);
+    }
+
+    ~AtFailureProbabilityMaintenancePolicy() {};
+
+    NumericVector level;
+
+    List get_params() {
+        List out;
+        out["level"]=level;
+        return out;
+    }
+
+    void set_params(List params) {
+        level=params["level"];
+    }
+
+    List update(VamModel* model);
  
 };
 

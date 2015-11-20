@@ -9,5 +9,5 @@ formSim <- switch(testExp,
 
 formMle <- update(formSim, Time & Type ~ .)
 
-print(parse.vam.formula(NULL,formSim,Rcpp.mode=TRUE) ->modelSim)
-print(parse.vam.formula(NULL,formMle,Rcpp.mode=TRUE)->modelMle)
+print(parse.vam.formula(NULL,formSim) ->modelSim)
+print(parse.vam.formula(NULL,formMle)->modelMle)

@@ -12,6 +12,7 @@ selectExp <- function(idExp) {
 				~ (ARA1(.4) | Weibull(.001,2.5)),
 				~ (ARAInf(.4) | Weibull(.001,2.5)),
 				~ (ARA1(.4) | Weibull(.001,2.5)) & (ARA1(.7) + ARA1(.7) | Periodic(1,prob=c(.5,.5)) ),
+				~ (ARA1(.4) | Weibull(.001,2.5)) & (ARAInf(.7)| AtVirtualAge(10)),
 				~ (ARAInf(.4) | Weibull(.001,2.5)) & (ARA1(.7) + ARA1(.7) | Periodic(10,prob=c(.5,.5)) ),
 				~ (ARA1(.8) | LogLinear(exp(-5),0.5))
 			)
@@ -20,6 +21,7 @@ selectExp <- function(idExp) {
 				c(1,2.5,.5),
 				c(1,2.5,.5),
 				c(1,2.5,.5,.5,.5),
+				c(1,2.5,.5,.5),
 				c(1,2.5,.5,.5,.5),
 				c(0,1,.5)
 			)

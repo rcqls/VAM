@@ -1,6 +1,7 @@
 #include "rcpp_vam_model.h"
 #include "rcpp_family_model.h"
 #include "rcpp_maintenance_model.h"
+#include "rcpp_maintenance_policy.h"
 
 using namespace Rcpp ;
 

@@ -66,7 +66,4 @@ RCPP_MODULE(vam_module) {
     .method("set_params",&MaintenancePolicy::set_params,"set params")
     ;
 
-    function( "newMaintenancePolicy", &newMaintenancePolicy );
-
-
 }

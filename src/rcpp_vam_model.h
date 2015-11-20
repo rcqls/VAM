@@ -7,6 +7,7 @@
 using namespace Rcpp ;
 
 class MaintenanceModelList;
+class MaintenancePolicy;
 
 class VamModel {
 public:

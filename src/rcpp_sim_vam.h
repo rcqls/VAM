@@ -32,8 +32,9 @@ public:
             int idMod;
             List timeAndTypePM;
             if(model->maintenance_policy != NULL) {
-                timeAndTypePM = model->maintenance_policy->update(model->time[model->k]); //# Peut-être ajout Vright comme argument de update
-                
+                timeAndTypePM = model->maintenance_policy->update(model); //# Peut-être ajout Vright comme argument de update
+                //timeAndTypePM = model->maintenance_policy->update(model->time[model->k]); //# Peut-être ajout Vright comme argument de update
+
                 NumericVector tmp=timeAndTypePM["time"];
                 timePM=tmp[0];
             }
