@@ -298,7 +298,7 @@ parse.vam.formula <- function(obj,formula) {
 			pars.default <- pars.default[sapply(pars.default,function(e) nchar(as.character(e)))!=0]
 			for(e in names(pars.default)) if(is.null(pars[[e]])) pars[[e]] <- pars.default[[e]]
 			
-			print(list(pars=pars))
+			##print(list(pars=pars))
 
 			list(
 				name=as.character(mp[[1]]),
