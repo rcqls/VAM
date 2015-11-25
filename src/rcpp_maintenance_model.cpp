@@ -17,8 +17,10 @@ MaintenanceModelList::MaintenanceModelList(List models_,VamModel* model) {
     ) {
     	List maintenance=*lit;
     	MaintenanceModel*  vam=newMaintenanceModel(maintenance,model);
-        vam->set_id(i++);
-        model_list.push_back(vam);
+        if(!(vam == NULL)) {
+            vam->set_id(i++);
+            model_list.push_back(vam);
+        }
     }
 }
 
@@ -107,6 +109,14 @@ MaintenanceModel* newMaintenanceModel(List maintenance,VamModel* model) {
 	} else if(name.compare("ARAInf.va.model") == 0) {
 		double rho=params[0];
 		mm=new ARAInf(rho,model);
-	}
+	} else if(name.compare("AGAN.va.model") == 0) {
+        double rho=1;
+        mm=new ARAInf(rho,model);
+    } else if(name.compare("ABAO.va.model") == 0) {
+        double rho=0;
+        mm=new ARAInf(rho,model);
+    } else {
+        printf("WARNING: %s is not a proper maintenance model!\n",name.c_str());
+    }
 	return mm;
 }

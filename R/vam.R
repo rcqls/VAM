@@ -228,7 +228,7 @@ parse.vam.formula <- function(obj,formula) {
 				if(is.name(pm[[1]])) {
 					pm[[1]] <- as.name(paste0(as.character(pm[[1]]),".va.model"))
 				}
-				pm[[3]] <- as.name("obj")
+				##TO REMOVE (obj deleted): pm[[3]] <- as.name("obj")
 				pm
 			}
 			cpt.pms <- 0
@@ -261,8 +261,7 @@ parse.vam.formula <- function(obj,formula) {
 		if(is.name(cm[[1]])) {
 			cm[[1]] <- as.name(paste0(as.character(cm[[1]]),".va.model"))
 		}
-		cm[[length(cm)+1]] <- as.name("obj")
-		
+		##TO REMOVE (obj deleted): cm[[length(cm)+1]] <- as.name("obj")
 		list(model=cm,family=family)
 	}
 	cpt.cms <- 0
@@ -275,11 +274,12 @@ parse.vam.formula <- function(obj,formula) {
 	cms[[cpt.cms <- cpt.cms + 1]] <- parse.cm(cm)
 
 	convert.cm <- function(cm) {
-		
+
 		list(
 			model=list(
 				name=as.character(cm$model[[1]]),
-				params=sapply(cm$model[2:(length(cm$model)-1)],function(e) as.vector(eval(e)))
+				##TO REMOVE (obj deleted): params=if(length(cm$model)==2) numeric(0) else sapply(cm$model[2:(length(cm$model)-1)],function(e) as.vector(eval(e)))
+				params=as.vector(if(length(cm$model)==1) numeric(0) else sapply(cm$model[2:length(cm$model)],function(e) as.vector(eval(e))))
 			),
 			family=list(
 				name=as.character(cm$family[[1]]),
@@ -292,7 +292,8 @@ parse.vam.formula <- function(obj,formula) {
 	convert.pm <- function(pm) {
 		list(
 			name=as.character(pm[[1]]),
-			params=sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
+			##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
+			params=as.vector(if(length(pm)==1) numeric(0) else sapply(pm[2:length(pm)],function(e) as.vector(eval(e))))
 		)
 
 	}
