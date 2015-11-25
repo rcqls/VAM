@@ -178,7 +178,9 @@ coef.mle.vam <- function(obj,par) {
 	res <-run.mle.vam(obj,par,verbose=FALSE)
 	if(obj$optim$convergence>0) cat("convergence=",obj$optim$convergence,"\n",sep="")
 	alpha <- obj$rcpp()$alpha_est(c(1,res))
-	c(alpha,res)
+	res <- c(alpha,res)
+	params(obj,res)
+	res
 }
 
 # for both sim and mle
