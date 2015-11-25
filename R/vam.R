@@ -107,7 +107,7 @@ mle.vam <- function(formula,data) {
 
 
 
-params.sim.vam <- params.mle.vam <- function(self,param) {
+params.model.vam <- params.sim.vam <- params.mle.vam <- function(self,param) {
 	if(missing(param)) {
 		 self$rcpp()$get_params()
 	} else {
