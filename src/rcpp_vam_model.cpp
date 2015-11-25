@@ -133,11 +133,12 @@ List VamModel::get_virtual_age_infos(double by) {
 	while(k < n) {
 		update_Vleft(false);
 		res[k]=get_virtual_age_info(time[k],time[k+1],by);
+		S1 += family->cumulative_density(Vleft) - family->cumulative_density(Vright); 
 		//gradient_update_for_current_system();
 		int type2=type[k + 1];
 		if(type2 < 0) type2=0;
 		models->at(type2)->update(false);
-		S1 += family->cumulative_density(Vleft) - family->cumulative_density(Vright); 
+		
 	}
 
 	return res;     
