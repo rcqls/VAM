@@ -199,7 +199,7 @@ run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
 ## TODO: try to find a best strategy or many strategies...
 coef.mle.vam <- function(obj,par=NULL,method=NULL,verbose=FALSE) {
 	res <-run.mle.vam(obj,par,verbose=verbose,method=method)
-	if(vrbose && obj$optim$convergence>0) cat("convergence=",obj$optim$convergence,"\n",sep="")
+	if(verbose && obj$optim$convergence>0) cat("convergence=",obj$optim$convergence,"\n",sep="")
 	alpha <- obj$rcpp()$alpha_est(c(1,res))
 	res <- c(alpha,res)
 	params(obj,res)
