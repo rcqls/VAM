@@ -122,6 +122,8 @@ update.mle.vam <- function(self,data) {
 		self$data <- data
 		data2 <- data.frame.to.list.multi.vam(self$data,response)
 		self$rcpp()$set_data(data2)
+		## estimation has to be computed again!
+		self$mle.coef<-NULL
 	}
 }
 
@@ -198,12 +200,14 @@ run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
 ## Here, par=NULL forces initialisation update but does not ensure that it is the best estimate.
 ## TODO: try to find a best strategy or many strategies...
 coef.mle.vam <- function(obj,par=NULL,method=NULL,verbose=FALSE) {
-	res <-run.mle.vam(obj,par,verbose=verbose,method=method)
-	if(verbose && obj$optim$convergence>0) cat("convergence=",obj$optim$convergence,"\n",sep="")
-	alpha <- obj$rcpp()$alpha_est(c(1,res))
-	res <- c(alpha,res)
-	params(obj,res)
-	res
+	if(is.null(obj$mle.res) || !is.null(par)) {
+		res <-run.mle.vam(obj,par,verbose=verbose,method=method)
+		if(verbose && obj$optim$convergence>0) cat("convergence=",obj$optim$convergence,"\n",sep="")
+		alpha <- obj$rcpp()$alpha_est(c(1,res))
+		obj$mle.coef <- c(alpha,res)
+		params(obj,obj$mle.coef)
+	}
+	obj$mle.coef
 }
 
 # for both sim and mle
