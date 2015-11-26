@@ -197,9 +197,9 @@ run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
 ## Rmk: run.mle.vam is supposed to run many times to get the best estimate!
 ## Here, par=NULL forces initialisation update but does not ensure that it is the best estimate.
 ## TODO: try to find a best strategy or many strategies...
-coef.mle.vam <- function(obj,par=NULL,method=NULL) {
-	res <-run.mle.vam(obj,par,verbose=FALSE,method=method)
-	if(obj$optim$convergence>0) cat("convergence=",obj$optim$convergence,"\n",sep="")
+coef.mle.vam <- function(obj,par=NULL,method=NULL,verbose=FALSE) {
+	res <-run.mle.vam(obj,par,verbose=verbose,method=method)
+	if(vrbose && obj$optim$convergence>0) cat("convergence=",obj$optim$convergence,"\n",sep="")
 	alpha <- obj$rcpp()$alpha_est(c(1,res))
 	res <- c(alpha,res)
 	params(obj,res)
