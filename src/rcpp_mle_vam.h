@@ -68,6 +68,7 @@ public:
         res[0]=-log(S1) * S3 + S2 +S3*(log(S3)-1);
 
         return res;
+        //return res[0]==R_NaN ? R_NegInf : res;
     }
 
     void gradient_for_current_system() {
