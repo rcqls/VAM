@@ -128,12 +128,13 @@ update.mle.vam <- function(self,data) {
 # alpha is not considered in the estimation!
 run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
 	rcpp <- obj$rcpp()
-
+	## save the initial param
+	if(is.null(obj$par0)) obj$par0 <- params(obj)
 	## parameters stuff!
 	if(missing(par0))  {
 		if("par" %in% names(obj)) param <- obj$par #not the first run 
 		else param<-params(obj)[-1] #first run
-	} else if(is.null(par0)) param<-params(obj)[-1] else param<-par0[-1]
+	} else if(is.null(par0)) param<-obj$par0[-1] else param<-par0[-1]
 	## fixed and functions stuff!
 	if(missing(fixed)) fixed<-rep(FALSE,length(param))
 	else if(is.numeric(fixed)) {
@@ -143,24 +144,43 @@ run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
 	}
 
 	fn<-function(par) {
-		##print(par);print(param[!fixed])
+		##cat("param->");print(par);print(param[!fixed])
 		param[!fixed]<-par
-		##cat("param->");print(param)
-		-rcpp$contrast(c(1,param))
+		#cat("param->");print(param)
+		## All the commented part allows us to save the param when value is NaN
+		#res<- 
+		   -rcpp$contrast(c(1,param))
+		# if(is.nan(res)) {
+		# 	mode_param<-"contrast"
+		# 	data_param<- rcpp$get_data(0)
+		# 	data_param2 <- obj$data
+		# 	save(param,mode_param,data_param,data_param2,file="/Users/remy/tmp/VAM/res.RData")
+		# }
+		# res
 	}
 
  
 	gr <- function(par) {
 	    param[!fixed]<-par
+	    #cat("param2->");print(param)
+	    ## All the commented part allows us to save the param when value is NaN
+		#res <-
 	    -rcpp$gradient(c(1,param))[!fixed]
+		# if(any(is.nan(res))) {
+		# 	mode_param<-"gradient"
+		# 	save(param,mode_param,file="/Users/remy/tmp/VAM/res.RData")
+		# }
+		# res
 	}
   
   ## optim stuff!
   if(is.null(method) || method=="fast") {
     if(length(param[!fixed])>1) param[!fixed]<-(res <- optim(param[!fixed],fn,gr,method="Ne",...))$par
     if(is.null(method)) res<-optim(param[!fixed],fn,gr,method="CG",...)
-  } else res<-optim(param[!fixed],fn,gr,method=method,...)
-  
+  } else {
+  	res<-optim(param[!fixed],fn,gr,method=method,...)
+  }
+
   #fixed tips
   param[!fixed]<-res$par
   res$par<-param
@@ -174,8 +194,11 @@ run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
   res$par
 }
 
-coef.mle.vam <- function(obj,par) {
-	res <-run.mle.vam(obj,par,verbose=FALSE)
+## Rmk: run.mle.vam is supposed to run many times to get the best estimate!
+## Here, par=NULL forces initialisation update but does not ensure that it is the best estimate.
+## TODO: try to find a best strategy or many strategies...
+coef.mle.vam <- function(obj,par=NULL,method=NULL) {
+	res <-run.mle.vam(obj,par,verbose=FALSE,method=method)
 	if(obj$optim$convergence>0) cat("convergence=",obj$optim$convergence,"\n",sep="")
 	alpha <- obj$rcpp()$alpha_est(c(1,res))
 	res <- c(alpha,res)
