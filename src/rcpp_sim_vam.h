@@ -29,27 +29,24 @@ public:
         while(model->k < nbsim) {
              
             //Rprintf("",model->models.size())
+
+            /*** This is a version of the synthetic expression of timeCM below
             double timePM;
             double tmp0=model->time[model->k];
             double tmp1=model->models->at(model->idMod)->virtual_age(tmp0);
             double tmp2=model->family->cumulative_density(tmp1)-log(runif(1))[0];
             double tmp3=model->family->inverse_cumulative_density(tmp2);
             double tmp4 = model->models->at(model->idMod)->virtual_age_inverse(tmp3);
-            double timeCM = tmp4; 
+            double timeCM = tmp4; ***/
 
-            //double timePM, timeCM = model->models->at(model->idMod)->virtual_age_inverse(model->family->inverse_cumulative_density(model->family->cumulative_density(model->models->at(model->idMod)->virtual_age(model->time[model->k]))-log(runif(1))[0]));
+            double timePM, timeCM = model->models->at(model->idMod)->virtual_age_inverse(model->family->inverse_cumulative_density(model->family->cumulative_density(model->models->at(model->idMod)->virtual_age(model->time[model->k]))-log(runif(1))[0]));
             int idMod;
-            
-            //TRY:List timeAndTypePM;
-            //TRY2: 
+             
             std::pair<double,int> timeAndTypePM;
             if(model->maintenance_policy != NULL) {
-                timeAndTypePM = model->maintenance_policy->update(model); //# Peut-être ajout Vright comme argument de update
-                
-                //TRY: NumericVector tmp=timeAndTypePM["time"];
-                //TRY: timePM=tmp[0];
-                //TRY2: 
-                timePM=timeAndTypePM.first;
+                timeAndTypePM = model->maintenance_policy->update(model);
+                 
+                timePM=timeAndTypePM.first; //time
             }
 
             if(model->maintenance_policy == NULL || timeCM < timePM) {
@@ -58,11 +55,9 @@ public:
                 idMod=0;
             } else {
                 model->time[model->k + 1]=timePM;
-                //TRY: NumericVector tmp2=timeAndTypePM["type"];
-                //TRY: int typePM=tmp2[0];
-                int typePM=timeAndTypePM.second;
+                int typePM=timeAndTypePM.second; //type
                 model->type[model->k + 1]=typePM;
-                idMod=typePM; //timeAndTypePM["type"];
+                idMod=typePM;
             }
             //# used in the next update
             model->update_Vleft(false);
@@ -98,8 +93,8 @@ private:
         model->Vright=0;
         model->k=0;
         model->idMod=0; // Since no maintenance is possible!
-        (model->time).resize(nbsim+1,0) ;//rep(0,nbsim+1);
-        (model->type).resize(nbsim+1,0) ;//rep(1,nbsim+1);
+        (model->time).resize(nbsim+1,0); //equivalent R: rep(0,nbsim+1)
+        (model->type).resize(nbsim+1,0); //equivalent R: rep(1,nbsim+1)
     } 
 
 };

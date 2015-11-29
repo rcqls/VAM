@@ -156,38 +156,12 @@ private:
     	model->S2 = 0;
     	model->S3 = 0;for(int i=0;i<model->type.size();i++) if(model->type[i] < 0) (model->S3) += 1; //TO COMPUTE from model->type
     	if(with_gradient) {
-            model->dVleft[0]=0;
-    		model->dVright[0]=0;
-    		model->dS1[0]=0;model->dS1[1]=0;
-    		model->dS2[0]=0;model->dS2[1]=0;
-    		for(int i=0;i<(model->nbPM);i++) {
-    			model->dVleft[i+1]=0;
-                model->dVright[i+1]=0;
-    			model->dS1[i+2]=0;
-    			model->dS2[i+2]=0;
-    		}
-            // model->dVleft.fill_n(model->dVleft.begin(),(model->nbPM)+1,0);
-            // model->dVright.fill_n(model->dVright.begin(),(model->nbPM)+1,0);
-            // model->dS1.fill_n(model->dS1.begin(),(model->nbPM)+2,0);
-            // model->dS2.fill_n(model->dS2.begin(),(model->nbPM)+2,0);
+            std::fill_n(model->dVleft.begin(),(model->nbPM)+1,0);
+            std::fill_n(model->dVright.begin(),(model->nbPM)+1,0);
+            std::fill_n(model->dS1.begin(),(model->nbPM)+2,0);
+            std::fill_n(model->dS2.begin(),(model->nbPM)+2,0);
     	}
     }
-
-    // void initMLE() {
-    //     int i;
-    //     k=0;
-    //     Vleft=0;
-    //     Vright=0;
-    //     indType=0;hVleft=0;
-    //     dS1[0]=0;dS2[0]=0;
-    //     for (i=0;i<nbPM+1;i++) {
-    //         dVright[i]=0;
-    //         dVleft[i]=0;
-    //         dS1[i+1]=0;
-    //         dS2[i+1]=0;
-    //     }
-        
-    // };
 
     void contrast_update_for_current_system(bool with_gradient) {
     	model->update_Vleft(with_gradient);

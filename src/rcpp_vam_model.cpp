@@ -6,11 +6,6 @@
 using namespace Rcpp ;
 
 VamModel::~VamModel() {
-		//DEBUG: printf("VamModel: %p, %p, %p, %p\n",dVright,dVleft,dS1,dS2);
-		// delete[] dVright;
-		// delete[] dVleft;
-		// delete[] dS1;
-		// delete[] dS2;
 		delete models;
 		delete family;
 		delete maintenance_policy;
@@ -37,39 +32,31 @@ void VamModel::set_params(NumericVector pars) {
 }
 
 void VamModel::update_Vleft(bool with_gradient) {
-	/*if(model->k < 10) printf("Vleft:%lf\n", model->Vleft);*/
 	Vleft =(models->at(idMod))->virtual_age(time[k+1]);
-	//printf("Vleft:%lf\n", model->Vleft);
 	if(with_gradient) {
 		std::vector<double> tmp=(models->at(idMod))->virtual_age_derivative(time[k+1]);
 		for(int i=0;i<nbPM+2;i++) dVleft[i]=tmp[i];
 	}
 }
 
-
+//Convert List(DataFrame(Time,Type))
 void VamModel::set_data(List data_) {
-			//data=clone(data_);
-	//data=data_;
 	nb_system=data_.size();
-	data_list.clear();
-	data_list.resize(nb_system);
+	data.clear();//The old data
+	data.resize(nb_system);
 	for(int i=0;i<nb_system;i++) {
 		List data2=data_[i];
 		std::vector<double> timeTmp=data2["Time"];
 		std::vector<int> typeTmp=data2["Type"];
 		std::pair< std::vector<double>,std::vector<int> > tmpPair(timeTmp,typeTmp);
-		data_list[i]=tmpPair;
+		data[i]=tmpPair;
 	}
 	//printf("Number of systems: %d\n",nb_system);
 	select_data(0);//default when only one system no need to 
 }
 
 void VamModel::select_data(int i) {
-	//List data2(data[i]);
-	//List data2=data[i];
-	//time = data2["Time"]; type = data2["Type"];
-	time=data_list[i].first;type=data_list[i].second;
-	//printf("data_list[%d]\n",i);
+	time=data[i].first;type=data[i].second;
 }
 
 DataFrame VamModel::get_selected_data(int i) {
@@ -105,10 +92,6 @@ void VamModel::init(List model_) {
 	Vleft=0;Vright=0;
 	hVleft=0;
 
-	// dVright=new double[nbPM+1];
-	// dVleft=new double[nbPM+1];
-	// dS1=new double[nbPM+2];
-	// dS2=new double[nbPM+2];
 	dVright.resize(nbPM+1);
 	dVleft.resize(nbPM+1);
 	dS1.resize(nbPM+2);

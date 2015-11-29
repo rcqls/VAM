@@ -58,12 +58,4 @@ RCPP_MODULE(vam_module) {
     .method("cumulative_density_param_derivative",&FamilyModel::cumulative_density_param_derivative,"cumulative density derivative with respect to beta")
     ;
 
-    //function( "newMaintenancePolicy", &newMaintenancePolicy );
-
-    //class_<MaintenancePolicy>("MaintenancePolicy")
-    //.method("update",&MaintenancePolicy::update,"update")
-    //.method("get_params",&MaintenancePolicy::get_params,"get params")
-    //.method("set_params",&MaintenancePolicy::set_params,"set params")
-    ;
-
 }

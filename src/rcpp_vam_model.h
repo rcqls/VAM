@@ -25,11 +25,7 @@ public:
 
 	int k,nbPM,idMod,nb_system;
 
-	List data;
-
-	std::vector< std::pair<std::vector<double>,std::vector<int> > > data_list;
-
-	//NumericVector time, type;
+	std::vector< std::pair<std::vector<double>,std::vector<int> > > data;
 
 	std::vector<double> time;
 	std::vector<int> type;
@@ -38,7 +34,6 @@ public:
 
 	double Vleft, Vright, hVleft;
 
-	//double *dVleft, *dVright, *dS1, *dS2;
 	std::vector<double> dVleft, dVright, dS1, dS2;
 
 	MaintenanceModelList* models;
@@ -46,22 +41,6 @@ public:
 	FamilyModel* family;
 
 	MaintenancePolicy* maintenance_policy;
-
-	// void initMLE() {
-	// 	int i;
-	// 	k=0;
-	// 	Vleft=0;
-	// 	Vright=0;
-	// 	indType=0;hVleft=0;
-	// 	dS1[0]=0;dS2[0]=0;
-	// 	for (i=0;i<nbPM+1;i++) {
-	// 		dVright[i]=0;
-	// 		dVleft[i]=0;
-	// 		dS1[i+1]=0;
-	// 		dS2[i+1]=0;
-	// 	}
-		
-	// };
 
 	FamilyModel* get_family() {
 		return family;
