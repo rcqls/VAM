@@ -156,7 +156,7 @@ private:
     		model->dVright[0]=0;
     		model->dS1[0]=0;model->dS1[1]=0;
     		model->dS2[0]=0;model->dS2[1]=0;
-    		for(int i=0;i<(model->nbPM)+1;i++) {
+    		for(int i=0;i<(model->nbPM);i++) {
     			model->dVright[i+1]=0;
     			model->dS1[i+2]=0;
     			model->dS2[i+2]=0;
