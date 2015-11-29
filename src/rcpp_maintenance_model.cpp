@@ -20,8 +20,11 @@ MaintenanceModelList::MaintenanceModelList(List models_,VamModel* model) {
         if(!(vam == NULL)) {
             vam->set_id(i++);
             model_list.push_back(vam);
+        } else {
+            Rprintf("WARNING! Maintenance %d not created\n",i);
         }
     }
+    size_=i;
 }
 
 MaintenanceModelList::~MaintenanceModelList() {
@@ -30,6 +33,7 @@ MaintenanceModelList::~MaintenanceModelList() {
 		vit != model_list.end();
         ++vit
     ) {
+        //Rprintf("delete %p\n",*vit);
 		delete *vit;
 	}
 
@@ -64,7 +68,8 @@ double ARA1::virtual_age(double time) {
     return model -> Vright + time  - model->time[model->k];
 }
 
-double* ARA1::virtual_age_derivative(double x) {
+//double* 
+std::vector<double> ARA1::virtual_age_derivative(double x) {
     return model->dVright;
 }
 
@@ -90,7 +95,8 @@ double ARAInf::virtual_age(double time) {
     return model -> Vright + time  - model->time[model->k];
 }
 
-double* ARAInf::virtual_age_derivative(double x) {
+//double* 
+std::vector<double> ARAInf::virtual_age_derivative(double x) {
     return model->dVright;
 }
 
@@ -118,5 +124,6 @@ MaintenanceModel* newMaintenanceModel(List maintenance,VamModel* model) {
     } else {
         printf("WARNING: %s is not a proper maintenance model!\n",name.c_str());
     }
+    //Rprintf("name=%s,%p\n",name.c_str(),mm);
 	return mm;
 }

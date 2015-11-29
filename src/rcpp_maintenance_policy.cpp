@@ -27,45 +27,62 @@ MaintenancePolicy* newMaintenancePolicy(List policy) {
 }
 
  
-List PeriodicMaintenancePolicy::update(VamModel* model) {
+//List 
+std::pair<double,int> PeriodicMaintenancePolicy::update(VamModel* model) {
     double current=model->time[model->k];
     // List update(double current) {   
 	Function sample_int = Environment::base_env()["sample.int"];
-	List res;
-	res["time"] = from + (floor((current - from)/by) + 1) * by;
+	//List 
+	std::pair<double,int> res;
+	
+	//res["time"] 
+	res.first = (from + (floor((current - from)/by) + 1) * by)[0];
 	//First argument not automatically wrapped in RcppWin64bits ??? => weird!
-	res["type"]=sample_int(NumericVector::create(prob.size()),1,true,prob);
+	//res["type"]
+	res.second=as<int>(sample_int(NumericVector::create(prob.size()),1,true,prob));
 	return res;
  
 };
 
-List AtIntensityMaintenancePolicy::update(VamModel* model) {
-    Function sample_int = Environment::base_env()["sample.int"];
-    List res;
+//List 
+std::pair<double,int> AtIntensityMaintenancePolicy::update(VamModel* model) {
+    //Function sample_int = Environment::base_env()["sample.int"];
+    //List 
+    std::pair<double,int> res;
     
-    res["time"] = model->models->at(model->idMod)->virtual_age_inverse(model->family->inverse_density(level[0]));
+    //res["time"] 
+    res.first = model->models->at(model->idMod)->virtual_age_inverse(model->family->inverse_density(level));
     //First argument not automatically wrapped in RcppWin64bits 
-    res["type"]= 1; //sample_int(NumericVector::create(prob.size()),1,true,prob);
+    //res["type"]
+    res.second = 1; //sample_int(NumericVector::create(prob.size()),1,true,prob);
     return res;
 };
 
-List AtVirtualAgeMaintenancePolicy::update(VamModel* model) {
-    Function sample_int = Environment::base_env()["sample.int"];
-    List res;
+//List 
+std::pair<double,int> AtVirtualAgeMaintenancePolicy::update(VamModel* model) {
+    //Function sample_int = Environment::base_env()["sample.int"];
+    //List 
+    std::pair<double,int> res;
     
-    res["time"] = model->models->at(model->idMod)->virtual_age_inverse(level[0]);
+    //res["time"]
+    res.first = model->models->at(model->idMod)->virtual_age_inverse(level);
     //First argument not automatically wrapped in RcppWin64bits 
-    res["type"]= 1; //sample_int(NumericVector::create(prob.size()),1,true,prob);
+    //res["type"]
+    res.second = 1; //sample_int(NumericVector::create(prob.size()),1,true,prob);
     return res;
 };
 
-List AtFailureProbabilityMaintenancePolicy::update(VamModel* model) {
+//List 
+std::pair<double,int> AtFailureProbabilityMaintenancePolicy::update(VamModel* model) {
     Function sample_int = Environment::base_env()["sample.int"];
-    List res;
+    //List 
+    std::pair<double,int> res;
     
-    res["time"] = model->models->at(model->idMod)->virtual_age_inverse(model->family->inverse_cumulative_density(model->family->cumulative_density(model->models->at(model->idMod)->virtual_age(model->time[model->k]))-log(1-level)[0]));
+    //res["time"]
+    res.first = model->models->at(model->idMod)->virtual_age_inverse(model->family->inverse_cumulative_density(model->family->cumulative_density(model->models->at(model->idMod)->virtual_age(model->time[model->k]))-log(1-level)));
     //First argument not automatically wrapped in RcppWin64bits 
-    res["type"]= 1; //sample_int(NumericVector::create(prob.size()),1,true,prob);
+    //res["type"]
+    res.second = 1; //sample_int(NumericVector::create(prob.size()),1,true,prob);
     return res;
 };
 

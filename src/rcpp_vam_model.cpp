@@ -5,6 +5,17 @@
 
 using namespace Rcpp ;
 
+VamModel::~VamModel() {
+		//DEBUG: printf("VamModel: %p, %p, %p, %p\n",dVright,dVleft,dS1,dS2);
+		// delete[] dVright;
+		// delete[] dVleft;
+		// delete[] dS1;
+		// delete[] dS2;
+		delete models;
+		delete family;
+		delete maintenance_policy;
+	};
+
 NumericVector VamModel::get_params() {
 	NumericVector pars(nbPM+3);
 	NumericVector fam=family->get_params();
@@ -30,21 +41,35 @@ void VamModel::update_Vleft(bool with_gradient) {
 	Vleft =(models->at(idMod))->virtual_age(time[k+1]);
 	//printf("Vleft:%lf\n", model->Vleft);
 	if(with_gradient) {
-		double* tmp=(models->at(idMod))->virtual_age_derivative(time[k+1]);
+		std::vector<double> tmp=(models->at(idMod))->virtual_age_derivative(time[k+1]);
 		for(int i=0;i<nbPM+2;i++) dVleft[i]=tmp[i];
 	}
 }
 
+
 void VamModel::set_data(List data_) {
-	data=data_;
-	nb_system=data.size();
+			//data=clone(data_);
+	//data=data_;
+	nb_system=data_.size();
+	data_list.clear();
+	data_list.resize(nb_system);
+	for(int i=0;i<nb_system;i++) {
+		List data2=data_[i];
+		std::vector<double> timeTmp=data2["Time"];
+		std::vector<int> typeTmp=data2["Type"];
+		std::pair< std::vector<double>,std::vector<int> > tmpPair(timeTmp,typeTmp);
+		data_list[i]=tmpPair;
+	}
 	//printf("Number of systems: %d\n",nb_system);
 	select_data(0);//default when only one system no need to 
 }
 
 void VamModel::select_data(int i) {
-	List data2=data[i];
-	time = data2["Time"]; type = data2["Type"];
+	//List data2(data[i]);
+	//List data2=data[i];
+	//time = data2["Time"]; type = data2["Type"];
+	time=data_list[i].first;type=data_list[i].second;
+	//printf("data_list[%d]\n",i);
 }
 
 DataFrame VamModel::get_selected_data(int i) {
@@ -79,10 +104,16 @@ void VamModel::init(List model_) {
 	S1=0;S2=0;S3=0;
 	Vleft=0;Vright=0;
 	hVleft=0;
-	dVright=new double[nbPM+1];
-	dVleft=new double[nbPM+1];
-	dS1=new double[nbPM+2];
-	dS2=new double[nbPM+2];
+
+	// dVright=new double[nbPM+1];
+	// dVleft=new double[nbPM+1];
+	// dS1=new double[nbPM+2];
+	// dS2=new double[nbPM+2];
+	dVright.resize(nbPM+1);
+	dVleft.resize(nbPM+1);
+	dS1.resize(nbPM+2);
+	dS2.resize(nbPM+2);
+
 	//DEBUG: printf("dVright:%p,dVleft:%p\n",dVright,dVleft);
 };
 

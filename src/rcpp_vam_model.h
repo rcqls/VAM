@@ -2,7 +2,7 @@
 #define RCPP_VAM_CACHE_H
 #include <Rcpp.h>
 #include "rcpp_family_model.h"
-#include "rcpp_maintenance_policy.h"
+
 
 using namespace Rcpp ;
 
@@ -21,28 +21,25 @@ public:
 		set_data(data_);
 	};
 
-	~VamModel() {
-		//DEBUG: printf("VamModel: %p, %p, %p, %p, %p, %p, %p\n",dVright,dVleft,dS1,dS2,models,family,maintenance_policy);
-		delete[] dVright;
-		delete[] dVleft;
-		delete[] dS1;
-		delete[] dS2;
-		delete models;
-		delete family;
-		delete maintenance_policy;
-	};
+	~VamModel();
 
 	int k,nbPM,idMod,nb_system;
 
 	List data;
 
-	NumericVector time, type;
+	std::vector< std::pair<std::vector<double>,std::vector<int> > > data_list;
+
+	//NumericVector time, type;
+
+	std::vector<double> time;
+	std::vector<int> type;
 
 	double S1, S2, S3, indType;
 
 	double Vleft, Vright, hVleft;
 
-	double *dVleft, *dVright, *dS1, *dS2;
+	//double *dVleft, *dVright, *dS1, *dS2;
+	std::vector<double> dVleft, dVright, dS1, dS2;
 
 	MaintenanceModelList* models;
 
@@ -50,21 +47,21 @@ public:
 
 	MaintenancePolicy* maintenance_policy;
 
-	void initMLE() {
-		int i;
-		k=0;
-		Vleft=0;
-		Vright=0;
-		indType=0;hVleft=0;
-		dS1[0]=0;dS2[0]=0;
-		for (i=0;i<nbPM+1;i++) {
-			dVright[i]=0;
-			dVleft[i]=0;
-			dS1[i+1]=0;
-			dS2[i+1]=0;
-		}
+	// void initMLE() {
+	// 	int i;
+	// 	k=0;
+	// 	Vleft=0;
+	// 	Vright=0;
+	// 	indType=0;hVleft=0;
+	// 	dS1[0]=0;dS2[0]=0;
+	// 	for (i=0;i<nbPM+1;i++) {
+	// 		dVright[i]=0;
+	// 		dVleft[i]=0;
+	// 		dS1[i+1]=0;
+	// 		dS2[i+1]=0;
+	// 	}
 		
-	};
+	// };
 
 	FamilyModel* get_family() {
 		return family;

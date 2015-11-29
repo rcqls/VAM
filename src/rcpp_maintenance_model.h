@@ -16,18 +16,19 @@ public:
     ~MaintenanceModelList();
 
     MaintenanceModel* at(int i) {
+        //Rprintf("at(i)=%d,%d,%d\n",i,size(),model_list.size());
     	return model_list[i];
     }
 
     int size() {
-    	return model_list.size();
+    	return size_;
     }
 
 
 protected:
 
     std::vector<MaintenanceModel*> model_list; //model list
-     
+    int size_;
 };
 
 
@@ -47,7 +48,8 @@ public:
 
     virtual double virtual_age(double time) = 0;
 
-    virtual double* virtual_age_derivative(double x) = 0;
+    //virtual double* 
+    virtual std::vector<double> virtual_age_derivative(double x) = 0;
 
     virtual double virtual_age_inverse(double time) = 0;
 
@@ -69,6 +71,8 @@ public:
     	rho = rho_;
     }
 
+    virtual ~ARA1() {};
+
     NumericVector get_params() {
     	NumericVector out(1);
     	out[0]=rho;
@@ -83,7 +87,8 @@ public:
 
     double virtual_age(double time);
 
-    double* virtual_age_derivative(double x);
+    //double* 
+    std::vector<double> virtual_age_derivative(double x);
 
     double virtual_age_inverse(double x);
 
@@ -100,6 +105,8 @@ public:
     	rho = rho_;
     }
 
+    virtual ~ARAInf() {};
+
     NumericVector get_params() {
     	NumericVector out(1);
     	out[0]=rho;
@@ -114,7 +121,8 @@ public:
 
     double virtual_age(double time);
 
-    double* virtual_age_derivative(double x);
+    //double* 
+    std::vector<double> virtual_age_derivative(double x);
 
     double virtual_age_inverse(double x);
 

@@ -14,7 +14,9 @@ public:
 
 	virtual ~MaintenancePolicy() {};
 
-	virtual List update(VamModel* model) = 0;
+    //TRY2: 
+    virtual std::pair<double,int> update(VamModel* model) = 0;
+	//TRY: virtual List update(VamModel* model) = 0;
     //virtual List update(double current) = 0;
 
 	virtual List get_params() = 0;
@@ -50,7 +52,8 @@ public:
     	from=params["from"];by=params["by"];prob=params["prob"];
     }
 
-    List update(VamModel* model);
+    //List 
+    std::pair<double,int> update(VamModel* model);
  
 };
 
@@ -62,7 +65,7 @@ public:
 
     ~AtIntensityMaintenancePolicy() {};
 
-    NumericVector level;
+    double level;
 
     List get_params() {
         List out;
@@ -74,7 +77,8 @@ public:
         level=params["level"];
     }
 
-    List update(VamModel* model);
+    //List 
+    std::pair<double,int>update(VamModel* model);
  
 };
 
@@ -86,7 +90,7 @@ public:
 
     ~AtVirtualAgeMaintenancePolicy() {};
 
-    NumericVector level;
+    double level;
 
     List get_params() {
         List out;
@@ -98,7 +102,8 @@ public:
         level=params["level"];
     }
 
-    List update(VamModel* model);
+    //List 
+    std::pair<double,int> update(VamModel* model);
  
 };
 
@@ -110,7 +115,7 @@ public:
 
     ~AtFailureProbabilityMaintenancePolicy() {};
 
-    NumericVector level;
+    double level;
 
     List get_params() {
         List out;
@@ -122,7 +127,8 @@ public:
         level=params["level"];
     }
 
-    List update(VamModel* model);
+    //List 
+    std::pair<double,int> update(VamModel* model);
  
 };
 
