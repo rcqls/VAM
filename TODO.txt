@@ -1,0 +1,54 @@
+LISTE d'évolutions le package VAM
+
+###########
+Changements mineurs:
+
+	+ Dans les plot prendre en compte les xlim et ylim pour calibrer le pas de calcul sur l'axe des abscisses pour limiter le temps de calculs (quand il y a beucoup de temps de maintenance ca devient très long en temps de calcul, affichage sans doute trop précis). De plus si uniquement un xlim ou ylim est spécifié, calibrer l'autre échelle par rapport à celle spécifiée et non par rapport à la totalité de la trajectoire.
+
+	+ Pour la simulation pouvoir simuler suivant des censures de type I, c'est à dire jusqu'à un instant fixé. Dans le jeux de donnée l'instant de censure à date fixée doit apparaitre avec un type 0.
+
+	+ Pour la simulation pouvoir simuler jusqu'à un nombre de maintenance fixé.
+
+	+ Prendre en compte la censure de type I dans l'estimation: une date de censure de type I, correspondant au type 0 dans les jeux de données, est prise en compte de façon équivalente à un instant de MP suivant un modèle ABAO.
+
+	+ A l'affichage des valeurs des estimations, leur donner un nom, par exemple scale, shape, type -1, type 1, type 2, ...
+
+	+ Faire une fonction pour avoir (facilement) la valeur de la log vraisemblance et de ces dérivées.
+
+	+ Dans les plot, ajouter une option permetant dans le cas où il y a plusieurs trajactoires qui sont simultanément considérées dans data de pouvoir sélectionner celles que l'on souhaite afficher. Part contre, les superpose t'on sur le même graphe ou dans des subplots quand il y en a plusieurs ? Les subplots seraient plus simples surtout par rapport à la remarque suivante.
+
+	+ Dans les plot avoir une option qui permet d'afficher en même temps (ou pas) :
+		. des étoiles sur l'axe des abscisses pour les instants de MC
+		. des traits verticaux pointillés de différentes couleurs (celon le type) pour les MP (avec légende de couleur ?)
+		. dans le cas 'H' le nombre cumulé de défaillances.
+		. dans le cas où on plot plusieur trajectoires en même temps que fait on pour les affichages ci dessus (cf commentaire précédent) ?
+
+	+ Créer des modèles ABAO et AGAN correspondant respectivement à ARAInf avec rho égale 0 et 1.
+
+
+############
+Evolutions :
+	
+	+ Intégrer une méthode d'optimisation sous contrainte pour l'inférence et régler les problèmes pouvant apparaitre quand rho vaut 1+. Faire en sorte qu'il y ait moins d'echec dans la conclusion de la méthode d'estimation. (surtout quand en fait à proprement parlé il n'y a pas d'échec !)
+
+	+ Simuler le futur d'une trajectoire.
+
+	+ Calculer par Monte Carlo des caractéristiques (moyenne, écart-type, quantiles) du nombre cumulé de défaillances ou de maintenances de tel ou tel type. Eventuellement pouvoir donner une formule (dépendant du nombre cumulé de défaillance ou de maintenance de tel ou tel type) spécifiant la quantité pour laquelle on cherche à calculer ces caractéristiques. Cette formule pourrait aussi dépendre d'un paramètre supplémentaire (dont les valeurs seraient à spécifié) en lequel on souhaite évaluer les caractéristiques. Ce paramètre pourrait éventuellement apparaitre dans la forumle définissant le modèle utilisé (par exemple ce pourrait être la périodicité des MP). On pourrait ainsi faire de l'optimisation des dates de MP par rapport à critére de coût.
+
+	+ Faire une documentation. Expliquer comment on peut ajouter une intensité initiale, une politique de MP, un modèle de MC.
+
+	+ Changer la politique "Periodic", la transformer en une politique "AtTime". De plus ce AtTimes pourrait à la fois faire des MP périodiques (comme il le fait déjà) et des MP à des dates fixées par l'utilisateur, et même des mixes des deux... Pour ce faire il faudrait y ajouter un paramètre "times", qui serait un vecteur contenant les instants auxquels on souhaite faire une MP. Ainsi si on remplit à la fois "times" et "by", on combine des MP aux instants "times" et tous les "by" (et éventuellement uniquement à partir de "from"). Ca pose alors le problème du remplissage par défaut de ces paramètres. Pourrait on remplir par défaut "by" avec +l'infini ?  Ca signifierait que par défaut, on peut ne pas donner de nom au paramètre "times" (et non plus "by") ? Et par défaut times serait égale au vectur vide. Est ce que, dans ce cas, ca bug si l'utilisateur ne met aucun paramètre à "AtTime" ?
+
+	+ Ajouter le "+" pour combiner les politiques de MP pour différents modèles de MP.
+
+	+ Calculer les dérivées secondes de la log vraisemblance, pour pouvoir faire des calculs type information de Fisher et voir si ca fonctionne pour construire des intervalles de confiance asymptotiques. Eventuellement les utiliser aussi dans la méthode d'optimisation ?
+
+	+ Pouvoir faire dépendre la politique de MP (type AtIntensity, AtAge, AtFailureProbability) d'un autre modèle que celui servant à faire les simulation. Attention à la combinaison de cela avec le "+" entre les différentes politiques de MP ?
+
+	+ Ajouter les modèles QR, DHS.
+
+	+ Ajouter les modèles ARI 1 et infini.
+
+	+ Ajouter les modèles ARA m ?
+
+	+ Intégrer du semi-paramètrique.
