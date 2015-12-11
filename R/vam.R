@@ -125,6 +125,7 @@ update.mle.vam <- function(self,data) {
 		## estimation has to be computed again!
 		self$mle.coef<-NULL
 	}
+	## with 
 }
 
 # alpha is not considered in the estimation!
@@ -237,12 +238,31 @@ parse.vam.formula <- function(obj,formula) {
 		# deal with PM part
 		if(pm[[1]] == as.name("(")) {
 			pm <- pm[[2]]
-			if(pm[[1]] != as.name("|")) {
+			if(pm[[1]] != as.name("|")) { 
+				## Case: No maintenance policy 
 				#stop("Need a policy to manage Preventive Maintenance")
 				policy <- NULL
 			} else {
 				policy <- pm[[3]]
-				if(is.name(policy[[1]])) {
+				if(policy[[1]] == as.name("*")) {
+					## Case: Composition of maintenance policies
+					# recursive function to detect maintenance policies
+					run.over.policies<-function(p) {
+						if(p[[1]] == as.name("*")) {
+							run.over.policies(p[[2]])
+							run.over.policies(p[[3]])
+						} else if(is.name(p[[1]])) {
+							p[[1]] <- as.name(paste0(as.character(p[[1]]),".maintenance.policy"))
+							policies <<- c(policies,list(p))
+						}
+					}
+					## init policies and 
+					policies <- list()
+					run.over.policies(policy)
+					## print(policies)
+					policy <- policies ##[[1]]
+				} else if(is.name(policy[[1]])) {
+					## Case: One maintenance policy
 					policy[[1]] <- as.name(paste0(as.character(policy[[1]]),".maintenance.policy"))
 				}
 				# TODO: add obj as argument of policy when needed
@@ -325,7 +345,10 @@ parse.vam.formula <- function(obj,formula) {
 
 	}
 	convert.mp <- function(mp) {#maintenance policy
-		if(is.null(mp)) list(name="None") 
+		if(is.null(mp)) list(name="None")
+		else if(is.list(mp)) {
+			list(name="MaintenancePolicyList",policies=mp)
+		}
 		else {
 			
 			## The function defining the maintenance policy 

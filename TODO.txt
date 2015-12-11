@@ -25,6 +25,9 @@ Changements mineurs:
 
 	+ Créer des modèles ABAO et AGAN correspondant respectivement à ARAInf avec rho égale 0 et 1.
 
+## 	+ RNGScore à mettre dans le c++ quand on utilise runif.
+
+	+ update et run.mle.vam dans mle.vam
 
 ############
 Evolutions :

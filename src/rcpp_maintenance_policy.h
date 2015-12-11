@@ -21,6 +21,21 @@ public:
 
 	virtual void set_params(List params) = 0;
 
+    void set_from_type(int from_type_) {
+        from_type=from_type_;
+    };
+
+    int get_from_type() {
+        return from_type;
+    };
+
+    virtual int type_size() = 0;
+
+
+private:
+
+    int from_type;
+
 };
 
 //IMPORTANT: Names of params of R has to be registered in maintenance-policy-register.R or in any other R file (if you think about plugin)  
@@ -34,6 +49,7 @@ class PeriodicMaintenancePolicy : public MaintenancePolicy {
 public:
     PeriodicMaintenancePolicy(List params) {
     	set_params(params);
+        set_from_type(0);
     }
 
     ~PeriodicMaintenancePolicy() {};
@@ -50,6 +66,10 @@ public:
     	from=params["from"];by=params["by"];prob=params["prob"];
     }
 
+    int type_size() {
+        return prob.size();
+    }
+
     List update(VamModel* model);
  
 };
@@ -58,6 +78,7 @@ class AtIntensityMaintenancePolicy : public MaintenancePolicy {
 public:
     AtIntensityMaintenancePolicy(List params) {
         set_params(params);
+        set_from_type(0);
     }
 
     ~AtIntensityMaintenancePolicy() {};
@@ -74,6 +95,10 @@ public:
         level=params["level"];
     }
 
+    int type_size() {
+        return 1;
+    }
+
     List update(VamModel* model);
  
 };
@@ -82,6 +107,7 @@ class AtVirtualAgeMaintenancePolicy : public MaintenancePolicy {
 public:
     AtVirtualAgeMaintenancePolicy(List params) {
         set_params(params);
+        set_from_type(0);
     }
 
     ~AtVirtualAgeMaintenancePolicy() {};
@@ -98,6 +124,10 @@ public:
         level=params["level"];
     }
 
+    int type_size() {
+        return 1;
+    }
+
     List update(VamModel* model);
  
 };
@@ -106,6 +136,7 @@ class AtFailureProbabilityMaintenancePolicy : public MaintenancePolicy {
 public:
     AtFailureProbabilityMaintenancePolicy(List params) {
         set_params(params);
+        set_from_type(0);
     }
 
     ~AtFailureProbabilityMaintenancePolicy() {};
@@ -122,8 +153,61 @@ public:
         level=params["level"];
     }
 
+    int type_size() {
+        return 1;
+    }
+
     List update(VamModel* model);
  
+};
+
+class MaintenancePolicyList : public MaintenancePolicy {//List of MaintenancePolicy (heterogeneous terms) 
+public:
+    MaintenancePolicyList(List policies);
+
+    ~MaintenancePolicyList();
+
+    List get_params() {
+        List out;
+        //run over all policies and get_params
+        for(int i=0;i<size();i++) {
+            out[i]=at(i)->get_params();
+        }
+        return out;
+    }
+
+    void set_params(List params) {//params is here a List of List
+        //run over all policies and set_params
+        for(int i=0;i<size();i++) {
+            at(i)->set_params(params[i]);
+        }
+    }
+
+    int type_size() {
+        int s=0;
+        for(int i=0;i<size();i++) {
+            s += at(i)->type_size();
+        }
+        return s;
+    }
+
+    List update(VamModel* model);
+
+    //Further ones because of list of policy
+
+    MaintenancePolicy* at(int i) {
+        return policy_list[i];
+    }
+
+    int size() {
+        return policy_list.size();
+    }
+
+
+protected:
+
+    std::vector<MaintenancePolicy*> policy_list; //policy list
+     
 };
 
 MaintenancePolicy* newMaintenancePolicy(List policy);

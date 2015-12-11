@@ -12,12 +12,12 @@ plot.model.vam <- function(obj,type=c("virtual.age","intensity","cumulative","h"
 			ylab<-"virtual age"
 		},
 		intensity=,h={
-			var <- "h"
+			var <- "i"
 			ylab<-"intensity"
 		},
 		cumulative=,H={
-			var <- "H"
-			ylab<-"cumulative"
+			var <- "I"
+			ylab<-"cumulative intensity"
 		}
 	)
 

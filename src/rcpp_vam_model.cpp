@@ -110,8 +110,8 @@ DataFrame VamModel::get_virtual_age_info(double from,double to, double by) {
 
 	std::vector<double> t(n+1);
 	std::vector<double> v(n+1);
-	std::vector<double> h(n+1);
-	std::vector<double> H(n+1);
+	std::vector<double> h(n+1); //i as intensity
+	std::vector<double> H(n+1); //I for cumulative intensity 
 
 	t[0]=from;t[n]=to;
 	v[0]=Vright;v[n]=Vleft;
@@ -130,8 +130,8 @@ DataFrame VamModel::get_virtual_age_info(double from,double to, double by) {
 	return DataFrame::create(
 		_["t"]=NumericVector(t.begin(),t.end()),
 		_["v"]=NumericVector(v.begin(),v.end()),
-		_["h"]=NumericVector(h.begin(),h.end()),
-		_["H"]=NumericVector(H.begin(),H.end())
+		_["i"]=NumericVector(h.begin(),h.end()),
+		_["I"]=NumericVector(H.begin(),H.end())
 	);
 };
 
