@@ -15,7 +15,8 @@ selectExp <- function(idExp) {
 				~ (ARA1(.4) | Weibull(.001,2.5)) & (ARAInf(.7)| AtVirtualAge(10)),
 				~ (ARA1(.4) | Weibull(.001,2.5)) & (ARAInf(.7)| AtIntensity(1.5)),
 				~ (ARAInf(.4) | Weibull(.001,2.5)) & (ARA1(.7) + ARA1(.7) | Periodic(10,prob=c(.5,.5)) ),
-				~ (ARA1(.8) | LogLinear(exp(-5),0.5))
+				~ (ARA1(.8) | LogLinear(exp(-5),0.5)),
+				~ (ARA1(.4) | Weibull(.001,2.5)) & (ARA1(.7) + ARA1(.6) + ARA1(.5) | Periodic(1,prob=c(.5,.5)) * AtIntensity(1.5) ) 
 			)
 			formModelExps <- list(
 				~ (ARA1(.4) | Weibull(.001,2.5)),
@@ -24,7 +25,8 @@ selectExp <- function(idExp) {
 				~ (ARA1(.4) | Weibull(.001,2.5)) & (ARAInf(.7)),
 				~ (ARA1(.4) | Weibull(.001,2.5)) & (ARAInf(.7)),
 				~ (ARAInf(.4) | Weibull(.001,2.5)) & (ARA1(.7) + ARA1(.7) ),
-				~ (ARA1(.8) | LogLinear(exp(-5),0.5))
+				~ (ARA1(.8) | LogLinear(exp(-5),0.5)),
+				~ (ARA1(.4) | Weibull(.001,2.5)) & (ARA1(.7) + ARA1(.6) + ARA1(.5))
 			)
 			## and initial parameters values!
 			par0Exps <- list(
@@ -34,7 +36,8 @@ selectExp <- function(idExp) {
 				c(1,2.5,.5,.5),
 				c(1,2.5,.5,.5),
 				c(1,2.5,.5,.5,.5),
-				c(0,1,.5)
+				c(0,1,.5),
+				c(1,2.5,.5,.5,.5,.5)
 			)
 
 			## set the infos related to idExp 

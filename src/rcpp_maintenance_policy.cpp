@@ -75,14 +75,17 @@ List AtFailureProbabilityMaintenancePolicy::update(VamModel* model) {
 
 MaintenancePolicyList::MaintenancePolicyList(List policies) {
 	int ft=0;
+	//int i=0;
     for(
         List::iterator lit=policies.begin();
         lit != policies.end();
-        ++lit
+        ++lit //,i++
     ) {
+    	//printf("i=%d\n",i);
     	List policy=*lit;
     	MaintenancePolicy*  mp=newMaintenancePolicy(policy);
         if(!(mp == NULL)) {
+        	//printf("i=%d\n",i);
         	mp->set_from_type(ft);
             policy_list.push_back(mp);
         	ft += mp -> type_size(); //update ft for next mp

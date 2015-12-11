@@ -347,7 +347,7 @@ parse.vam.formula <- function(obj,formula) {
 	convert.mp <- function(mp) {#maintenance policy
 		if(is.null(mp)) list(name="None")
 		else if(is.list(mp)) {
-			list(name="MaintenancePolicyList",policies=mp)
+			list(name="MaintenancePolicyList",policies=lapply(mp,convert.mp))
 		}
 		else {
 			
