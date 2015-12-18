@@ -17,6 +17,7 @@ MaintenancePolicy* newMaintenancePolicy(List policy) {
 		mp=new AtIntensityMaintenancePolicy(pars);
         if(as<bool>(policy["with.model"])) {
             VamModel* vmod_= as<VamModel*>(policy["model"]);
+            vmod_->idMod=0;
             mp->set_vmod(vmod_);
         }
 	} else if(name.compare("AtVirtualAge.maintenance.policy") == 0) {
@@ -57,14 +58,15 @@ List AtIntensityMaintenancePolicy::update(VamModel* model) {
         mod = get_vmod();
         //update k time and everything needed to compute the next
         mod->k = model->k;
-        mod->idMod = model->idMod;
         mod->time = model->time;
         mod->update_Vleft(false);
+        //TODO: like Simulation but to check HERE or 1 line before!
+        mod->idMod = model->idMod; 
         mod->models->at(mod->idMod)->update(false);
     } else mod=model;
     
     //printf("at=%d\n",model->idMod);
-    res["time"] = mod->models->at(model->idMod)->virtual_age_inverse(mod->family->inverse_density(level[0]));
+    res["time"] = mod->models->at(mod->idMod)->virtual_age_inverse(mod->family->inverse_density(level[0]));
     //First argument not automatically wrapped in RcppWin64bits 
     res["type"]= 1+get_from_type(); //sample_int(NumericVector::create(prob.size()),1,true,prob);
     return res;
