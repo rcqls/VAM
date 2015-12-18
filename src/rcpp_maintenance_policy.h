@@ -21,6 +21,14 @@ public:
 
 	virtual void set_params(List params) = 0;
 
+    void set_vmod(VamModel* vmod_) {
+        vmod=vmod_;
+    }
+
+    VamModel* get_vmod() {
+        return vmod;
+    }
+
     void set_from_type(int from_type_) {
         from_type=from_type_;
     };
@@ -35,6 +43,8 @@ public:
 private:
 
     int from_type;
+
+    VamModel* vmod;
 
 };
 
@@ -79,6 +89,7 @@ public:
     AtIntensityMaintenancePolicy(List params) {
         set_params(params);
         set_from_type(0);
+        set_vmod(NULL);
     }
 
     ~AtIntensityMaintenancePolicy() {};

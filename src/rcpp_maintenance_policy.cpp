@@ -1,5 +1,6 @@
 #include "rcpp_maintenance_policy.h"
 #include "rcpp_maintenance_model.h"
+#include "rcpp_vam_module.h"
 
 // Constructor from R to build different kind of 
 MaintenancePolicy* newMaintenancePolicy(List policy) {
@@ -14,6 +15,10 @@ MaintenancePolicy* newMaintenancePolicy(List policy) {
 		//DEBUG:printf("Params:alpha=%lf,beta=%lf\n",alpha,beta);
 		List pars=policy["params"];
 		mp=new AtIntensityMaintenancePolicy(pars);
+        if(as<bool>(policy["with.model"])) {
+            VamModel* vmod_= as<VamModel*>(policy["model"]);
+            mp->set_vmod(vmod_);
+        }
 	} else if(name.compare("AtVirtualAge.maintenance.policy") == 0) {
 		//DEBUG:printf("Params:alpha=%lf,beta=%lf\n",alpha,beta);
 		List pars=policy["params"];
@@ -46,8 +51,20 @@ List PeriodicMaintenancePolicy::update(VamModel* model) {
 List AtIntensityMaintenancePolicy::update(VamModel* model) {
     Function sample_int = Environment::base_env()["sample.int"];
     List res;
+    VamModel* mod;
+
+    if(get_vmod() != NULL) {
+        mod = get_vmod();
+        //update k time and everything needed to compute the next
+        mod->k = model->k;
+        mod->idMod = model->idMod;
+        mod->time = model->time;
+        mod->update_Vleft(false);
+        mod->models->at(mod->idMod)->update(false);
+    } else mod=model;
     
-    res["time"] = model->models->at(model->idMod)->virtual_age_inverse(model->family->inverse_density(level[0]));
+    //printf("at=%d\n",model->idMod);
+    res["time"] = mod->models->at(model->idMod)->virtual_age_inverse(mod->family->inverse_density(level[0]));
     //First argument not automatically wrapped in RcppWin64bits 
     res["type"]= 1+get_from_type(); //sample_int(NumericVector::create(prob.size()),1,true,prob);
     return res;

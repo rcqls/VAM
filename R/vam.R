@@ -1,7 +1,7 @@
 # Simulation: sim.vam or vam.sim or vam.gen??? 
 
  
-sim.vam <- function(formula,data) {
+sim.vam <- function(formula) {
 	 
 	self <- newEnv(sim.vam,formula=formula)
 
@@ -15,7 +15,8 @@ sim.vam <- function(formula,data) {
 	 
 }
 
-simulate.sim.vam <- function(self, n=10, stop.time = Inf,as.list=FALSE) {
+# TODO: when data provided, complete the data!
+simulate.sim.vam <- function(self, n=10, stop.time = Inf,as.list=FALSE,data) {
 	rcpp <- self$rcpp()
 	if(length(n)>1) {
 		# multisystem
@@ -38,14 +39,20 @@ simulate.sim.vam <- function(self, n=10, stop.time = Inf,as.list=FALSE) {
 # Model part
 
 model.vam <- function(formula,data) {
+	if(missing(data)) data<-NULL
 	self <- newEnv(model.vam,formula=formula,data=data)
 
 	PersistentRcppObject(self,new = {
 		model <- parse.vam.formula(NULL,self$formula)
-		response <- model$response
-		data <- data.frame.to.list.multi.vam(self$data,response)
-		rcpp <- new(ModelVam,model,data)
-		rcpp 
+		if(is.null(self$data)) {## No data
+			rcpp <- new(ModelVam,model)
+			rcpp
+		} else {
+			response <- model$response
+			data <- data.frame.to.list.multi.vam(self$data,response)
+			rcpp <- new(ModelVam,model,data)
+			rcpp
+		}
 	})
 
 	self
@@ -364,10 +371,20 @@ parse.vam.formula <- function(obj,formula) {
 			
 			##print(list(pars=pars))
 
-			list(
+			## deal with model parameter which has a specific treatment
+			mod <- NULL
+			if(!is.null(pars[["model"]])) {
+				mod <- rcpp(eval(pars[["model"]]))
+				pars[["model"]] <- NULL
+			}
+
+			res <- list(
 				name=as.character(mp[[1]]),
 				params=lapply(pars,eval)
 			)
+			res[["with.model"]] <- !is.null(mod)
+			if(!is.null(mod)) res[["model"]] <- mod
+			res
 		}
 	}
 

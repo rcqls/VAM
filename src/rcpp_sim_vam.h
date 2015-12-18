@@ -29,6 +29,7 @@ public:
             //# Here, obj$model$k means k-1
             //#print(c(obj$model$Vleft,obj$model$Vright))
             double timePM, timeCM = model->models->at(model->idMod)->virtual_age_inverse(model->family->inverse_cumulative_density(model->family->cumulative_density(model->models->at(model->idMod)->virtual_age(model->time[model->k]))-log(runif(1))[0]));
+            //TODO: submodels
             int idMod;
             List timeAndTypePM;
             if(model->maintenance_policy != NULL) {
@@ -51,8 +52,13 @@ public:
             }
             //# used in the next update
             model->update_Vleft(false);
+            
             //# update the next k, and save model in model too!
             model->models->at(idMod)->update(false);
+            
+
+            //To dynamically increase the size of simulation
+            resize();
         }
 
         return get_data();
@@ -82,10 +88,15 @@ private:
     void init(int nbsim) {
         model->Vright=0;
         model->k=0;
+        model->nb_sim=nbsim;
         model->idMod=0; // Since no maintenance is possible!
         model->time=rep(0,nbsim+1);
         model->type= rep(1,nbsim+1);
-    } 
+    }
+
+    void resize() {
+        int inf=std::numeric_limits<int>::max();
+    }
 
 };
 
