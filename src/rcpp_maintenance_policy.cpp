@@ -16,9 +16,9 @@ MaintenancePolicy* newMaintenancePolicy(List policy) {
 		List pars=policy["params"];
 		mp=new AtIntensityMaintenancePolicy(pars);
         if(as<bool>(policy["with.model"])) {
-            VamModel* vmod_= as<VamModel*>(policy["model"]);
-            vmod_->idMod=0;
-            mp->set_vmod(vmod_);
+            VamModel* ext_mod_= as<VamModel*>(policy["model"]);
+            ext_mod_->idMod=0;
+            mp->set_external_model(ext_mod_);
         }
 	} else if(name.compare("AtVirtualAge.maintenance.policy") == 0) {
 		//DEBUG:printf("Params:alpha=%lf,beta=%lf\n",alpha,beta);
@@ -35,6 +35,27 @@ MaintenancePolicy* newMaintenancePolicy(List policy) {
 	return mp;
 }
 
+VamModel* MaintenancePolicy::update_external_model(VamModel* model) {
+    VamModel* mod;
+
+    if(get_external_model() != NULL) {
+        mod = get_external_model();
+        //update everything needed to compute the update step (see end of simulation step)
+        mod->k = model->k;
+        mod->time = model->time;//Normally, it is a pointer: it would be better to do it once but it is not such cost.
+        mod->type = model->type;//Idem
+        if(mod->k > 0) {//Not at the init step!
+            //VERY VERY IMPORTANT: Since we want to update at previous step
+            mod->k -= 1;
+
+            //And then as what it is applied at the end of the simulation step but for mod instead of model!
+            mod->update_Vleft(false); //mod->idMod is not yet updated!
+            mod->idMod = model->idMod; //mod->idMod is then updated for the next task!
+            mod->models->at(mod->idMod)->update(false);
+        }
+    } else mod=model;
+    return mod;
+}
  
 List PeriodicMaintenancePolicy::update(VamModel* model) {
     double current=model->time[model->k];
@@ -52,19 +73,8 @@ List PeriodicMaintenancePolicy::update(VamModel* model) {
 List AtIntensityMaintenancePolicy::update(VamModel* model) {
     Function sample_int = Environment::base_env()["sample.int"];
     List res;
-    VamModel* mod;
+    VamModel* mod=update_external_model(model);
 
-    if(get_vmod() != NULL) {
-        mod = get_vmod();
-        //update k time and everything needed to compute the next
-        mod->k = model->k;
-        mod->time = model->time;
-        mod->update_Vleft(false);
-        //TODO: like Simulation but to check HERE or 1 line before!
-        mod->idMod = model->idMod; 
-        mod->models->at(mod->idMod)->update(false);
-    } else mod=model;
-    
     //printf("at=%d\n",model->idMod);
     res["time"] = mod->models->at(mod->idMod)->virtual_age_inverse(mod->family->inverse_density(level[0]));
     //First argument not automatically wrapped in RcppWin64bits 
@@ -75,8 +85,9 @@ List AtIntensityMaintenancePolicy::update(VamModel* model) {
 List AtVirtualAgeMaintenancePolicy::update(VamModel* model) {
     Function sample_int = Environment::base_env()["sample.int"];
     List res;
+    VamModel* mod=update_external_model(model);
     
-    res["time"] = model->models->at(model->idMod)->virtual_age_inverse(level[0]);
+    res["time"] = mod->models->at(mod->idMod)->virtual_age_inverse(level[0]);
     //First argument not automatically wrapped in RcppWin64bits 
     res["type"]= 1+get_from_type(); //sample_int(NumericVector::create(prob.size()),1,true,prob);
     return res;
@@ -85,8 +96,9 @@ List AtVirtualAgeMaintenancePolicy::update(VamModel* model) {
 List AtFailureProbabilityMaintenancePolicy::update(VamModel* model) {
     Function sample_int = Environment::base_env()["sample.int"];
     List res;
+    VamModel* mod=update_external_model(model);
     
-    res["time"] = model->models->at(model->idMod)->virtual_age_inverse(model->family->inverse_cumulative_density(model->family->cumulative_density(model->models->at(model->idMod)->virtual_age(model->time[model->k]))-log(1-level)[0]));
+    res["time"] = mod->models->at(mod->idMod)->virtual_age_inverse(mod->family->inverse_cumulative_density(mod->family->cumulative_density(mod->models->at(mod->idMod)->virtual_age(mod->time[mod->k]))-log(1-level)[0]));
     //First argument not automatically wrapped in RcppWin64bits 
     res["type"]= 1+get_from_type(); //sample_int(NumericVector::create(prob.size()),1,true,prob);
     return res;

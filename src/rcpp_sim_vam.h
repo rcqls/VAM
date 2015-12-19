@@ -28,7 +28,7 @@ public:
             //### modAV <- if(Type[k]<0) obj$vam.CM[[1]]$model else obj$vam.PM$models[[obj$data$Type[k]]]
             //# Here, obj$model$k means k-1
             //#print(c(obj$model$Vleft,obj$model$Vright))
-            double timePM, timeCM = model->models->at(model->idMod)->virtual_age_inverse(model->family->inverse_cumulative_density(model->family->cumulative_density(model->models->at(model->idMod)->virtual_age(model->time[model->k]))-log(runif(1))[0]));
+            double timePM= 0.0, timeCM = model->models->at(model->idMod)->virtual_age_inverse(model->family->inverse_cumulative_density(model->family->cumulative_density(model->models->at(model->idMod)->virtual_age(model->time[model->k]))-log(runif(1))[0]));
             //TODO: submodels
             int idMod;
             List timeAndTypePM;
@@ -50,6 +50,7 @@ public:
                 model->type[model->k + 1]=typePM;
                 idMod=timeAndTypePM["type"];
             }
+            //printf("k=%d: cm=%lf,pm=%lf\n",model->k,timeCM,timePM);
             //# used in the next update
             model->update_Vleft(false);
             

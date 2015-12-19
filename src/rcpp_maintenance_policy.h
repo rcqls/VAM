@@ -21,13 +21,16 @@ public:
 
 	virtual void set_params(List params) = 0;
 
-    void set_vmod(VamModel* vmod_) {
-        vmod=vmod_;
+    void set_external_model(VamModel* external_model_) {
+        external_model=external_model_;
     }
 
-    VamModel* get_vmod() {
-        return vmod;
+    VamModel* get_external_model() {
+        return external_model;
     }
+
+    VamModel* update_external_model(VamModel* model);
+
 
     void set_from_type(int from_type_) {
         from_type=from_type_;
@@ -44,7 +47,7 @@ private:
 
     int from_type;
 
-    VamModel* vmod;
+    VamModel* external_model;
 
 };
 
@@ -89,7 +92,7 @@ public:
     AtIntensityMaintenancePolicy(List params) {
         set_params(params);
         set_from_type(0);
-        set_vmod(NULL);
+        set_external_model(NULL);
     }
 
     ~AtIntensityMaintenancePolicy() {};
@@ -119,6 +122,7 @@ public:
     AtVirtualAgeMaintenancePolicy(List params) {
         set_params(params);
         set_from_type(0);
+        set_external_model(NULL);
     }
 
     ~AtVirtualAgeMaintenancePolicy() {};
@@ -148,6 +152,7 @@ public:
     AtFailureProbabilityMaintenancePolicy(List params) {
         set_params(params);
         set_from_type(0);
+        set_external_model(NULL);
     }
 
     ~AtFailureProbabilityMaintenancePolicy() {};

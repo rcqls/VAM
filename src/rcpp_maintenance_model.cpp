@@ -69,7 +69,7 @@ double* ARA1::virtual_age_derivative(double x) {
 }
 
 double ARA1::virtual_age_inverse(double time) {
-    return time+model->time[model->k] - model->Vright;
+    return time + model->time[model->k] - model->Vright;
 }
 
 void ARAInf::update(bool with_gradient) {
@@ -95,7 +95,7 @@ double* ARAInf::virtual_age_derivative(double x) {
 }
 
 double ARAInf::virtual_age_inverse(double time) {
-    return time+model->time[model->k] - model->Vright;
+    return time + model->time[model->k] - model->Vright;
 }
 
 

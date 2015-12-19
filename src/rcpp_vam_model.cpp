@@ -54,12 +54,15 @@ void VamModel::set_data(List data_) {
 }
 
 void VamModel::select_data(int i) {
-	List data2=data[i];
-	time = data2["Time"]; type = data2["Type"];
+	//In particular, if no data the following is skipped!
+	if(data.size() > i) {
+		List data2=data[i];
+		time = data2["Time"]; type = data2["Type"];
+	}
 }
 
 DataFrame VamModel::get_selected_data(int i) {
-	select_data(i);
+	select_data(i);//Skipped if data is unset (see above)
 	return DataFrame::create(_["Time"]=time,_["Type"]=type);
 };
 
@@ -149,7 +152,6 @@ List VamModel::get_virtual_age_infos(double by) {
 		int type2=type[k + 1];
 		if(type2 < 0) type2=0;
 		models->at(type2)->update(false);
-		
 	}
 
 	return res;     
