@@ -1,4 +1,4 @@
-plot.model.vam <- function(obj,type=c("virtual.age","intensity","cumulative","h","H"),from,to,by=0.1,add=FALSE,...) {
+plot.model.vam <- function(obj,type=c("virtual.age","intensity","cumulative","h","H","i","I"),from,to,by=0.1,add=FALSE,...) {
 	rcpp <- rcpp(obj)
 	d <- if(inherits(obj,"sim.vam")) rcpp$get_data() else rcpp$get_data(0) #0 since one-system first!
 	infos <- rcpp$get_virtual_age_infos(by)
@@ -11,11 +11,11 @@ plot.model.vam <- function(obj,type=c("virtual.age","intensity","cumulative","h"
 			var <- "v"
 			ylab<-"virtual age"
 		},
-		intensity=,h={
+		intensity=,h=,i={
 			var <- "i"
 			ylab<-"intensity"
 		},
-		cumulative=,H={
+		cumulative=,H=,I={
 			var <- "I"
 			ylab<-"cumulative intensity"
 		}

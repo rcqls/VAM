@@ -228,4 +228,4 @@ protected:
 
 MaintenancePolicy* newMaintenancePolicy(List policy);
 
-#endif //RCPP_FAMILY_MODEL_H
+#endif //RCPP_MAINTENANCE_POLICY_H
