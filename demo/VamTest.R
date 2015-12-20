@@ -73,6 +73,8 @@ selectExp <- function(idExp) {
 		
 			## set single system as the default
 			nExp <- 100
+			nbSystExp <- 1
+
 		},.GlobalEnv)
 		showExp()
 	}
@@ -111,7 +113,7 @@ helpExp <- function() {
 	)
 }
 
-runMleExp <- function(multi=length(nExp)>1) {
+runMleExp <- function(multi=nbSystExp>1) {
 	if(!multi) {
 		cat("Simulating...\n")
 		simulate(simCppExp,nExp) -> simDfExp
@@ -120,7 +122,7 @@ runMleExp <- function(multi=length(nExp)>1) {
 		print(coef(mleCppExp,par0Exp))
 	} else {
 		cat("Simulating...\n")
-		simulate(simCppExp,nExp,as.list=TRUE) -> simDfMultiExp
+		simulate(simCppExp,nExp,nb.system=nbSystExp,as.list=TRUE) -> simDfMultiExp
 		cat("Table of number of system:\n")
 		print(table(nExp))
 		update(mleCppMultiExp,data=simDfMultiExp)
@@ -128,7 +130,7 @@ runMleExp <- function(multi=length(nExp)>1) {
 	}
 }
 
-plotExp <-function(type="v",multi=length(nExp)>1,...) {
+plotExp <-function(type="v",multi=nbSystExp>1,...) {
 	if(!multi) {
 			cat("Simulating...\n")
 			simulate(simCppExp,nExp) -> simDfExp

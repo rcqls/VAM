@@ -20,7 +20,7 @@ simulate.sim.vam <- function(self, stop.policy = 10, nb.system=1, cache.size=500
 	rcpp <- self$rcpp()
 	if(is.numeric(stop.policy)) {
 		if(stop.policy == as.integer(stop.policy)) {#integer
-			stop.policy <- EndAt(n=stop.policy)
+			stop.policy <- EndAt(size=stop.policy)
 		} else stop.policy <- NULL
 	} else if(!inherits(stop.policy,"stop.policy")) {
 		stop.policy <- NULL
