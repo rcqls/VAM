@@ -4,7 +4,7 @@
 DataFrame SimVam::simulate(int nbsim) {
     init(nbsim);
 
-    while(model->k < nbsim) {
+    while(stop_policy->ok()) {//model->k < nbsim) {
         //### modAV <- if(Type[k]<0) obj$vam.CM[[1]]$model else obj$vam.PM$models[[obj$data$Type[k]]]
         //# Here, obj$model$k means k-1
         //#print(c(obj$model$Vleft,obj$model$Vright))
@@ -45,13 +45,27 @@ DataFrame SimVam::simulate(int nbsim) {
     return get_data();
 }
 
-void SimVam::init(int nbsim) {
+void SimVam::add_stop_policy(List policy) {
+    std::string name=policy["name"];
+    //DEBUG:printf("name=%s\n",name.c_str());
+    if(name.compare("AtRun.stop.policy") == 0) {
+        //DEBUG:printf("Params:alpha=%lf,beta=%lf\n",alpha,beta);
+        int nb=policy["nb"];
+        stop_policy=new AtRunStopPolicy(this,nb);
+    } else if(name.compare("AtTime.stop.policy") == 0) {
+        double time=policy["time"];
+        stop_policy=new AtTimeStopPolicy(this,time);
+    }
+
+}
+
+void SimVam::init(int cache_size_) {
     model->Vright=0;
     model->k=0;
-    model->nb_sim=nbsim;
+    cache_size=cache_size_;
     model->idMod=0; // Since no maintenance is possible!
-    model->time=rep(0,nbsim+1);
-    model->type= rep(1,nbsim+1);
+    model->time=rep(0,cache_size+1);
+    model->type= rep(1,cache_size+1);
 }
 
 void SimVam::resize() {

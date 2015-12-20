@@ -25,10 +25,9 @@ public:
 
 	/***************************
 	k: current position
-	nb_sim: number of event (only used for simulation)
-	nb_system: number of system
+ 	nb_system: number of system
 	****************************/
-	int k,nb_sim,nb_system;
+	int k,nb_system;
 
 	int nbPM,idMod;
 

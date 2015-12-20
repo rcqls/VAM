@@ -32,6 +32,7 @@ RCPP_MODULE(vam_module) {
     .method("set_params",&SimVam::set_params,"set params")
     .method("get_data",&SimVam::get_data,"get data")
     .method("get_virtual_age_infos",&SimVam::get_virtual_age_infos,"get infos related to virtual ages")
+    .method("add_stop_policy",&SimVam::add_stop_policy,"add stop policy")
     ;
 
     class_<MLEVam>( "MLEVam" )

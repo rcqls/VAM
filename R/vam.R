@@ -16,13 +16,29 @@ sim.vam <- function(formula) {
 }
 
 # TODO: when data provided, complete the data!
-simulate.sim.vam <- function(self, n=10, stop.time = Inf,as.list=FALSE,data) {
+simulate.sim.vam <- function(self, stop.policy = 10, nb.system=1, cache.size=500,as.list=FALSE,data) {
 	rcpp <- self$rcpp()
-	if(length(n)>1) {
+	if(is.numeric(stop.policy)) {
+		if(stop.policy == as.integer(stop.policy)) {#integer
+			stop.policy <- EndAt(n=stop.policy)
+		} else stop.policy <- NULL
+	} else if(!inherits(stop.policy,"stop.policy")) {
+		stop.policy <- NULL
+	}
+	if(is.null(stop.policy)) {
+		warning("Argument stop.policy is not a proper one!")
+		return(invisible(NULL))
+	}
+	# default cache size
+	if(is.null(stop.policy$cache.size)) stop.policy$cache.size <- cache.size
+	
+	# add stop.policy object
+	rcpp$add_stop_policy(stop.policy)
+	if(nb.system>1) {
 		# multisystem
 		if(as.list) df<-list()
-		for(i in seq_along(n)) {
-			df2 <- rcpp$simulate(n[i])[-1,]
+		for(i in 1:nb.system) {
+			df2 <- rcpp$simulate(stop.policy$cache.size)[-1,]
 			if(as.list) {
 				df[[i]] <- df2 #rbind(data.frame(Time=0,Type=1),df2)
 			} else {
@@ -31,7 +47,7 @@ simulate.sim.vam <- function(self, n=10, stop.time = Inf,as.list=FALSE,data) {
 				df <- if(i==1) df2 else rbind(df,df2)
 			}
 		}
-	} else df <- rcpp$simulate(n)[-1,]
+	} else df <- rcpp$simulate(stop.policy$cache.size)[-1,]
 	if(!as.list) rownames(df) <- 1:nrow(df)
 	df
 }

@@ -4,34 +4,48 @@
 #include "rcpp_sim_vam.h"
 
 using namespace Rcpp ;
-class VamModel;
+class SimVam;
 
 class StopPolicy {
 public:
 
-	StopPolicy(SimVam* sim_) {};
+	StopPolicy(SimVam* sim_) {sim=sim_;};
 
 	virtual ~StopPolicy() {};
 
-	virtual bool check() = 0;
-
-	 
-
-private:
+	virtual bool ok() = 0;
 
     SimVam* sim;
 
 };
 
 
-class AfterNumberEventStopPolicy : public StopPolicy {
+class AtRunStopPolicy : public StopPolicy {
 public:
-    AfterNumberEventStopPolicy(SimVam* sim_): StopPolicy(sim_) {
-        
+    AtRunStopPolicy(SimVam* sim_,int nb_): StopPolicy(sim_) {
+        nb=nb_;
     }
 
-    ~AfterNumberEventStopPolicy() {};
+    ~AtRunStopPolicy() {};
 
+    bool ok();
+
+    int nb;
+    
+ 
+};
+
+class AtTimeStopPolicy : public StopPolicy {
+public:
+    AtTimeStopPolicy(SimVam* sim_,double time_): StopPolicy(sim_) {
+        time=time_;
+    }
+
+    ~AtTimeStopPolicy() {};
+
+    bool ok();
+
+    double time;
     
  
 };

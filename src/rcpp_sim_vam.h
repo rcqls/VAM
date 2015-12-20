@@ -2,8 +2,11 @@
 #define RCPP_SIM_VAM_H
 #include <Rcpp.h>
 #include "rcpp_maintenance_model.h"
+//#include "rcpp_stop_policy.h"
 
 using namespace Rcpp ;
+
+class StopPolicy;
 
 class SimVam { 
 
@@ -40,11 +43,15 @@ public:
         return model->get_virtual_age_infos(by);
     }
 
+    void add_stop_policy(List policy);
 
+    int cache_size;
 private:
     VamModel* model;
 
-    void init(int nbsim);
+    StopPolicy* stop_policy;
+
+    void init(int cache_size_);
 
     void resize();
 
