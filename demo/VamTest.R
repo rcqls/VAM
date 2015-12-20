@@ -62,9 +62,10 @@ selectExp <- function(idExp) {
 			mleCppExp <- mle.vam( formMleExp ,data=simDfExp)
 
 			## for multi-systems:
-			nExp <- rep(10,10)
+			nExp <- 10
+			nbSystExp <- 10
 			## simulate data for model and mle estimator  
-			simulate(simCppExp,nExp) -> simDfMultiExp
+			simulate(simCppExp,nExp,nb.system=nbSystExp) -> simDfMultiExp
 			## create model to plot data with respect to any model
 			modelCppMultiExp <- model.vam( formModelMultiExp ,data=simDfMultiExp)
 			## create ML Estimator

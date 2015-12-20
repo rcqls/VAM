@@ -20,10 +20,8 @@ public:
         delete model;
     };
 
-    DataFrame get_data() {
-        return DataFrame::create(_["Time"]=model->time,_["Type"]=model->type);
-    }
-
+    DataFrame get_data();
+    
     DataFrame simulate(int nbsim);
 
     VamModel* get_model() {
@@ -45,7 +43,7 @@ public:
 
     void add_stop_policy(List policy);
 
-    int cache_size;
+    int cache_size,size;
 private:
     VamModel* model;
 
