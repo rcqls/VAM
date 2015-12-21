@@ -72,6 +72,21 @@ public:
  
 };
 
+class AfterTimeStopPolicy : public StopPolicy {
+public:
+    AfterTimeStopPolicy(SimVam* sim_,double time_): StopPolicy(sim_) {
+        time=time_;
+    }
+
+    ~AfterTimeStopPolicy() {};
+
+    bool ok();
+
+    double time;
+    
+ 
+};
+
 class AndStopPolicy : public StopPolicy {
 public:
     AndStopPolicy(SimVam* sim_,List policies_): StopPolicy(sim_) {

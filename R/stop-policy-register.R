@@ -13,6 +13,12 @@ EndAt <-function(size,time,type=NULL,...) {# ... can contain cache.size
 	obj
 }
 
+EndAfter <-function(time,...) {# ... can contain cache.size
+	obj <- list(name="AfterTime.stop.policy",time=time,...)
+	class(obj)<-c(obj$name,"stop.policy")
+	obj
+}
+
 "|.stop.policy" <-function(e1,e2) {
 	elts<-list()
 	if(inherits(e1,"Or.stop.policy")) elts <- c(elts,e1$policies) else elts[[length(elts)+1]] <- e1

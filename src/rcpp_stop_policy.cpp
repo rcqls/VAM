@@ -17,6 +17,9 @@ StopPolicy* newStopPolicy(SimVam* sim,List policy) {
     } else if(name.compare("AtTime.stop.policy") == 0) {
         double time_=policy["time"];
         sp=new AtTimeStopPolicy(sim,time_);
+    } else if(name.compare("AfterTime.stop.policy") == 0) {
+        double time_=policy["time"];
+        sp=new AfterTimeStopPolicy(sim,time_);
     } else if(name.compare("And.stop.policy") == 0) {
         List policies_=policy["policies"];
         sp=new AndStopPolicy(sim,policies_);
@@ -53,6 +56,14 @@ bool AtTimeStopPolicy::ok() {
     }
     return ok;
 }
+
+//Same as AtTime but the next time is not missing...
+bool AfterTimeStopPolicy::ok() {
+    VamModel* mod=sim->get_model();
+    bool ok=(mod->time[mod->k] < time);
+    return ok;
+}
+
 
 bool AndStopPolicy::ok() {
     bool ans=false;
