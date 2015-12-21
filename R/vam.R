@@ -1,6 +1,5 @@
 # Simulation: sim.vam or vam.sim or vam.gen??? 
 
- 
 sim.vam <- function(formula) {
 	 
 	self <- newEnv(sim.vam,formula=formula)

@@ -34,7 +34,8 @@ public:
 	List data;
 
 	//NumericVector time, type;
-	std::vector<double> time,type;
+	std::vector<double> time;
+	std::vector<int> type;
 
 	double S1, S2, S3, indType;
 

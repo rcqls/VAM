@@ -60,17 +60,7 @@ DataFrame SimVam::simulate(int nbsim) {
 }
 
 void SimVam::add_stop_policy(List policy) {
-    std::string name=policy["name"];
-    //DEBUG:printf("name=%s\n",name.c_str());
-    if(name.compare("AtRun.stop.policy") == 0) {
-        //DEBUG:printf("Params:alpha=%lf,beta=%lf\n",alpha,beta);
-        int nb=policy["nb"];
-        stop_policy=new AtRunStopPolicy(this,nb);
-    } else if(name.compare("AtTime.stop.policy") == 0) {
-        double time=policy["time"];
-        stop_policy=new AtTimeStopPolicy(this,time);
-    }
-
+    stop_policy=newStopPolicy(this,policy);
 }
 
 void SimVam::init(int cache_size_) {
@@ -96,7 +86,7 @@ void SimVam::resize() {
         //printf("RESIZE!\n");
         //print_vector((model->time))
         //printf("SIZE=%d",size);
-        size += cache_size;printf("->%d\n",size);
+        size += cache_size;//printf("->%d\n",size);
         (model->time).resize(size);  
         //print_vector((model->time))
         //printf("model->SIZE=%d\n",(model->time).size());
