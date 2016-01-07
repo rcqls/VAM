@@ -1,17 +1,17 @@
-# Simulation: sim.vam or vam.sim or vam.gen??? 
+# Simulation: sim.vam or vam.sim or vam.gen???
 
 sim.vam <- function(formula) {
-	 
+
 	self <- newEnv(sim.vam,formula=formula)
 
 	PersistentRcppObject(self,new = {
 		model <- parse.vam.formula(NULL,self$formula)
 		rcpp <- new(SimVam,model)
-		rcpp 
+		rcpp
 	})
 
 	self
-	 
+
 }
 
 # TODO: when data provided, complete the data!
@@ -30,7 +30,7 @@ simulate.sim.vam <- function(self, stop.policy = 10, nb.system=1, cache.size=500
 	}
 	# default cache size
 	if(is.null(stop.policy$cache.size)) stop.policy$cache.size <- cache.size
-	
+
 	# add stop.policy object
 	rcpp$add_stop_policy(stop.policy)
 	if(nb.system>1) {
@@ -95,7 +95,7 @@ data.frame.to.list.multi.vam <- function(data,response) {
 }
 
 # TODO: check data
-check.data.vam <-function(data,response) { 
+check.data.vam <-function(data,response) {
 	if(all(data[[response[[-length(response)]]]])) {
 
 	}
@@ -119,7 +119,7 @@ mle.vam <- function(formula,data) {
 		response <- model$response
 		data <- data.frame.to.list.multi.vam(self$data,response)
 		rcpp <- new(MLEVam,model,data)
-		rcpp 
+		rcpp
 	})
 
 	self
@@ -147,7 +147,7 @@ update.mle.vam <- function(self,data) {
 		## estimation has to be computed again!
 		self$mle.coef<-NULL
 	}
-	## with 
+	## with
 }
 
 # alpha is not considered in the estimation!
@@ -157,7 +157,7 @@ run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
 	if(is.null(obj$par0)) obj$par0 <- params(obj)
 	## parameters stuff!
 	if(missing(par0))  {
-		if("par" %in% names(obj)) param <- obj$par #not the first run 
+		if("par" %in% names(obj)) param <- obj$par #not the first run
 		else param<-params(obj)[-1] #first run
 	} else if(is.null(par0)) param<-obj$par0[-1] else param<-par0[-1]
 	## fixed and functions stuff!
@@ -173,7 +173,7 @@ run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
 		param[!fixed]<-par
 		#cat("param->");print(param)
 		## All the commented part allows us to save the param when value is NaN
-		#res<- 
+		#res<-
 		   -rcpp$contrast(c(1,param))
 		# if(is.nan(res)) {
 		# 	mode_param<-"contrast"
@@ -184,7 +184,7 @@ run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
 		# res
 	}
 
- 
+
 	gr <- function(par) {
 	    param[!fixed]<-par
 	    #cat("param2->");print(param)
@@ -197,7 +197,7 @@ run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
 		# }
 		# res
 	}
-  
+
   ## optim stuff!
   if(is.null(method) || method=="fast") {
     if(length(param[!fixed])>1) param[!fixed]<-(res <- optim(param[!fixed],fn,gr,method="Ne",...))$par
@@ -209,7 +209,7 @@ run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
   #fixed tips
   param[!fixed]<-res$par
   res$par<-param
-  
+
   if(verbose) print(res)
 
   ## save stuff
@@ -260,8 +260,8 @@ parse.vam.formula <- function(obj,formula) {
 		# deal with PM part
 		if(pm[[1]] == as.name("(")) {
 			pm <- pm[[2]]
-			if(pm[[1]] != as.name("|")) { 
-				## Case: No maintenance policy 
+			if(pm[[1]] != as.name("|")) {
+				## Case: No maintenance policy
 				#stop("Need a policy to manage Preventive Maintenance")
 				policy <- NULL
 			} else {
@@ -278,7 +278,7 @@ parse.vam.formula <- function(obj,formula) {
 							policies <<- c(policies,list(p))
 						}
 					}
-					## init policies and 
+					## init policies and
 					policies <- list()
 					run.over.policies(policy)
 					## print(policies)
@@ -288,7 +288,7 @@ parse.vam.formula <- function(obj,formula) {
 					policy[[1]] <- as.name(paste0(as.character(policy[[1]]),".maintenance.policy"))
 				}
 				# TODO: add obj as argument of policy when needed
-		
+
 				# PMs
 				pm <- pm[[2]]
 			}
@@ -308,11 +308,11 @@ parse.vam.formula <- function(obj,formula) {
 				}
 			}
 			pms[[cpt.pms <- cpt.pms + 1]] <- parse.pm(pm)
-		} else stop("Need a policy to manage Preventive Maintenance")
+		} else stop("Need parenthesis around the Preventive Maintenance terms")
 	}
 	# deal with CM PART
 	cms <- list()
-	 
+
 	# parser for cm
 	parse.cm <- function(cm) {
 		# print(there.is.pm)
@@ -372,8 +372,8 @@ parse.vam.formula <- function(obj,formula) {
 			list(name="MaintenancePolicyList",policies=lapply(mp,convert.mp))
 		}
 		else {
-			
-			## The function defining the maintenance policy 
+
+			## The function defining the maintenance policy
 			## (registered in maintenance-policy-register.R or in any other R file)
 			mp.fct <- eval(mp[[1]])
 			## params used in the call mp
@@ -383,7 +383,7 @@ parse.vam.formula <- function(obj,formula) {
 			pars.default <- (as.list(mp.fct)->tmp)[-length(tmp)]
 			pars.default <- pars.default[sapply(pars.default,function(e) nchar(as.character(e)))!=0]
 			for(e in names(pars.default)) if(is.null(pars[[e]])) pars[[e]] <- pars.default[[e]]
-			
+
 			##print(list(pars=pars))
 
 			## deal with model parameter which has a specific treatment
@@ -404,15 +404,12 @@ parse.vam.formula <- function(obj,formula) {
 	}
 
 	cms <- convert.cm(cms[[1]])
-	
+
 	list(
 		response=response,
 		models=c(list(cms$model),lapply(pms[rev(seq(pms))],convert.pm)),
 		family=cms$family,
 		pm.policy=convert.mp(policy)
 	)
-	
+
 }
-
-
-
