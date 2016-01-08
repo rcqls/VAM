@@ -54,25 +54,23 @@ plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cum
 		switch(cm.type,
 			p={
 				args.cm <- args[names(args) %in% c('cm.pch','cm.col')]
-				names(args.cm) <- c("pch","col")[names(args.cm) %in% c('cm.pch','cm.col')]
-				if(is.null(args.cm[['pch']])) args.cm[['pch']] <- "*"
+				if(is.null(args.cm[['cm.pch']])) args.cm[['cm.pch']] <- "*"
 			},
 			l={
 				args.cm <- args[names(args) %in% c('cm.lty','cm.lwd','cm.col')]
-				names(args.cm) <- c('lty','lwd','col')[names(args.cm) %in% c('cm.lty','cm.lwd','cm.col')]
-				if(is.null(args.cm[['lty']])) args.cm[['lty']] <- 2
-				if(is.null(args.cm[['lwd']])) args.cm[['lwd']] <- 1
+				if(is.null(args.cm[['cm.lty']])) args.cm[['cm.lty']] <- 2
+				if(is.null(args.cm[['cm.lwd']])) args.cm[['cm.lwd']] <- 1
 			},
 			s={
 				args.cm <- args[names(args) %in% c('cm.lty','cm.lwd','cm.col')]
-				names(args.cm) <- c('lty','lwd','col')[names(args.cm) %in% c('cm.lty','cm.lwd','cm.col')]
-				if(is.null(args.cm[['lty']])) args.cm[['lty']] <- 4
-				if(is.null(args.cm[['lwd']])) args.cm[['lwd']] <- 1
+				if(is.null(args.cm[['cm.lty']])) args.cm[['cm.lty']] <- 4
+				if(is.null(args.cm[['cm.lwd']])) args.cm[['cm.lwd']] <- 1
 			})
-			if(is.null(args.cm[['col']])) args.cm[['col']] <- 1
+			if(is.null(args.cm[['cm.col']])) args.cm[['cm.col']] <- 1
 	}
 
-	args <- setdiff(args,args.cm)
+	## remove cm args
+	args <- args[setdiff(names(args),names(args.cm))]
 
 	## args for pm
 	args.pm <- NULL
@@ -81,20 +79,20 @@ plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cum
 		switch(pm.type,
 			p={
 				args.pm <- args[names(args) %in% c('pm.pch','pm.col')]
-				names(args.pm) <- c('pch','col')[names(args.pm) %in% c('pm.pch','pm.col')]
-				if(is.null(args.pm[['pch']])) args.pm[['pch']] <- 1:pm.last.type
-				if(is.null(args.pm[['col']])) args.pm[['col']] <- (1:pm.last.type)+1
+				if(is.null(args.pm[['pm.pch']])) args.pm[['pm.pch']] <- 1:pm.last.type
+				if(is.null(args.pm[['pm.col']])) args.pm[['pm.col']] <- (1:pm.last.type)+1
 			},
 			l={
 				args.pm <- args[names(args) %in% c('pm.lty','pm.lwd','pm.col')]
-				names(args.pm) <- c('lty','lwd','col')[names(args.pm) %in% c('pm.lty','pm.lwd','pm.col')]
-				if(is.null(args.pm[['lty']])) args.pm[['lty']] <- rep(2,pm.last.type)
-				if(is.null(args.pm[['lwd']])) args.pm[['lwd']] <- rep(1,pm.last.type)
-				if(is.null(args.pm[['col']])) args.pm[['col']] <- (1:pm.last.type)+1
+				if(is.null(args.pm[['pm.lty']])) args.pm[['pm.lty']] <- rep(2,pm.last.type)
+				if(is.null(args.pm[['pm.lwd']])) args.pm[['pm.lwd']] <- rep(1,pm.last.type)
+				if(is.null(args.pm[['pm.col']])) args.pm[['pm.col']] <- (1:pm.last.type)+1
 			})
 
 	}
-	args <- setdiff(args,args.pm)
+
+	## remove pm args
+	args <- args[setdiff(names(args),names(args.pm))]
 
 	## plot args
 	is.args.plot <- names(args) %in% c('main','xlab','ylab','sub','asp','xlim','ylim')
@@ -119,6 +117,10 @@ plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cum
 	## cm
 
 	if(cm.type != "n") {
+		## IMPORTANT, first remove 'cm.' before calling plot method
+		## not removed before because of collision with args.plot and args.lines!
+		if(!is.null(args.cm)) names(args.cm) <- substring(names(args.cm),4)
+
 		switch(cm.type,p={
 			cm.call<-"points"
 			args.cm[["x"]] <- d$Time[d$Type == -1]
@@ -138,6 +140,9 @@ plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cum
 	## pm
 
 	if(pm.type != "n") {
+		## IMPORTANT, first remove 'pm.' before calling plot method
+		if(!is.null(args.pm))  names(args.pm) <- substring(names(args.pm),4)
+
 		switch(pm.type,p={
 			pm.call<-"points"
 			args.pm[["x"]] <- d$Time[d$Type == -1]
