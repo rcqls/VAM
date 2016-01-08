@@ -74,6 +74,7 @@ model.vam <- function(formula,data) {
 }
 
 data.frame.to.list.multi.vam <- function(data,response) {
+	if(NCOL(data) > length(response) && ("System" %in% names(data)) ) warning(paste0("WARNING: data has variable 'System' when response in formula does not contain this variable!"))
 	# return data if it is already only a list!
 	if(is.list(data) && !is.data.frame(data)) return(lapply(data,function(df) rbind(data.frame(Time=0,Type=1),df)))
 	# otherwise

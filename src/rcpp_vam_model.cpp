@@ -50,7 +50,7 @@ void VamModel::set_data(List data_) {
 	data=data_;
 	nb_system=data.size();
 	//printf("Number of systems: %d\n",nb_system);
-	select_data(0);//default when only one system no need to 
+	select_data(0);//default when only one system no need to
 }
 
 void VamModel::select_data(int i) {
@@ -86,7 +86,7 @@ void VamModel::init(List model_) {
 	List maintenance_policy_=model_["pm.policy"];
     set_models(models_);
 	nbPM=models->size()-1;
-	
+
 	set_family(family_);
 	set_maintenance_policy(maintenance_policy_);
 
@@ -114,7 +114,7 @@ DataFrame VamModel::get_virtual_age_info(double from,double to, double by) {
 	std::vector<double> t(n+1);
 	std::vector<double> v(n+1);
 	std::vector<double> h(n+1); //i as intensity
-	std::vector<double> H(n+1); //I for cumulative intensity 
+	std::vector<double> H(n+1); //I for cumulative intensity
 
 	t[0]=from;t[n]=to;
 	v[0]=Vright;v[n]=Vleft;
@@ -129,7 +129,7 @@ DataFrame VamModel::get_virtual_age_info(double from,double to, double by) {
 		v[i]=v[i-1]+by_v;
 		h[i]=family->density(v[i]);
 		H[i]=S1+family->cumulative_density(v[i])-family->cumulative_density(v[0]);
-	}	
+	}
 	return DataFrame::create(
 		_["t"]=NumericVector(t.begin(),t.end()),
 		_["v"]=NumericVector(v.begin(),v.end()),
@@ -147,13 +147,12 @@ List VamModel::get_virtual_age_infos(double by) {
 	while(k < n) {
 		update_Vleft(false);
 		res[k]=get_virtual_age_info(time[k],time[k+1],by);
-		S1 += family->cumulative_density(Vleft) - family->cumulative_density(Vright); 
+		S1 += family->cumulative_density(Vleft) - family->cumulative_density(Vright);
 		//gradient_update_for_current_system();
 		int type2=type[k + 1];
 		if(type2 < 0) type2=0;
 		models->at(type2)->update(false);
 	}
 
-	return res;     
+	return res;
 };
-

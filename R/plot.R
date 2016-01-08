@@ -1,8 +1,8 @@
 ## Provide cm.type or pm.type  with value "n" to not have cm and pm elements in the plot.
 ## cm.type or pm.type to NA means default value depending on type value.
-plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cumulative"),from,to,by=0.1,system.index=0,cm.type=NA,pm.type=NA,add=FALSE,...) {
+plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cumulative"),from,to,by=0.1,system.index=1,cm.type=NA,pm.type=NA,add=FALSE,...) {
 	rcpp <- rcpp(obj)
-	d <- if(inherits(obj,"sim.vam")) rcpp$get_data() else rcpp$get_data(system.index) #0 since one-system first!
+	d <- if(inherits(obj,"sim.vam")) rcpp$get_data() else rcpp$get_data(system.index-1) #0 since one-system first!
 	infos <- rcpp$get_virtual_age_infos(by)
 	if(missing(from)) from <- min(d$Time)
 	if(missing(to)) to <- max(d$Time)
@@ -151,18 +151,20 @@ plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cum
 
 	if(pm.type != "n") {
 		## IMPORTANT, first remove 'pm.' before calling plot method
+		ind <- d$Type>0 & d$Time>0
 		if(!is.null(args.pm))  {
 			names(args.pm) <- substring(names(args.pm),4)
-			pm.types <- d$Type[d$Type>0]
+			pm.types <- d$Type[ind]
 			for(n in names(args.pm)) args.pm[[n]] <- args.pm[[n]][pm.types]
 		}
 		switch(pm.type,p={
 			pm.call<-"points"
-			args.pm[["x"]] <- d$Time[d$Type>0]
-			args.pm[["y"]] <- rep(0,sum(d$Type>0))
+
+			args.pm[["x"]] <- d$Time[ind]
+			args.pm[["y"]] <- rep(0,sum(ind))
 		},l={
 			pm.call<-"abline"
-			args.pm[["v"]]<-d$Time[d$Type>0]
+			args.pm[["v"]]<-d$Time[ind]
 		})
 		##DEBUG: print(c(list(call=pm.call),args.pm))
 		do.call(pm.call,args.pm)
