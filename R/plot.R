@@ -50,7 +50,8 @@ plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cum
 
 	## args for cm
 	args.cm <- NULL
-	if(!cm.type != "n") {
+
+	if(cm.type != "n") {
 		switch(cm.type,
 			p={
 				args.cm <- args[names(args) %in% c('cm.pch','cm.col')]
@@ -68,6 +69,7 @@ plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cum
 			})
 			if(is.null(args.cm[['cm.col']])) args.cm[['cm.col']] <- 1
 	}
+	##DEBUG: print(args.cm)
 
 	## remove cm args
 	args <- args[setdiff(names(args),names(args.cm))]
@@ -88,8 +90,15 @@ plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cum
 				if(is.null(args.pm[['pm.lwd']])) args.pm[['pm.lwd']] <- rep(1,pm.last.type)
 				if(is.null(args.pm[['pm.col']])) args.pm[['pm.col']] <- (1:pm.last.type)+1
 			})
+			for(n in names(args.pm)) {
+				if(length(args.pm[[n]]) != pm.last.type) {
+					## recycling
+					args.pm[[n]] <- rep(args.pm[[n]],pm.last.type/length(args.pm[[n]])+1)[1:pm.last.type]
+				}
+			}
 
 	}
+	##DEBUG: print(args.pm)
 
 	## remove pm args
 	args <- args[setdiff(names(args),names(args.pm))]
@@ -134,6 +143,7 @@ plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cum
 			args.cm[["y"]] <- c(0,1:(sum(d$Type == -1)->tmp),tmp)
 			args.cm[["type"]] <- "s"
 		})
+		##DEBUG: print(c(list(call=cm.call),args.cm))
 		do.call(cm.call,args.cm)
 	}
 
@@ -141,16 +151,20 @@ plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cum
 
 	if(pm.type != "n") {
 		## IMPORTANT, first remove 'pm.' before calling plot method
-		if(!is.null(args.pm))  names(args.pm) <- substring(names(args.pm),4)
-
+		if(!is.null(args.pm))  {
+			names(args.pm) <- substring(names(args.pm),4)
+			pm.types <- d$Type[d$Type>0]
+			for(n in names(args.pm)) args.pm[[n]] <- args.pm[[n]][pm.types]
+		}
 		switch(pm.type,p={
 			pm.call<-"points"
-			args.pm[["x"]] <- d$Time[d$Type == -1]
-			args.pm[["y"]] <- rep(0,sum(d$Type == -1))
+			args.pm[["x"]] <- d$Time[d$Type>0]
+			args.pm[["y"]] <- rep(0,sum(d$Type>0))
 		},l={
 			pm.call<-"abline"
-			args.pm[["v"]]<-d$Time[d$Type == -1]
+			args.pm[["v"]]<-d$Time[d$Type>0]
 		})
+		##DEBUG: print(c(list(call=pm.call),args.pm))
 		do.call(pm.call,args.pm)
 	}
 
