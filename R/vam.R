@@ -17,6 +17,7 @@ sim.vam <- function(formula) {
 # TODO: when data provided, complete the data!
 simulate.sim.vam <- function(self, stop.policy = 10, nb.system=1, cache.size=500,as.list=FALSE,data) {
 	rcpp <- self$rcpp()
+	stop.policy <- eval(self$stop.policy.last <- parse.stop.policy(deparse(substitute(stop.policy))))
 	if(is.numeric(stop.policy)) {
 		if(stop.policy == as.integer(stop.policy)) {#integer
 			stop.policy <- EndAt(size=stop.policy)

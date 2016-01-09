@@ -21,7 +21,7 @@ SizeGreaterThan <- function(size) {
 }
 
 SizeOfTypeGreaterThan <- function(size,type,...) {
-	list(name="SizeOfTypeGreaterThan.stop.policy",size=size,type=type,...)
+	obj <- list(name="SizeOfTypeGreaterThan.stop.policy",size=size,type=type,...)
 	class(obj)<-c(obj$name,"stop.policy")
 	obj
 }
@@ -72,7 +72,7 @@ parse.stop.policy <- function(ch) {
   Rule("S(?!(?:\\[Type=|ize))","Size")
 
   #Time rule
-  Rule("T(?!(?:ime|ype))","Time")
+  Rule("T(?=\\s*>)","Time")
 
   #Right Censorship rule
   Rule("(?:\\()RC=","(RightCensorship=")
@@ -120,6 +120,7 @@ parse.stop.policy <- function(ch) {
     as.call(c(e[[1]],sapply(e[-1],expand)))
   }
 
-  expand(parsed.expr)
-
+  res <- expand(parsed.expr)
+	attr(res,"user.entry") <- ch
+	res
 }
