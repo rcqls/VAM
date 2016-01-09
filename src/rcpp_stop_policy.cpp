@@ -5,21 +5,21 @@ StopPolicy* newStopPolicy(SimVam* sim,List policy) {
     StopPolicy* sp=NULL;
     std::string name=policy["name"];
     //DEBUG:printf("name=%s\n",name.c_str());
-    if(name.compare("AtSize.stop.policy") == 0) {
+    if(name.compare("SizeGreaterThan.stop.policy") == 0) {
         //DEBUG:printf("Params:alpha=%lf,beta=%lf\n",alpha,beta);
         int size_=policy["size"];
-        sp=new AtSizeStopPolicy(sim,size_);
-    } else if(name.compare("AtMSize.stop.policy") == 0) {
+        sp=new SizeGreaterThanStopPolicy(sim,size_);
+    } else if(name.compare("SizeOfTypeGreaterThan.stop.policy") == 0) {
         //DEBUG:printf("Params:alpha=%lf,beta=%lf\n",alpha,beta);
         int size_=policy["size"];
         int type_=policy["type"];
-        sp=new AtMSizeStopPolicy(sim,type_,size_);
-    } else if(name.compare("AtTime.stop.policy") == 0) {
+        sp=new SizeOfTypeGreaterThanStopPolicy(sim,type_,size_);
+    } else if(name.compare("TimeGreaterThanCensorship.stop.policy") == 0) {
         double time_=policy["time"];
-        sp=new AtTimeStopPolicy(sim,time_);
-    } else if(name.compare("AfterTime.stop.policy") == 0) {
+        sp=new TimeGreaterThanCensorshipStopPolicy(sim,time_);
+    } else if(name.compare("TimeGreaterThan.stop.policy") == 0) {
         double time_=policy["time"];
-        sp=new AfterTimeStopPolicy(sim,time_);
+        sp=new TimeGreaterThanStopPolicy(sim,time_);
     } else if(name.compare("And.stop.policy") == 0) {
         List policies_=policy["policies"];
         sp=new AndStopPolicy(sim,policies_);
@@ -30,11 +30,11 @@ StopPolicy* newStopPolicy(SimVam* sim,List policy) {
     return sp;
 }
 
-bool AtSizeStopPolicy::ok() {
+bool SizeGreaterThanStopPolicy::ok() {
     return (sim->get_model()->k < size);
 }
 
-bool AtMSizeStopPolicy::ok() {
+bool SizeOfTypeGreaterThanStopPolicy::ok() {
     VamModel* mod=sim->get_model();
     //incr counter
     //printf("k=%d,t=%lf,ty=%d ->",mod->k,mod->time[mod->k],mod->type[mod->k]);
@@ -46,7 +46,7 @@ bool AtMSizeStopPolicy::ok() {
     return (count < size);
 }
 
-bool AtTimeStopPolicy::ok() {
+bool TimeGreaterThanCensorshipStopPolicy::ok() {
     VamModel* mod=sim->get_model();
     bool ok=(mod->time[mod->k] < time);
     if(!ok) {
@@ -58,7 +58,7 @@ bool AtTimeStopPolicy::ok() {
 }
 
 //Same as AtTime but the next time is not missing...
-bool AfterTimeStopPolicy::ok() {
+bool TimeGreaterThanStopPolicy::ok() {
     VamModel* mod=sim->get_model();
     bool ok=(mod->time[mod->k] < time);
     return ok;

@@ -1,20 +1,40 @@
+## TO REMOVE
 EndAt <-function(size,time,type=NULL,...) {# ... can contain cache.size
 	if(missing(time)) {
 		if(is.null(type)) {
 			# Notice that it is the only case where cache.size is fixed by advance!
-			obj<-list(name="AtSize.stop.policy",size=size,cache.size=size)
+			obj<-list(name="SizeGreaterThan.stop.policy",size=size,cache.size=size)
 		} else {
-			obj <- list(name="AtMSize.stop.policy",size=size,type=type,...)
+			obj <- list(name="SizeOfTypeGreaterThan.stop.policy",size=size,type=type,...)
 		}
 	} else {
-		obj <- list(name="AtTime.stop.policy",time=time,...)
+		obj <- list(name="TimeGreaterThanCensorship.stop.policy",time=time,...)
 	}
 	class(obj)<-c(obj$name,"stop.policy")
 	obj
 }
 
-EndAfter <-function(time,...) {# ... can contain cache.size
-	obj <- list(name="AfterTime.stop.policy",time=time,...)
+SizeGreaterThan <- function(size) {
+	obj <- list(name="SizeGreaterThan.stop.policy",size=size,cache.size=size)
+	class(obj)<-c(obj$name,"stop.policy")
+	obj
+}
+
+SizeOfTypeGreaterThan <- function(size,type,...) {
+	list(name="SizeOfTypeGreaterThan.stop.policy",size=size,type=type,...)
+	class(obj)<-c(obj$name,"stop.policy")
+	obj
+}
+
+AtCensorship <- TimeGreaterThanCensorship <- function(censorship,...) {# ... can contain cache.size
+	obj <- list(name="TimeGreaterThanCensorship.stop.policy",time=censorship,...)
+	class(obj)<-c(obj$name,"stop.policy")
+	obj
+}
+
+
+TimeGreaterThan <- function(time,...) {# ... can contain cache.size
+	obj <- list(name="TimeGreaterThan.stop.policy",time=time,...)
 	class(obj)<-c(obj$name,"stop.policy")
 	obj
 }
@@ -37,3 +57,69 @@ EndAfter <-function(time,...) {# ... can contain cache.size
 	obj
 }
 
+parse.stop.policy <- function(ch) {
+  expr <- ch
+
+  ## facility to locally update expr with rules
+  Rule <- function(patt,repl) expr<<-gsub(patt,repl,expr,perl=TRUE)
+
+  # Size of Type rules
+  Rule("\\s","")
+  Rule("S\\[(?!Type=)","S\\[Type=") #'S[' not followed by 'Type='
+  Rule("S\\[Type=","Size\\[Type=")
+
+  #Size rule
+  Rule("S(?!(?:\\[Type=|ize))","Size")
+
+  #Time rule
+  Rule("T(?!(?:ime|ype))","Time")
+
+  #Right Censorship rule
+  Rule("(?:\\()RC=","(RightCensorship=")
+
+  parsed.expr <- parse(text=expr)[[1]]
+
+  simplify.parenthesis <- function(e) {
+    if(length(e)==1) return(e)
+    if(length(e)==2 && e[[1]] == as.name("(") && length(e[[2]])==2 && e[[2]][[1]] == as.name("(")) e<-e[[2]]
+    as.call(c(e[[1]],sapply(e[-1],simplify.parenthesis)))
+  }
+
+  parsed.expr <- simplify.parenthesis(parsed.expr)
+
+	expand.distrib <- function(e) {
+    if(is.name(e[[1]]) && (substring(e[[1]],1,1) %in% LETTERS)) {
+      e[[1]] <- as.name(paste0("r",tolower(substring(e[[1]],1,1)),substring(e[[1]],2)))
+      as.call(c(as.name("~"),as.call(c(e[[1]],1,as.list(e)[-1]))))
+    } else e
+  }
+
+  expand <- function(e) {
+    if(length(e)==1) return(e)
+
+    ## Time > ???? or Time > (RightCensorship=???)
+    if(e[[1]] == as.name(">") && e[[2]]==as.name("Time")) {
+      ## Time > (RightCensorship=???)
+      if(length(e[[3]])==2 && e[[3]][[1]]==as.name("(") && length(e[[3]][[2]])==3 && e[[3]][[2]][[1]]==as.name("=") && e[[3]][[2]][[2]]==as.name("RightCensorship")) {
+        return(as.call(c(as.name("TimeGreaterThanCensorship"),censorship=expand.distrib(e[[3]][[2]][[3]]))))
+      } else {## Time > ????
+        return(as.call(c(as.name("TimeGreaterThan"),time=e[[3]])))
+      }
+    }
+
+    ## Size[Type=???] > ????
+    if(e[[1]] == as.name(">") && length(e[[2]])==3 && e[[2]][[1]]==as.name("[") && e[[2]][[2]]==as.name("Size") && names(e[[2]])[[3]]=="Type") {
+      return(as.call(c(as.name("SizeOfTypeGreaterThan"),size=e[[3]],type=e[[2]][[3]])))
+    }
+
+    ## Size > ???
+    if(e[[1]] == as.name(">") && e[[2]]==as.name("Size")) {
+      return(as.call(c(as.name("SizeGreaterThan"),size=e[[3]])))
+    }
+
+    as.call(c(e[[1]],sapply(e[-1],expand)))
+  }
+
+  expand(parsed.expr)
+
+}

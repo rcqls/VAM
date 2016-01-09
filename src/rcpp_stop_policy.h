@@ -21,31 +21,31 @@ public:
 
 StopPolicy* newStopPolicy(SimVam* sim,List policy);
 
-class AtSizeStopPolicy : public StopPolicy {
+class SizeGreaterThanStopPolicy : public StopPolicy {
 public:
-    AtSizeStopPolicy(SimVam* sim_,int size_): StopPolicy(sim_) {
+    SizeGreaterThanStopPolicy(SimVam* sim_,int size_): StopPolicy(sim_) {
         size=size_;
     }
 
-    ~AtSizeStopPolicy() {};
+    ~SizeGreaterThanStopPolicy() {};
 
     bool ok();
 
     int size;
-    
- 
+
+
 };
 
 //M is for CM or PM, type=-1 or 1,2,...
-class AtMSizeStopPolicy : public StopPolicy {
+class SizeOfTypeGreaterThanStopPolicy : public StopPolicy {
 public:
-    AtMSizeStopPolicy(SimVam* sim_,int type_,int size_): StopPolicy(sim_) {
+    SizeOfTypeGreaterThanStopPolicy(SimVam* sim_,int type_,int size_): StopPolicy(sim_) {
         type=type_;
         size=size_;
         count=0;
     }
 
-    ~AtMSizeStopPolicy() {};
+    ~SizeOfTypeGreaterThanStopPolicy() {};
 
     bool ok();
 
@@ -53,38 +53,38 @@ public:
 
     int type;
 
-    int count;    
- 
+    int count;
+
 };
 
-class AtTimeStopPolicy : public StopPolicy {
+class TimeGreaterThanCensorshipStopPolicy : public StopPolicy {
 public:
-    AtTimeStopPolicy(SimVam* sim_,double time_): StopPolicy(sim_) {
+    TimeGreaterThanCensorshipStopPolicy(SimVam* sim_,double time_): StopPolicy(sim_) {
         time=time_;
     }
 
-    ~AtTimeStopPolicy() {};
+    ~TimeGreaterThanCensorshipStopPolicy() {};
 
     bool ok();
 
     double time;
-    
- 
+
+
 };
 
-class AfterTimeStopPolicy : public StopPolicy {
+class TimeGreaterThanStopPolicy : public StopPolicy {
 public:
-    AfterTimeStopPolicy(SimVam* sim_,double time_): StopPolicy(sim_) {
+    TimeGreaterThanStopPolicy(SimVam* sim_,double time_): StopPolicy(sim_) {
         time=time_;
     }
 
-    ~AfterTimeStopPolicy() {};
+    ~TimeGreaterThanStopPolicy() {};
 
     bool ok();
 
     double time;
-    
- 
+
+
 };
 
 class AndStopPolicy : public StopPolicy {
@@ -114,8 +114,8 @@ public:
     bool ok();
 
     std::vector<StopPolicy*> policies;
-    
- 
+
+
 };
 
 class OrStopPolicy : public StopPolicy {
@@ -129,7 +129,7 @@ public:
             List policy=*it;
             StopPolicy*  sp=newStopPolicy(sim_,policy);
             if(!(sp == NULL)) policies.push_back(sp);
-        } 
+        }
     }
 
     ~OrStopPolicy() {
@@ -145,8 +145,8 @@ public:
     bool ok();
 
     std::vector<StopPolicy*> policies;
-    
- 
+
+
 };
 
 #endif //RCPP_STOP_POLICY_H
