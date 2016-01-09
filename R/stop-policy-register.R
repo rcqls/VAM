@@ -27,7 +27,12 @@ SizeOfTypeGreaterThan <- function(size,type,...) {
 }
 
 AtCensorship <- TimeGreaterThanCensorship <- function(censorship,...) {# ... can contain cache.size
-	obj <- list(name="TimeGreaterThanCensorship.stop.policy",time=censorship,...)
+	if(inherits(censorship,"formula")) {
+		obj <- list(name="TimeGreaterThanCensorship.stop.policy",time=-1,time.expr=list(expr=censorship[[2]],env=parent.frame()),...)
+	} else {
+		# expression("1+1")[[1]] is here a useless  arbitrary call
+		obj <- list(name="TimeGreaterThanCensorship.stop.policy",time=censorship,time.expr=list(expr=expression(1+1)[[1]],env=parent.frame()),...)
+	}
 	class(obj)<-c(obj$name,"stop.policy")
 	obj
 }
@@ -67,6 +72,7 @@ parse.stop.policy <- function(ch) {
   Rule("\\s","")
   Rule("S\\[(?!Type=)","S\\[Type=") #'S[' not followed by 'Type='
   Rule("S\\[Type=","Size\\[Type=")
+	Rule("Size\\[(?!Type=)","Size\\[Type=")
 
   #Size rule
   Rule("S(?!(?:\\[Type=|ize))","Size")

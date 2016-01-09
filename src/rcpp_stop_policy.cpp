@@ -16,7 +16,10 @@ StopPolicy* newStopPolicy(SimVam* sim,List policy) {
         sp=new SizeOfTypeGreaterThanStopPolicy(sim,type_,size_);
     } else if(name.compare("TimeGreaterThanCensorship.stop.policy") == 0) {
         double time_=policy["time"];
-        sp=new TimeGreaterThanCensorshipStopPolicy(sim,time_);
+        List expr_=policy["time.expr"];
+        Language l_=expr_["expr"];
+        Environment env_=expr_["env"];
+        sp=new TimeGreaterThanCensorshipStopPolicy(sim,time_,l_,env_);
     } else if(name.compare("TimeGreaterThan.stop.policy") == 0) {
         double time_=policy["time"];
         sp=new TimeGreaterThanStopPolicy(sim,time_);
@@ -57,6 +60,13 @@ bool TimeGreaterThanCensorshipStopPolicy::ok() {
     return ok;
 }
 
+void TimeGreaterThanCensorshipStopPolicy::first() {
+    //printf("time=%lf\n",time);
+     if(to_init) {
+       time=as<double>(Rf_eval(expr,env));
+     };
+}
+
 //Same as AtTime but the next time is not missing...
 bool TimeGreaterThanStopPolicy::ok() {
     VamModel* mod=sim->get_model();
@@ -87,4 +97,26 @@ bool OrStopPolicy::ok() {
         if(!(*it)->ok()) ans &= false; //every cond is tested because some init is done there!
     }
     return ans;
+}
+
+
+// Exactly the same first method for the following classes
+void AndStopPolicy::first() {
+    for(
+        std::vector<StopPolicy*>::iterator it=policies.begin();
+        it != policies.end();
+        ++it
+    ) {
+        (*it)->first();
+    }
+}
+
+void OrStopPolicy::first() {
+    for(
+        std::vector<StopPolicy*>::iterator it=policies.begin();
+        it != policies.end();
+        ++it
+    ) {
+        (*it)->first();
+    }
 }

@@ -7,8 +7,8 @@ DataFrame SimVam::get_data() {
     if((model->time).size() > model->k+1) {
         size = model->k+1;
         //printf("data size:%d\n",size);
-        (model->time).resize(size);  
-        (model->type).resize(size);  
+        (model->time).resize(size);
+        (model->type).resize(size);
     }
     return DataFrame::create(_["Time"]=model->time,_["Type"]=model->type);
 }
@@ -16,6 +16,8 @@ DataFrame SimVam::get_data() {
 DataFrame SimVam::simulate(int nbsim) {
     init(nbsim);
 
+    stop_policy->first();
+    
     while(stop_policy->ok()) {//model->k < nbsim) {
         //printf("k=%d\n",model->k);
         //To dynamically increase the size of simulation
@@ -50,10 +52,10 @@ DataFrame SimVam::simulate(int nbsim) {
         //printf("k=%d: cm=%lf,pm=%lf\n",model->k,timeCM,timePM);
         //# used in the next update
         model->update_Vleft(false);
-        
+
         //# update the next k, and save model in model too!
         model->models->at(idMod)->update(false);
-        
+
     }
 
     return get_data();
@@ -72,8 +74,8 @@ void SimVam::init(int cache_size_) {
     //model->type= rep(1,size);
     (model->time).clear();
     (model->type).clear();
-    (model->time).resize(size,0);  
-    (model->type).resize(size,1);  
+    (model->time).resize(size,0);
+    (model->type).resize(size,1);
 }
 
 #define print_vector(x)                                                                     \
@@ -87,9 +89,9 @@ void SimVam::resize() {
         //print_vector((model->time))
         //printf("SIZE=%d",size);
         size += cache_size;//printf("->%d\n",size);
-        (model->time).resize(size);  
+        (model->time).resize(size);
         //print_vector((model->time))
         //printf("model->SIZE=%d\n",(model->time).size());
-        (model->type).resize(size);  
+        (model->type).resize(size);
     }
 }

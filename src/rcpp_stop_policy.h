@@ -15,6 +15,8 @@ public:
 
 	virtual bool ok() = 0;
 
+	virtual void first() = 0;
+
     SimVam* sim;
 
 };
@@ -30,6 +32,8 @@ public:
     ~SizeGreaterThanStopPolicy() {};
 
     bool ok();
+
+		void first() {};
 
     int size;
 
@@ -49,6 +53,8 @@ public:
 
     bool ok();
 
+		void first() {};
+
     int size;
 
     int type;
@@ -59,15 +65,24 @@ public:
 
 class TimeGreaterThanCensorshipStopPolicy : public StopPolicy {
 public:
-    TimeGreaterThanCensorshipStopPolicy(SimVam* sim_,double time_): StopPolicy(sim_) {
-        time=time_;
+    TimeGreaterThanCensorshipStopPolicy(SimVam* sim_,double time_,Language expr_,Environment env_): StopPolicy(sim_) {
+        time=time_;expr=expr_;env=env_;
+				to_init=(time<0);
     }
 
     ~TimeGreaterThanCensorshipStopPolicy() {};
 
     bool ok();
 
+		void first();
+
+		bool to_init;
+		
     double time;
+
+		Language expr;
+
+		Environment env;
 
 
 };
@@ -81,6 +96,8 @@ public:
     ~TimeGreaterThanStopPolicy() {};
 
     bool ok();
+
+		void first() {};
 
     double time;
 
@@ -113,6 +130,8 @@ public:
 
     bool ok();
 
+		void first();
+
     std::vector<StopPolicy*> policies;
 
 
@@ -143,6 +162,8 @@ public:
     };
 
     bool ok();
+
+		void first();
 
     std::vector<StopPolicy*> policies;
 
