@@ -30,10 +30,10 @@ The stopping conditions available for "\code{cond1}", "\code{cond2}" and so on a
 	\item{\code{Time>a}}{stops as soon as the last simulated maintenance time is greater than "\code{a}".}
 	\item{\code{T>a}}{shortcut for "\code{Time>a}".}
 	\item{\code{Size==a}}{stops as soon as the total number of simulated maintenance times is equal to "\code{a}".}
-	\item{\code{S==a}}{shortcut for "\code{Size==a}".}
+	\item{\code{S==a} or \code{Size>=a} or \code{S>=a}}{shortcut for "\code{Size==a}".}
 	\item{\code{Size[b]==a}}{stops as soon as the total number of simulated maintenance times of type "\code{b}"
 	is equal to "\code{a}". CM type is denoted -1. And the successive different types of PM effects defined in the formula of "\code{SimModel}" are denoted 1, 2, ...}
-	\item{\code{S[b]>a}}{shortcut for "\code{Size[b]>a}".}
+	\item{\code{S[b]==a} or \code{Size[b]>=a} or \code{S[b]>=a} }{shortcut for "\code{Size[b]==a}".}
 	\item{\code{Time>(RightCensorship=a)}}{stops as soon as the last simulated maintenance time is greater than "\code{a}". In addition, all the possible simulated maintenance time greater than "\code{a}" (at least the last maintenance time simulated) are censored at time "\code{a}": their times are equal to "\code{a}" and their types to 0. In this case, "\code{a}" can also be replaced by a random time distribution name, with a capital first letter and followed by its arguments: for example "\code{Unif(20,30)}". Then, the censorship times of each system will be simulated with the corresponding random distribution, in the previous example "\code{runif(nb.system,20,30)}".}
 	\item{\code{T>(RC=a)}}{shortcut for "\code{Time>(RightCensorship=a)}".}
 }
