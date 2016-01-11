@@ -1,3 +1,7 @@
+# IMPORTANT:
+# due to comment of Laurent, we mimic repeat until loop where it is actually a while loop
+# S >= or S== is actually S> in the while loop.
+
 parse.stop.policy.devel <- function(ch) {
   expr <- ch
 
@@ -50,12 +54,18 @@ parse.stop.policy.devel <- function(ch) {
     }
 
     ## Size[Type=???] > ????
-    if(e[[1]] == as.name(">") && length(e[[2]])==3 && e[[2]][[1]]==as.name("[") && e[[2]][[2]]==as.name("Size") && names(e[[2]])[[3]]=="Type") {
+    if((as.character(e[[1]]) %in% c(">=","==",">") && length(e[[2]])==3 && e[[2]][[1]]==as.name("[") && e[[2]][[2]]==as.name("Size") && names(e[[2]])[[3]]=="Type") {
+      if(e[[1]] == as.name(">") {
+        e[[3]] <- as.call(c(as.name("+"),e[[3]],1))
+      }
       return(as.call(c(as.name("SizeOfTypeGreaterThan"),size=e[[3]],type=e[[2]][[3]])))
     }
 
     ## Size > ???
-    if(e[[1]] == as.name(">") && e[[2]]==as.name("Size")) {
+    if((as.character(e[[1]]) %in% c(">=","==",">") && e[[2]]==as.name("Size")) {
+      if(e[[1]] == as.name(">") {
+        e[[3]] <- as.call(c(as.name("+"),e[[3]],1))
+      }
       return(as.call(c(as.name("SizeGreaterThan"),size=e[[3]])))
     }
 

@@ -15,7 +15,11 @@ sim.vam <- function(formula) {
 }
 
 # TODO: when data provided, complete the data!
-simulate.sim.vam <- function(self, stop.policy = 10, nb.system=1, cache.size=500,as.list=FALSE,data) {
+simulate.sim.vam <- function(sim, stop.policy = 10, nb.system=1, cache.size=500,as.list=FALSE,data) {
+
+	# To have a first argument more readable
+	self <- sim
+
 	rcpp <- self$rcpp()
 
 	self$stop.policy.last <- parse.stop.policy(deparse(substitute(stop.policy)))
@@ -77,6 +81,16 @@ model.vam <- function(formula,data) {
 	self
 }
 
+update.model.vam <- function(model,data) {
+	if(!missing(data)) {
+		self <- model #to have an argument more readable
+		response <- parse.vam.formula(NULL,self$formula)$response
+		self$data <- data
+		data2 <- data.frame.to.list.multi.vam(self$data,response)
+		self$rcpp()$set_data(data2)
+	}
+}
+
 data.frame.to.list.multi.vam <- function(data,response) {
 	if(NCOL(data) > length(response) && ("System" %in% names(data)) ) warning(paste0("WARNING: data has variable 'System' when response in formula does not contain this variable!"))
 	# return data if it is already only a list!
@@ -106,16 +120,6 @@ check.data.vam <-function(data,response) {
 	}
 }
 
-update.model.vam <- function(self,data) {
-	if(!missing(data)) {
-		model <- parse.vam.formula(NULL,self$formula)
-		response <- model$response
-		self$data <- data
-		data2 <- data.frame.to.list.multi.vam(self$data,response)
-		self$rcpp()$set_data(data2)
-	}
-}
-
 mle.vam <- function(formula,data) {
 	self <- newEnv(mle.vam,formula=formula,data=data)
 
@@ -142,8 +146,9 @@ params.model.vam <- params.sim.vam <- params.mle.vam <- function(self,param) {
 	}
 }
 
-update.mle.vam <- function(self,data) {
+update.mle.vam <- function(mle,data) {
 	if(!missing(data)) {
+		self <- mle
 		model <- parse.vam.formula(NULL,self$formula)
 		response <- model$response
 		self$data <- data

@@ -16,7 +16,7 @@ sim0bis <- sim.vam( ~ (ARA1(.9) | Weibull(.001,2.5)) & (ARAInf(.4) | AtIntensity
 
 #(tmp3<-simulate(sim0,TimeGreaterThanCensorship(1000) | SizeGreaterThan(1000)))
 #(tmp3<-simulate(sim0,Time > (RightCensorship=1000) & Size > 1000))
-(tmp3<-simulate(sim0, T > (RC=1000) | S > 1000))
+(tmp3<-simulate(sim0, T > (RC=1000) | S >= 1000))
 
 #(tmp3<-simulate(sim0,EndAt(time=1000),nb.system=3))
 (tmp3bis<-simulate(sim0,Time > (RightCensorship=1000),nb.system=3))
@@ -26,4 +26,4 @@ sim0bis <- sim.vam( ~ (ARA1(.9) | Weibull(.001,2.5)) & (ARAInf(.4) | AtIntensity
 
 #(tmp4<-simulate(sim0,SizeOfTypeGreaterThan(size=10,type=1) & SizeOfTypeGreaterThan(size=10,type=-1)))
 #(tmp3<-simulate(sim0,Size[Type=1]>10 & Size[Type=-1]>10))
-(tmp4<-simulate(sim0,S[1]>10 & S[-1]>10))
+(tmp4<-simulate(sim0,S[1] == 10 & S[-1] == 10))
