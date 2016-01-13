@@ -226,7 +226,13 @@ run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
   obj$fixed <- fixed
   obj$optim<-res
   obj$par<-res$par
-  res$par
+
+	## complete the scale parameter
+	alpha <- rcpp$alpha_est(c(1,res$par))
+	obj$mle.coef <- c(alpha,res$par)
+	params(obj,obj$mle.coef) #put the result in the c++ part
+
+  obj$mle.coef
 }
 
 ## Rmk: run.mle.vam is supposed to run many times to get the best estimate!
@@ -236,9 +242,9 @@ coef.mle.vam <- function(obj,par=NULL,method=NULL,verbose=FALSE) {
 	if(is.null(obj$mle.res) || !is.null(par)) {
 		res <-run.mle.vam(obj,par,verbose=verbose,method=method)
 		if(verbose && obj$optim$convergence>0) cat("convergence=",obj$optim$convergence,"\n",sep="")
-		alpha <- obj$rcpp()$alpha_est(c(1,res))
-		obj$mle.coef <- c(alpha,res)
-		params(obj,obj$mle.coef)
+		# alpha <- obj$rcpp()$alpha_est(c(1,res))
+		# obj$mle.coef <- c(alpha,res)
+		# params(obj,obj$mle.coef)
 	}
 	obj$mle.coef
 }
