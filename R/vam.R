@@ -242,9 +242,6 @@ coef.mle.vam <- function(obj,par=NULL,method=NULL,verbose=FALSE) {
 	if(is.null(obj$mle.coef) || !is.null(par)) {
 		res <-run.mle.vam(obj,par,verbose=verbose,method=method)
 		if(verbose && obj$optim$convergence>0) cat("convergence=",obj$optim$convergence,"\n",sep="")
-		# alpha <- obj$rcpp()$alpha_est(c(1,res))
-		# obj$mle.coef <- c(alpha,res)
-		# params(obj,obj$mle.coef)
 	}
 	obj$mle.coef
 }
