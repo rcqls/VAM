@@ -3,6 +3,7 @@
 plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cumulative"),from,to,by=0.1,system.index=1,cm.type=NA,pm.type=NA,add=FALSE,...) {
 	rcpp <- rcpp(obj)
 	d <- if(inherits(obj,"sim.vam")) rcpp$get_data() else rcpp$get_data(system.index-1) #0 since one-system first!
+	if(nrow(d)==0) stop("plot failed since data are required!") 
 	infos <- rcpp$get_virtual_age_infos(by)
 	if(missing(from)) from <- min(d$Time)
 	if(missing(to)) to <- max(d$Time)
