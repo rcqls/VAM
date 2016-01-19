@@ -2,7 +2,7 @@
 #include "rcpp_maintenance_model.h"
 #include "rcpp_vam_module.h"
 
-// Constructor from R to build different kind of 
+// Constructor from R to build different kind of
 MaintenancePolicy* newMaintenancePolicy(List policy) {
 	std::string name=policy["name"];
 	MaintenancePolicy*  mp=NULL; //default "None"
@@ -15,19 +15,29 @@ MaintenancePolicy* newMaintenancePolicy(List policy) {
 		//DEBUG:printf("Params:alpha=%lf,beta=%lf\n",alpha,beta);
 		List pars=policy["params"];
 		mp=new AtIntensityMaintenancePolicy(pars);
-        if(as<bool>(policy["with.model"])) {
-            VamModel* ext_mod_= as<VamModel*>(policy["model"]);
-            ext_mod_->idMod=0;
-            mp->set_external_model(ext_mod_);
-        }
+    if(as<bool>(policy["with.model"])) {
+        VamModel* ext_mod_= as<VamModel*>(policy["model"]);
+        ext_mod_->idMod=0;
+        mp->set_external_model(ext_mod_);
+    }
 	} else if(name.compare("AtVirtualAge.maintenance.policy") == 0) {
 		//DEBUG:printf("Params:alpha=%lf,beta=%lf\n",alpha,beta);
 		List pars=policy["params"];
 		mp=new AtVirtualAgeMaintenancePolicy(pars);
+		if(as<bool>(policy["with.model"])) {
+				VamModel* ext_mod_= as<VamModel*>(policy["model"]);
+				ext_mod_->idMod=0;
+				mp->set_external_model(ext_mod_);
+		}
 	} else if(name.compare("AtFailureProbability.maintenance.policy") == 0) {
 		//DEBUG:printf("Params:alpha=%lf,beta=%lf\n",alpha,beta);
 		List pars=policy["params"];
 		mp=new AtFailureProbabilityMaintenancePolicy(pars);
+		if(as<bool>(policy["with.model"])) {
+				VamModel* ext_mod_= as<VamModel*>(policy["model"]);
+				ext_mod_->idMod=0;
+				mp->set_external_model(ext_mod_);
+		}
 	} else if(name.compare("MaintenancePolicyList") == 0) {
 		List policies=policy["policies"];
 		mp=new MaintenancePolicyList(policies);
@@ -56,10 +66,10 @@ VamModel* MaintenancePolicy::update_external_model(VamModel* model) {
     } else mod=model;
     return mod;
 }
- 
+
 List PeriodicMaintenancePolicy::update(VamModel* model) {
     double current=model->time[model->k];
-    // List update(double current) {   
+    // List update(double current) {
 	Function sample_int = Environment::base_env()["sample.int"];
 	List res;
 	res["time"] = from + (floor((current - from)/by) + 1) * by;
@@ -67,7 +77,7 @@ List PeriodicMaintenancePolicy::update(VamModel* model) {
 	int t=as<int>(sample_int(NumericVector::create(prob.size()),1,true,prob))+get_from_type();
 	res["type"]=t;
 	return res;
- 
+
 };
 
 List AtIntensityMaintenancePolicy::update(VamModel* model) {
@@ -77,7 +87,7 @@ List AtIntensityMaintenancePolicy::update(VamModel* model) {
 
     //printf("at=%d\n",model->idMod);
     res["time"] = mod->models->at(mod->idMod)->virtual_age_inverse(mod->family->inverse_density(level[0]));
-    //First argument not automatically wrapped in RcppWin64bits 
+    //First argument not automatically wrapped in RcppWin64bits
     res["type"]= 1+get_from_type(); //sample_int(NumericVector::create(prob.size()),1,true,prob);
     return res;
 };
@@ -86,9 +96,9 @@ List AtVirtualAgeMaintenancePolicy::update(VamModel* model) {
     Function sample_int = Environment::base_env()["sample.int"];
     List res;
     VamModel* mod=update_external_model(model);
-    
+
     res["time"] = mod->models->at(mod->idMod)->virtual_age_inverse(level[0]);
-    //First argument not automatically wrapped in RcppWin64bits 
+    //First argument not automatically wrapped in RcppWin64bits
     res["type"]= 1+get_from_type(); //sample_int(NumericVector::create(prob.size()),1,true,prob);
     return res;
 };
@@ -97,9 +107,9 @@ List AtFailureProbabilityMaintenancePolicy::update(VamModel* model) {
     Function sample_int = Environment::base_env()["sample.int"];
     List res;
     VamModel* mod=update_external_model(model);
-    
+
     res["time"] = mod->models->at(mod->idMod)->virtual_age_inverse(mod->family->inverse_cumulative_density(mod->family->cumulative_density(mod->models->at(mod->idMod)->virtual_age(mod->time[mod->k]))-log(1-level)[0]));
-    //First argument not automatically wrapped in RcppWin64bits 
+    //First argument not automatically wrapped in RcppWin64bits
     res["type"]= 1+get_from_type(); //sample_int(NumericVector::create(prob.size()),1,true,prob);
     return res;
 };
@@ -145,7 +155,3 @@ List MaintenancePolicyList::update(VamModel* model) {
     }
     return res;
 };
-
-
-
-
