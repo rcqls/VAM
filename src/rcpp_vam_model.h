@@ -62,7 +62,7 @@ public:
 			dS1[i+1]=0;
 			dS2[i+1]=0;
 		}
-		
+
 	};
 
 	FamilyModel* get_family() {
@@ -99,6 +99,8 @@ public:
     void update_Vleft(bool with_gradient);
 
     List get_virtual_age_infos(double by);
+
+		void init_computation_values();
 
 private:
 	void set_models(List models_);

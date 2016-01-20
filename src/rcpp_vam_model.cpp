@@ -80,19 +80,27 @@ void VamModel::set_maintenance_policy(List maintenance_policy_) {
 	//if(maintenance_policy==NULL) printf("maintenance_policy is NULL\n");
 };
 
+void VamModel::init_computation_values() {
+	S1=0;S2=0;S3=0;
+	Vleft=0;Vright=0;
+	hVleft=0;
+}
+
 void VamModel::init(List model_) {
 	List models_=model_["models"];
 	List family_=model_["family"];
 	List maintenance_policy_=model_["pm.policy"];
-    set_models(models_);
+  set_models(models_);
 	nbPM=models->size()-1;
 
 	set_family(family_);
 	set_maintenance_policy(maintenance_policy_);
 
-	S1=0;S2=0;S3=0;
-	Vleft=0;Vright=0;
-	hVleft=0;
+	// S1=0;S2=0;S3=0;
+	// Vleft=0;Vright=0;
+	// hVleft=0;
+	init_computation_values();
+
 	dVright=new double[nbPM+1];
 	dVleft=new double[nbPM+1];
 	dS1=new double[nbPM+2];

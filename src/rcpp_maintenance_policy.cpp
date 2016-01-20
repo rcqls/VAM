@@ -87,7 +87,7 @@ List AtIntensityMaintenancePolicy::update(VamModel* model) {
 
     //printf("at=%d\n",model->idMod);
     res["time"] = mod->models->at(mod->idMod)->virtual_age_inverse(mod->family->inverse_density(level[0]));
-    //First argument not automatically wrapped in RcppWin64bits
+
     res["type"]= 1+get_from_type(); //sample_int(NumericVector::create(prob.size()),1,true,prob);
     return res;
 };
@@ -98,7 +98,7 @@ List AtVirtualAgeMaintenancePolicy::update(VamModel* model) {
     VamModel* mod=update_external_model(model);
 
     res["time"] = mod->models->at(mod->idMod)->virtual_age_inverse(level[0]);
-    //First argument not automatically wrapped in RcppWin64bits
+     
     res["type"]= 1+get_from_type(); //sample_int(NumericVector::create(prob.size()),1,true,prob);
     return res;
 };
