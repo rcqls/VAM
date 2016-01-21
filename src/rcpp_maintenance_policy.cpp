@@ -83,6 +83,7 @@ List PeriodicMaintenancePolicy::update(VamModel* model) {
 List AtIntensityMaintenancePolicy::update(VamModel* model) {
     Function sample_int = Environment::base_env()["sample.int"];
     List res;
+		//printf("ici\n");
     VamModel* mod=update_external_model(model);
 
     //printf("at=%d\n",model->idMod);
@@ -92,16 +93,30 @@ List AtIntensityMaintenancePolicy::update(VamModel* model) {
     return res;
 };
 
+void AtIntensityMaintenancePolicy::first() {
+	//Needs init for external model for new simulation
+	// printf("mp: %p\n",model->maintenance_policy);
+	// printf("mp: %p\n",(model->maintenance_policy->get_external_model()));
+	if( (this != NULL) && (get_external_model() != NULL)) get_external_model()->init_computation_values();
+}
+
 List AtVirtualAgeMaintenancePolicy::update(VamModel* model) {
     Function sample_int = Environment::base_env()["sample.int"];
     List res;
     VamModel* mod=update_external_model(model);
 
     res["time"] = mod->models->at(mod->idMod)->virtual_age_inverse(level[0]);
-     
+
     res["type"]= 1+get_from_type(); //sample_int(NumericVector::create(prob.size()),1,true,prob);
     return res;
 };
+
+void AtVirtualAgeMaintenancePolicy::first() {
+	//Needs init for external model for new simulation
+	// printf("mp: %p\n",model->maintenance_policy);
+	// printf("mp: %p\n",(model->maintenance_policy->get_external_model()));
+	if( (this != NULL) && (get_external_model() != NULL)) get_external_model()->init_computation_values();
+}
 
 List AtFailureProbabilityMaintenancePolicy::update(VamModel* model) {
     Function sample_int = Environment::base_env()["sample.int"];
@@ -113,6 +128,13 @@ List AtFailureProbabilityMaintenancePolicy::update(VamModel* model) {
     res["type"]= 1+get_from_type(); //sample_int(NumericVector::create(prob.size()),1,true,prob);
     return res;
 };
+
+void AtFailureProbabilityMaintenancePolicy::first() {
+	//Needs init for external model for new simulation
+	// printf("mp: %p\n",model->maintenance_policy);
+	// printf("mp: %p\n",(model->maintenance_policy->get_external_model()));
+	if( (this != NULL) && (get_external_model() != NULL)) get_external_model()->init_computation_values();
+}
 
 MaintenancePolicyList::MaintenancePolicyList(List policies) {
 	int ft=0;
@@ -132,6 +154,18 @@ MaintenancePolicyList::MaintenancePolicyList(List policies) {
         	ft += mp -> type_size(); //update ft for next mp
         }
     }
+};
+
+void MaintenancePolicyList::first() {
+
+	for(
+		std::vector<MaintenancePolicy*>::iterator vit=policy_list.begin();
+		vit != policy_list.end();
+        ++vit
+    ) {
+			(*vit)->first();
+	}
+
 };
 
 MaintenancePolicyList::~MaintenancePolicyList() {

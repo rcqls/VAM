@@ -15,8 +15,10 @@ DataFrame SimVam::get_data() {
 
 DataFrame SimVam::simulate(int nbsim) {
     init(nbsim);
-
+    
     stop_policy->first();
+
+    model->maintenance_policy->first();
 
     while(stop_policy->ok()) {//model->k < nbsim) {
         //printf("k=%d\n",model->k);
@@ -76,11 +78,6 @@ void SimVam::init(int cache_size_) {
     (model->type).clear();
     (model->time).resize(size,0);
     (model->type).resize(size,1);
-
-    //Needs init for external model for new simulation
-    if( (model->maintenance_policy != NULL) && (model->maintenance_policy->get_external_model() != NULL)) {
-      model->maintenance_policy->get_external_model()->init_computation_values();
-    }
 }
 
 #define print_vector(x)                                                                     \

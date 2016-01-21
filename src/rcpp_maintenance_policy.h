@@ -42,6 +42,8 @@ public:
 
     virtual int type_size() = 0;
 
+		virtual void first() = 0;
+
 
 private:
 
@@ -51,10 +53,10 @@ private:
 
 };
 
-//IMPORTANT: Names of params of R has to be registered in maintenance-policy-register.R or in any other R file (if you think about plugin)  
+//IMPORTANT: Names of params of R has to be registered in maintenance-policy-register.R or in any other R file (if you think about plugin)
 // Ex: AtIntensity(level=1.2)
-// Since in vam.R (inside convert.mp),  "level" is defined by default at 0.5, 
-// this allow us to magically call AtIntensity(1.2) instead of AtIntensity(level=1.2). 
+// Since in vam.R (inside convert.mp),  "level" is defined by default at 0.5,
+// this allow us to magically call AtIntensity(1.2) instead of AtIntensity(level=1.2).
 //THEN, if you want to provide this feature for other parameters you could set the default
 // inside convert.mp of file vam.R
 
@@ -84,7 +86,9 @@ public:
     }
 
     List update(VamModel* model);
- 
+
+		void first() {};
+
 };
 
 class AtIntensityMaintenancePolicy : public MaintenancePolicy {
@@ -114,7 +118,9 @@ public:
     }
 
     List update(VamModel* model);
- 
+
+		void first();
+
 };
 
 class AtVirtualAgeMaintenancePolicy : public MaintenancePolicy {
@@ -144,7 +150,9 @@ public:
     }
 
     List update(VamModel* model);
- 
+
+		void first();
+
 };
 
 class AtFailureProbabilityMaintenancePolicy : public MaintenancePolicy {
@@ -174,10 +182,12 @@ public:
     }
 
     List update(VamModel* model);
- 
+
+		void first();
+
 };
 
-class MaintenancePolicyList : public MaintenancePolicy {//List of MaintenancePolicy (heterogeneous terms) 
+class MaintenancePolicyList : public MaintenancePolicy {//List of MaintenancePolicy (heterogeneous terms)
 public:
     MaintenancePolicyList(List policies);
 
@@ -219,11 +229,13 @@ public:
         return policy_list.size();
     }
 
+		void first();
+
 
 protected:
 
     std::vector<MaintenancePolicy*> policy_list; //policy list
-     
+
 };
 
 MaintenancePolicy* newMaintenancePolicy(List policy);
