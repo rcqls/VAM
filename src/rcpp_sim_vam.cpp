@@ -15,10 +15,10 @@ DataFrame SimVam::get_data() {
 
 DataFrame SimVam::simulate(int nbsim) {
     init(nbsim);
-    
+
     stop_policy->first();
 
-    model->maintenance_policy->first();
+    if(model->maintenance_policy != NULL) model->maintenance_policy->first();
 
     while(stop_policy->ok()) {//model->k < nbsim) {
         //printf("k=%d\n",model->k);

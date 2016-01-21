@@ -97,7 +97,7 @@ void AtIntensityMaintenancePolicy::first() {
 	//Needs init for external model for new simulation
 	// printf("mp: %p\n",model->maintenance_policy);
 	// printf("mp: %p\n",(model->maintenance_policy->get_external_model()));
-	if( (this != NULL) && (get_external_model() != NULL)) get_external_model()->init_computation_values();
+	if( get_external_model() != NULL) get_external_model()->init_computation_values();
 }
 
 List AtVirtualAgeMaintenancePolicy::update(VamModel* model) {
@@ -115,7 +115,7 @@ void AtVirtualAgeMaintenancePolicy::first() {
 	//Needs init for external model for new simulation
 	// printf("mp: %p\n",model->maintenance_policy);
 	// printf("mp: %p\n",(model->maintenance_policy->get_external_model()));
-	if( (this != NULL) && (get_external_model() != NULL)) get_external_model()->init_computation_values();
+	if(get_external_model() != NULL) get_external_model()->init_computation_values();
 }
 
 List AtFailureProbabilityMaintenancePolicy::update(VamModel* model) {
@@ -133,7 +133,7 @@ void AtFailureProbabilityMaintenancePolicy::first() {
 	//Needs init for external model for new simulation
 	// printf("mp: %p\n",model->maintenance_policy);
 	// printf("mp: %p\n",(model->maintenance_policy->get_external_model()));
-	if( (this != NULL) && (get_external_model() != NULL)) get_external_model()->init_computation_values();
+	if( get_external_model() != NULL) get_external_model()->init_computation_values();
 }
 
 MaintenancePolicyList::MaintenancePolicyList(List policies) {
