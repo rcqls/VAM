@@ -110,13 +110,13 @@ MaintenanceModel* newMaintenanceModel(List maintenance,VamModel* model) {
 		double rho=params[0];
 		mm=new ARAInf(rho,model);
 	} else if(name.compare("AGAN.va.model") == 0) {
-        double rho=1;
-        mm=new ARAInf(rho,model);
-    } else if(name.compare("ABAO.va.model") == 0) {
-        double rho=0;
-        mm=new ARAInf(rho,model);
-    } else {
-        printf("WARNING: %s is not a proper maintenance model!\n",name.c_str());
-    }
+    double rho=1.0;
+    mm=new ARAInf(rho,model);
+  } else if(name.compare("ABAO.va.model") == 0) {
+    double rho=0.0;
+    mm=new ARAInf(rho,model);
+  } else {
+    printf("WARNING: %s is not a proper maintenance model!\n",name.c_str());
+  }
 	return mm;
 }

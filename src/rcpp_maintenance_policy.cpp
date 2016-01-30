@@ -86,8 +86,13 @@ List AtIntensityMaintenancePolicy::update(VamModel* model) {
 		//printf("ici\n");
     VamModel* mod=update_external_model(model);
 
-    //printf("at=%d\n",model->idMod);
-    res["time"] = mod->models->at(mod->idMod)->virtual_age_inverse(mod->family->inverse_density(level[0]));
+		double current=model->time[model->k],next_time=mod->models->at(mod->idMod)->virtual_age_inverse(mod->family->inverse_density(level[0]));
+		if(next_time<current) {
+			printf("warning: %lf>%lf at rank %d => AtIntensity() maintenance policy cancelled!\n",current,next_time,model->k);
+			next_time=current*1000000.0;
+		}
+		//printf("at=%d\n",model->idMod);
+    res["time"] = next_time<current ?  : next_time ;//mod->models->at(mod->idMod)->virtual_age_inverse(mod->family->inverse_density(level[0]));
 
     res["type"]= 1+get_from_type(); //sample_int(NumericVector::create(prob.size()),1,true,prob);
     return res;
