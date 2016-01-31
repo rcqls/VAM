@@ -39,8 +39,11 @@ DataFrame SimVam::simulate(int nbsim) {
 
             NumericVector tmp=timeAndTypePM["time"];
             timePM=tmp[0];
+            if(timePM<timeCM && timePM<model->time[model->k]) {
+          		printf("Warning: PM ignored since next_time(=%lf)<current_time(=%lf) at rank %d.\n",timePM,model->time[model->k],model->k);
+            }
         }
-        if(model->maintenance_policy == NULL || timeCM < timePM) {
+        if(model->maintenance_policy == NULL || timeCM < timePM || timePM<model->time[model->k]) {
             model->time[model->k + 1]=timeCM;
             model->type[model->k + 1]=-1;
             idMod=0;
