@@ -1,6 +1,13 @@
 LISTE d'évolutions le package VAM
 
 ###########
+	+ WINDOWS
+	+ GET LIKELIHOOD AND DERIVATIVE avec et sans alpha
+	+ OPTIM SOUS CONTRAINTE
+	+ OPTIM avec alpha fixé.
+	+ HESSIEN + IC
+
+###########
 Changements mineurs:
 
 	+ Dans les plot prendre en compte les xlim et ylim pour calibrer le pas de calcul sur l'axe des abscisses pour limiter le temps de calculs (quand il y a beucoup de temps de maintenance ca devient très long en temps de calcul, affichage sans doute trop précis). De plus si uniquement un xlim ou ylim est spécifié, calibrer l'autre échelle par rapport à celle spécifiée et non par rapport à la totalité de la trajectoire.
@@ -31,7 +38,7 @@ Changements mineurs:
 
 ############
 Evolutions :
-	
+
 	+ Intégrer une méthode d'optimisation sous contrainte pour l'inférence et régler les problèmes pouvant apparaitre quand rho vaut 1+. Faire en sorte qu'il y ait moins d'echec dans la conclusion de la méthode d'estimation. (surtout quand en fait à proprement parlé il n'y a pas d'échec !)
 
 	+ Simuler le futur d'une trajectoire.
