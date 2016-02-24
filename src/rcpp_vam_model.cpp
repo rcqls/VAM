@@ -42,7 +42,7 @@ void VamModel::update_Vleft(bool with_gradient) {
 	//printf("Vleft:%lf\n", model->Vleft);
 	if(with_gradient) {
 		double* tmp=(models->at(idMod))->virtual_age_derivative(time[k+1]);
-		for(int i=0;i<nbPM+2;i++) dVleft[i]=tmp[i];
+		for(int i=0;i<nbPM+1;i++) dVleft[i]=tmp[i];
 	}
 }
 
