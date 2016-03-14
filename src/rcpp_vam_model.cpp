@@ -145,16 +145,16 @@ DataFrame VamModel::get_virtual_age_info(double from,double to, double by) {
 
 	t[0]=from;t[n]=to;
 	v[0]=Vright;v[n]=Vleft;
-	h[0]=family->density(v[0]);h[n]=family->density(v[n]);
-	H[0]=S1;H[n]=S1+family->cumulative_density(v[n])-family->cumulative_density(v[0]);
+	h[0]=family->hazardRate(v[0]);h[n]=family->hazardRate(v[n]);
+	H[0]=S1;H[n]=S1+family->cumulative_hazardRate(v[n])-family->cumulative_hazardRate(v[0]);
 	double by_t=(t[n]-t[0])/s;
 	double by_v=(v[n]-v[0])/s;
 
 	for(int i=1;i<n;i++) {
 		t[i]=t[i-1]+by_t;//printf("t[%d]=%lf\n",i,t[i]);
 		v[i]=v[i-1]+by_v;
-		h[i]=family->density(v[i]);
-		H[i]=S1+family->cumulative_density(v[i])-family->cumulative_density(v[0]);
+		h[i]=family->hazardRate(v[i]);
+		H[i]=S1+family->cumulative_hazardRate(v[i])-family->cumulative_hazardRate(v[0]);
 	}
 
 	return DataFrame::create(
@@ -175,7 +175,7 @@ List VamModel::get_virtual_age_infos(double by) {
 		//printf("k=%d/n=%d\n",k,n);
 		update_Vleft(false,false);
 		res[k]=get_virtual_age_info(time[k],time[k+1],by);
-		S1 += family->cumulative_density(Vleft) - family->cumulative_density(Vright);
+		S1 += family->cumulative_hazardRate(Vleft) - family->cumulative_hazardRate(Vright);
 		//gradient_update_for_current_system();
 		int type2=type[k + 1];
 		if(type2 < 0) type2=0;

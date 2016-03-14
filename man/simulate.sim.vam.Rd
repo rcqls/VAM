@@ -4,7 +4,7 @@
 
 \title{Simulation of virtual age model}
 
-\description{\code{simulate} generates a realization of Corrective Maintenance (CM) and planned Preventive Maintenance (PM) times of a virtual age model.}
+\description{\code{simulate} generates a realization of Corrective Maintenance (CM) and planned Preventive Maintenance (PM) times of a virtual age model. The last simulated data set is also memorized inside the \code{\link{sim.vam}} object used for specifying the simulation model.}
 
 \usage{
 \method{simulate}{sim.vam}(sim, stop.policy = 10, nb.system=1, cache.size=500, as.list=FALSE, data=NULL)

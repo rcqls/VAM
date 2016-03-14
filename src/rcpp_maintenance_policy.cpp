@@ -86,9 +86,9 @@ List AtIntensityMaintenancePolicy::update(VamModel* model) {
 		//printf("ici\n");
     VamModel* mod=update_external_model(model);
 
-		double next_time=mod->models->at(mod->idMod)->virtual_age_inverse(mod->family->inverse_density(level[0]));
+		double next_time=mod->models->at(mod->idMod)->virtual_age_inverse(mod->family->inverse_hazardRate(level[0]));
 		//printf("at=%d\n",model->idMod);
-    res["time"] = next_time ;//mod->models->at(mod->idMod)->virtual_age_inverse(mod->family->inverse_density(level[0]));
+    res["time"] = next_time ;//mod->models->at(mod->idMod)->virtual_age_inverse(mod->family->inverse_hazardRate(level[0]));
 
     res["type"]= 1+get_from_type(); //sample_int(NumericVector::create(prob.size()),1,true,prob);
     return res;
@@ -124,7 +124,7 @@ List AtFailureProbabilityMaintenancePolicy::update(VamModel* model) {
     List res;
     VamModel* mod=update_external_model(model);
 
-    res["time"] = mod->models->at(mod->idMod)->virtual_age_inverse(mod->family->inverse_cumulative_density(mod->family->cumulative_density(mod->models->at(mod->idMod)->virtual_age(mod->time[mod->k]))-log(1-level)[0]));
+    res["time"] = mod->models->at(mod->idMod)->virtual_age_inverse(mod->family->inverse_cumulative_hazardRate(mod->family->cumulative_hazardRate(mod->models->at(mod->idMod)->virtual_age(mod->time[mod->k]))-log(1-level)[0]));
     //First argument not automatically wrapped in RcppWin64bits
     res["type"]= 1+get_from_type(); //sample_int(NumericVector::create(prob.size()),1,true,prob);
     return res;

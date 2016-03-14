@@ -52,15 +52,15 @@ RCPP_MODULE(vam_module) {
     ;
 
     class_<FamilyModel>("FamilyModel")
-    .method("density",&FamilyModel::density,"density")
-    .method("cumulative_density",&FamilyModel::cumulative_density,"cumulative density")
-    .method("density_derivative",&FamilyModel::density_derivative,"density_derivative")
-    .method("density_2derivative",&FamilyModel::density_2derivative,"density second order derivative")//LD
-    .method("inverse_cumulative_density",&FamilyModel::inverse_cumulative_density,"inverse cumulative density")
-    .method("density_param_derivative",&FamilyModel::density_param_derivative,"density derivative with respect to beta")
-    .method("cumulative_density_param_derivative",&FamilyModel::cumulative_density_param_derivative,"cumulative density derivative with respect to beta")
-    .method("density_param_2derivative",&FamilyModel::density_param_2derivative,"density second order derivative with respect to beta")//LD
-    .method("cumulative_density_param_2derivative",&FamilyModel::cumulative_density_param_2derivative,"cumulative density second order derivative with respect to beta")//LD
+    .method("hazardRate",&FamilyModel::hazardRate,"hazard rate")
+    .method("cumulative_hazardRate",&FamilyModel::cumulative_hazardRate,"cumulative hazardrd rate")
+    .method("hazardRate_derivative",&FamilyModel::hazardRate_derivative,"hazard rate derivative")
+    .method("hazardRate_2derivative",&FamilyModel::hazardRate_2derivative,"hazard rate second order derivative")//LD
+    .method("inverse_cumulative_hazardRate",&FamilyModel::inverse_cumulative_hazardRate,"inverse cumulative hazard rate")
+    .method("hazardRate_param_derivative",&FamilyModel::hazardRate_param_derivative,"hazard rate derivative with respect to beta")
+    .method("cumulative_hazardRate_param_derivative",&FamilyModel::cumulative_hazardRate_param_derivative,"cumulative hazard rate derivative with respect to beta")
+    .method("hazardRate_param_2derivative",&FamilyModel::hazardRate_param_2derivative,"hazard rate second order derivative with respect to beta")//LD
+    .method("cumulative_hazardRate_param_2derivative",&FamilyModel::cumulative_hazardRate_param_2derivative,"cumulative hazard rate second order derivative with respect to beta")//LD
     ;
 
     function( "newMaintenancePolicy", &newMaintenancePolicy );

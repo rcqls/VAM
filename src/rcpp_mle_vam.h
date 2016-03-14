@@ -5,7 +5,7 @@
 
 using namespace Rcpp ;
 
-class MLEVam { 
+class MLEVam {
 
 public:
 
@@ -98,7 +98,7 @@ public:
         init_mle_vam(true,false);//LD:false
         model->set_params(param);
         gradient_for_current_system();
-        
+
         //only if multi-system
         for(int i=1;i<model->nb_system;i++) {
             model->select_data(i);
@@ -109,7 +109,7 @@ public:
         for(int i=0;i<model->nbPM + 2;i++) {
             res[i] = -dS1[i]/S1 * S3 + dS2[i];
         }
-        
+
         return res;
     }
 
@@ -142,7 +142,7 @@ public:
         init_mle_vam(true,true);//LD
         model->set_params(param);//LD
         hessian_for_current_system();//LD
-        
+
         //only if multi-system
         for(int i=1;i<model->nb_system;i++) {//LD
             model->select_data(i);//LD
@@ -158,7 +158,7 @@ public:
                 res(j,i) = res(i,j);//LD
             }//LD
         }//LD
-        
+
         return res;//LD
     }//LD
 
@@ -208,7 +208,7 @@ private:
                 dS1[i] = 0; dS2[i] = 0;
             }
         }
-        
+
     }
 
     void init_mle_vam_for_current_system(bool with_gradient,bool with_hessian) {//LD)
@@ -249,18 +249,18 @@ private:
     			model->dS2[i+2]=0;
     		}
     	}
-        
+
     }
 
     void contrast_update_for_current_system(bool with_gradient, bool with_hessian) {//LD
     	model->update_Vleft(with_gradient,with_hessian);//LD
-    	model->hVleft=model->family->density(model->Vleft);
+    	model->hVleft=model->family->hazardRate(model->Vleft);
     	model->indType = ((model->type)[(model->k) + 1] < 0 ? 1.0 : 0.0);
-    	// printf("HVleft:%d,%lf,%lf\n",model->k,model->Vleft,model->family->cumulative_density(model->Vleft));
-    	// printf("HVright:%lf,%lf\n",model->Vright,model->family->cumulative_density(model->Vright));
+    	// printf("HVleft:%d,%lf,%lf\n",model->k,model->Vleft,model->family->cumulative_hazardRate(model->Vleft));
+    	// printf("HVright:%lf,%lf\n",model->Vright,model->family->cumulative_hazardRate(model->Vright));
     	// printf("S1:%lf\n",model->S1);
     	// printf("indType,S2,hVleft:%lf,%lf,%lf\n",model->indType,model->S1,model->hVleft);
-    	model->S1 += model->family->cumulative_density(model->Vleft) - model->family->cumulative_density(model->Vright);
+    	model->S1 += model->family->cumulative_hazardRate(model->Vleft) - model->family->cumulative_hazardRate(model->Vright);
     	model->S2 += log(model->hVleft)* model->indType;
     	//for(int i=0;i<(model->nbPM)+2;i++) model->dS1[i] += cdVleft[i] - cdVright[i];
     	//model->dS1 += (models->at(0))
@@ -268,10 +268,10 @@ private:
 
     void gradient_update_for_current_system() {
     	contrast_update_for_current_system(true,false);//LD
-    	model->dS1[0] += model->family->cumulative_density_param_derivative(model->Vleft) - model->family->cumulative_density_param_derivative(model->Vright);
-    	model->dS2[0] += model->family->density_param_derivative(model->Vleft)/model->hVleft*model->indType ;
-    	double hVright=model->family->density(model->Vright);
-    	double dhVleft=model->family->density_derivative(model->Vleft);
+    	model->dS1[0] += model->family->cumulative_hazardRate_param_derivative(model->Vleft) - model->family->cumulative_hazardRate_param_derivative(model->Vright);
+    	model->dS2[0] += model->family->hazardRate_param_derivative(model->Vleft)/model->hVleft*model->indType ;
+    	double hVright=model->family->hazardRate(model->Vright);
+    	double dhVleft=model->family->hazardRate_derivative(model->Vleft);
     	//printf("k:%d,hVright:%lf,dhVleft:%lf,indType:%lf\n",model->k,hVright,dhVleft,model->indType);
     	for(int i=0;i<(model->nbPM)+1;i++) {
     		model->dS1[i+1] += model->hVleft * model->dVleft[i] - hVright * model->dVright[i];
@@ -285,17 +285,17 @@ private:
     void hessian_update_for_current_system() {//LD
         int j;//LD
         contrast_update_for_current_system(true,true);//LD
-        model->dS1[0] += model->family->cumulative_density_param_derivative(model->Vleft) - model->family->cumulative_density_param_derivative(model->Vright);//LD
-        model->dS2[0] += model->family->density_param_derivative(model->Vleft)/model->hVleft*model->indType ;//LD
-        model->d2S1[0] += model->family->cumulative_density_param_2derivative(model->Vleft) - model->family->cumulative_density_param_2derivative(model->Vright);//LD
-        model->d2S2[0] += model->family->density_param_2derivative(model->Vleft)/model->hVleft*model->indType - pow(model->family->density_param_derivative(model->Vleft)/model->hVleft,2)*model->indType;//LD
-        double hVright=model->family->density(model->Vright);//LD
-        double dhVleft=model->family->density_derivative(model->Vleft);//LD
-        double dhVright=model->family->density_derivative(model->Vright);//LD
-        double hVright_param_derivative=model->family->density_param_derivative(model->Vright);//LD
-        double hVleft_param_derivative=model->family->density_param_derivative(model->Vleft);//LD
-        double dhVleft_param_derivative=model->family->density_derivative_param_derivative(model->Vleft);//LD
-        double d2hVleft=model->family->density_2derivative(model->Vleft);//LD
+        model->dS1[0] += model->family->cumulative_hazardRate_param_derivative(model->Vleft) - model->family->cumulative_hazardRate_param_derivative(model->Vright);//LD
+        model->dS2[0] += model->family->hazardRate_param_derivative(model->Vleft)/model->hVleft*model->indType ;//LD
+        model->d2S1[0] += model->family->cumulative_hazardRate_param_2derivative(model->Vleft) - model->family->cumulative_hazardRate_param_2derivative(model->Vright);//LD
+        model->d2S2[0] += model->family->hazardRate_param_2derivative(model->Vleft)/model->hVleft*model->indType - pow(model->family->hazardRate_param_derivative(model->Vleft)/model->hVleft,2)*model->indType;//LD
+        double hVright=model->family->hazardRate(model->Vright);//LD
+        double dhVleft=model->family->hazardRate_derivative(model->Vleft);//LD
+        double dhVright=model->family->hazardRate_derivative(model->Vright);//LD
+        double hVright_param_derivative=model->family->hazardRate_param_derivative(model->Vright);//LD
+        double hVleft_param_derivative=model->family->hazardRate_param_derivative(model->Vleft);//LD
+        double dhVleft_param_derivative=model->family->hazardRate_derivative_param_derivative(model->Vleft);//LD
+        double d2hVleft=model->family->hazardRate_2derivative(model->Vleft);//LD
         //printf("k:%d,hVright:%lf,dhVleft:%lf,indType:%lf\n",model->k,hVright,dhVleft,model->indType);
         for(int i=0;i<(model->nbPM)+1;i++) {//LD
             model->dS1[i+1] += model->hVleft * model->dVleft[i] - hVright * model->dVright[i];//LD

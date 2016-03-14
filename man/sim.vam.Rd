@@ -3,7 +3,7 @@
 
 \title{Virtual age simulation model}
 
-\description{\code{sim.vam} is used to define a virtual age model for Corrective Maintenance (CM) and planned Preventive Maintenance (PM). The object define with \code{sim.vam} can be used to simulate realizations of the CM-PM process thanks to \code{\link[VAM]{simulate}} method. The object define with \code{sim.vam} can also be used to define a PM policy.}
+\description{\code{sim.vam} is used to define a virtual age model for Corrective Maintenance (CM) and planned Preventive Maintenance (PM). The object define with \code{sim.vam} can be used to simulate realizations of the CM-PM process thanks to \code{\link[VAM]{simulate}} method. The last simulated data set, produced with the \code{\link[VAM]{simulate}} method, is also memorized inside the \code{sim.vam} object, in such way that the characteristics of the model can be plotted thanks to \code{\link[VAM]{plot}} method. The object define with \code{sim.vam} can also be used to define a PM policy.}
 
 \usage{
 sim.vam(formula)

@@ -160,6 +160,98 @@ update.mle.vam <- function(mle,data) {
 	## with
 }
 
+#fonction de LD2
+contrast.mle.vam <-function(obj,par0,type=c(TRUE,FALSE,FALSE)){
+	rcpp <- obj$rcpp()
+	## save the initial param
+	if(is.null(obj$par0)) obj$par0 <- params(obj)
+	## parameters stuff!
+	if(missing(par0))  {
+		if("par" %in% names(obj)) {
+			param <- obj$par[-1]
+			alpha <- obj$par[1]#LD2
+		} #not the first run
+		else {
+			param<-params(obj)[-1] #first run
+			alpha<-params(obj)[1]#LD2
+		}
+	} else if(is.null(par0)) {
+		param<-obj$par0[-1] 
+		alpha<-obj$par0[1]#LD2
+	} else {
+		param<-par0[-1]
+		alpha<-par0[1]#LD2
+	}
+	
+	if(sum(type)==1) {
+		if(type[1]){
+			res<-rcpp$contrast(c(alpha,param),FALSE)
+		} else if(type[2]){
+			res<-rcpp$gradient(c(alpha,param),FALSE)[-1]
+		} else if(type[3]){
+			res<-rcpp$hessian(c(alpha,param),FALSE)[-1,-1]
+		}
+	} else {
+		res<-list()
+		if (type[1]){
+			res$contrast<-rcpp$contrast(c(alpha,param),FALSE)
+		}
+		if(type[2]){
+			res$gradient<-rcpp$gradient(c(alpha,param),FALSE)[-1]
+		}
+		if(type[3]){
+			res$hessian<-rcpp$hessian(c(alpha,param),FALSE)[-1,-1]
+		}
+	}
+	res
+}
+
+#fonction de LD2
+logLikelihood.mle.vam <-function(obj,par0,type=c(TRUE,FALSE,FALSE)){
+	rcpp <- obj$rcpp()
+	## save the initial param
+	if(is.null(obj$par0)) obj$par0 <- params(obj)
+	## parameters stuff!
+	if(missing(par0))  {
+		if("par" %in% names(obj)) {
+			param <- obj$par[-1]
+			alpha <- obj$par[1]#LD2
+		} #not the first run
+		else {
+			param<-params(obj)[-1] #first run
+			alpha<-params(obj)[1]#LD2
+		}
+	} else if(is.null(par0)) {
+		param<-obj$par0[-1] 
+		alpha<-obj$par0[1]#LD2
+	} else {
+		param<-par0[-1]
+		alpha<-par0[1]#LD2
+	}
+	
+	if(sum(type)==1) {
+		if(type[1]){
+			res<-rcpp$contrast(c(alpha,param),TRUE)
+		} else if(type[2]){
+			res<-rcpp$gradient(c(alpha,param),TRUE)
+		} else if(type[3]){
+			res<-rcpp$hessian(c(alpha,param),TRUE)
+		}
+	} else {
+		res<-list()
+		if (type[1]){
+			res$contrast<-rcpp$contrast(c(alpha,param),TRUE)
+		}
+		if(type[2]){
+			res$gradient<-rcpp$gradient(c(alpha,param),TRUE)
+		}
+		if(type[3]){
+			res$hessian<-rcpp$hessian(c(alpha,param),TRUE)
+		}
+	}
+	res
+}
+
 # alpha is not considered in the estimation!
 run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
 	rcpp <- obj$rcpp()
@@ -167,16 +259,36 @@ run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
 	if(is.null(obj$par0)) obj$par0 <- params(obj)
 	## parameters stuff!
 	if(missing(par0))  {
-		if("par" %in% names(obj)) param <- obj$par #not the first run
-		else param<-params(obj)[-1] #first run
-	} else if(is.null(par0)) param<-obj$par0[-1] else param<-par0[-1]
+		if("par" %in% names(obj)) {
+			param <- obj$par[-1]
+			alpha <- obj$par[1]#LD2
+		} #not the first run
+		else {
+			param<-params(obj)[-1] #first run
+			alpha<-params(obj)[1]#LD2
+		}
+	} else if(is.null(par0)) {
+		param<-obj$par0[-1] 
+		alpha<-obj$par0[1]#LD2
+	} else {
+		param<-par0[-1]
+		alpha<-par0[1]#LD2
+	}
 	## fixed and functions stuff!
-	if(missing(fixed)) fixed<-rep(FALSE,length(param))
+	if(missing(fixed)) {
+		fixed<-rep(FALSE,length(param))
+		alpha_fixed<-FALSE#LD2
+	}
 	else if(is.numeric(fixed)) {
 		fixedInd<-fixed
 		fixed<-rep(FALSE,length(param))
-		fixed[fixedInd]<-TRUE
-	}
+		fixed[fixedInd-1]<-TRUE#LD2: ajout du -1
+		alpha_fixed<-sum(fixed==1)
+	} else {#LD2
+		alpha_fixed<-fixed[1]#LD2
+		fixed<-fixed[-1]#LD2
+	}#LD2
+
 
 	fn<-function(par) {
 		##cat("param->");print(par);print(param[!fixed])
@@ -184,7 +296,7 @@ run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
 		#cat("param->");print(param)
 		## All the commented part allows us to save the param when value is NaN
 		#res<-
-		   -rcpp$contrast(c(1,param))
+		-rcpp$contrast(c(alpha,param),alpha_fixed)#LD2
 		# if(is.nan(res)) {
 		# 	mode_param<-"contrast"
 		# 	data_param<- rcpp$get_data(0)
@@ -194,13 +306,13 @@ run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
 		# res
 	}
 
-
 	gr <- function(par) {
 	    param[!fixed]<-par
-	    #cat("param2->");print(param)
-	    ## All the commented part allows us to save the param when value is NaN
+		#cat("param2->");print(param)
+		## All the commented part allows us to save the param when value is NaN
 		#res <-
-	    -rcpp$gradient(c(1,param))[!fixed]
+
+	   	(-rcpp$gradient(c(alpha,param),alpha_fixed)[-1])[!fixed]#LD2
 		# if(any(is.nan(res))) {
 		# 	mode_param<-"gradient"
 		# 	save(param,mode_param,file="/Users/remy/tmp/VAM/res.RData")
@@ -208,29 +320,36 @@ run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
 		# res
 	}
 
-  ## optim stuff!
-  if(is.null(method) || method=="fast") {
-    if(length(param[!fixed])>1) param[!fixed]<-(res <- optim(param[!fixed],fn,gr,method="Ne",...))$par
-    if(is.null(method)) res<-optim(param[!fixed],fn,gr,method="CG",...)
-  } else {
-  	res<-optim(param[!fixed],fn,gr,method=method,...)
-  }
+  	## optim stuff!
+  	if(is.null(method) || method=="fast") {
+    	if(length(param[!fixed])>1) param[!fixed]<-(res <- optim(param[!fixed],fn,gr,method="Ne",...))$par
+    	if(is.null(method)) res<-optim(param[!fixed],fn,gr,method="CG",...)
+  	} else {
+  		res<-optim(param[!fixed],fn,gr,method=method,...)
+  	}
 
-  #fixed tips
+  	#fixed tips
   param[!fixed]<-res$par
-  res$par<-param
+
+  if(!alpha_fixed){#LD2
+	## complete the scale parameter
+	alpha <- rcpp$alpha_est(c(1,param))#LD2
+  }#LD2
+  res$par<-c(alpha,param)#LD2
 
   if(verbose) print(res)
 
   ## save stuff
-  obj$fixed <- fixed
+  obj$fixed <- c(alpha_fixed,fixed)#LD2
   obj$optim<-res
   obj$par<-res$par
 
-	## complete the scale parameter
-	alpha <- rcpp$alpha_est(c(1,res$par))
-	obj$mle.coef <- c(alpha,res$par)
-	params(obj,obj$mle.coef) #put the result in the c++ part
+  
+
+
+
+  obj$mle.coef <- res$par
+  params(obj,obj$mle.coef) #put the result in the c++ part
 
   obj$mle.coef
 }

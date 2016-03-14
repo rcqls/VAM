@@ -3,7 +3,7 @@
 
 \title{Virtual age model for maximum likelihood estimation}
 
-\description{\code{mle.vam} is used to define a virtual age model for Corrective Maintenance (CM) and planned Preventive Maintenance (PM). The object define with \code{mle.vam} can be used to compute the Maximum Likelihood Estimator (MLE) of the parameters.}
+\description{\code{mle.vam} is used to define a virtual age model for Corrective Maintenance (CM) and planned Preventive Maintenance (PM). The object define with \code{mle.vam} can be used to compute the Maximum Likelihood Estimator (MLE) of the parameters thanks to the \code{\link{run.mle.vam}} method.}
 
 \usage{
 mle.vam(formula, data)
@@ -27,11 +27,11 @@ The symbolic description of the model done in "\code{formula}" has the form "\co
  \author{L. Doyen and R. Drouilhet}
 
 \seealso{
-\code{\link{run.mle.vam}} for computing the MLE.
-
-\code{\link{coef.mle.vam}} to access to the parameters value of the MLE.
-
-\code{\link{plot.mle.vam}} for plotting characteristics of the model.}
+\code{\link{run.mle.vam}} to compute the MLE.
+\code{\link{coef.mle.vam}} to extract the parameters value of the MLE.
+\code{\link{plot.mle.vam}} for plotting characteristics of the model.
+\code{\link{contrast.mle.vam}} to compute the contrast associated to the MLE.
+\code{\link{logLikelihood.mle.vam}} to compute the log-likelihood.}
 
 \examples{
 simARAInf<-sim.vam(  ~ (ARAInf(.4) | Weibull(.001,2.5)))
@@ -45,3 +45,9 @@ mleCMPM_Multi <- mle.vam(System & Time & Type ~  (ARAInf(.5) | Weibull(1,3)) & (
 coef(mleCMPM_Multi)
 
 }
+
+\keyword{virtual age}
+\keyword{imperfect maintenance}
+\keyword{corrective maintenance}
+\keyword{preventive maintenance}
+\keyword{ARA}
