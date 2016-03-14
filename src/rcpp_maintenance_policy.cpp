@@ -59,9 +59,9 @@ VamModel* MaintenancePolicy::update_external_model(VamModel* model) {
             mod->k -= 1;
 
             //And then as what it is applied at the end of the simulation step but for mod instead of model!
-            mod->update_Vleft(false); //mod->idMod is not yet updated!
+            mod->update_Vleft(false,false); //mod->idMod is not yet updated!
             mod->idMod = model->idMod; //mod->idMod is then updated for the next task!
-            mod->models->at(mod->idMod)->update(false);
+            mod->models->at(mod->idMod)->update(false,false);
         }
     } else mod=model;
     return mod;

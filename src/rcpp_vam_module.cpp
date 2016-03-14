@@ -43,6 +43,7 @@ RCPP_MODULE(vam_module) {
     //.method("get_selected_data",&MLEVam::get_selected_data,"get selected data")
     .method("contrast",&MLEVam::contrast,"compute contrast")
     .method("gradient",&MLEVam::gradient,"compute gradient")
+    .method("hessian",&MLEVam::hessian,"compute hessian")//LD
     .method("alpha_est",&MLEVam::get_alpha_est,"get alpha estimation")
     .method("get_params",&MLEVam::get_params,"get params")
     .method("set_params",&MLEVam::set_params,"set params")
@@ -54,9 +55,12 @@ RCPP_MODULE(vam_module) {
     .method("density",&FamilyModel::density,"density")
     .method("cumulative_density",&FamilyModel::cumulative_density,"cumulative density")
     .method("density_derivative",&FamilyModel::density_derivative,"density_derivative")
+    .method("density_2derivative",&FamilyModel::density_2derivative,"density second order derivative")//LD
     .method("inverse_cumulative_density",&FamilyModel::inverse_cumulative_density,"inverse cumulative density")
     .method("density_param_derivative",&FamilyModel::density_param_derivative,"density derivative with respect to beta")
     .method("cumulative_density_param_derivative",&FamilyModel::cumulative_density_param_derivative,"cumulative density derivative with respect to beta")
+    .method("density_param_2derivative",&FamilyModel::density_param_2derivative,"density second order derivative with respect to beta")//LD
+    .method("cumulative_density_param_2derivative",&FamilyModel::cumulative_density_param_2derivative,"cumulative density second order derivative with respect to beta")//LD
     ;
 
     function( "newMaintenancePolicy", &newMaintenancePolicy );

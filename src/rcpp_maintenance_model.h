@@ -43,11 +43,13 @@ public:
 
     virtual  void set_params(double) = 0;
  
-    virtual void update(bool with_gradient) = 0;
+    virtual void update(bool with_gradient,bool with_hessian) = 0;//LD
 
     virtual double virtual_age(double time) = 0;
 
     virtual double* virtual_age_derivative(double x) = 0;
+
+    virtual double* virtual_age_hessian(double x) = 0;//LD
 
     virtual double virtual_age_inverse(double time) = 0;
 
@@ -79,11 +81,13 @@ public:
     	rho=par;
     }
 
-    void update(bool with_gradient); 
+    void update(bool with_gradient,bool with_hessian);//LD
 
     double virtual_age(double time);
 
     double* virtual_age_derivative(double x);
+
+    double* virtual_age_hessian(double x);//LD
 
     double virtual_age_inverse(double x);
 
@@ -110,11 +114,13 @@ public:
     	rho=par;
     }
 
-    void update(bool with_gradient);
+    void update(bool with_gradient,bool with_hessian);//LD
 
     double virtual_age(double time);
 
     double* virtual_age_derivative(double x);
+
+    double* virtual_age_hessian(double x);//LD
 
     double virtual_age_inverse(double x);
 

@@ -11,6 +11,10 @@ VamModel::~VamModel() {
 	delete[] dVleft;
 	delete[] dS1;
 	delete[] dS2;
+	delete[] d2Vright;//LD
+	delete[] d2Vleft;//LD
+	delete[] d2S1;//LD
+	delete[] d2S2;//LD
 	delete models;
 	delete family;
 	delete maintenance_policy;
@@ -36,14 +40,25 @@ void VamModel::set_params(NumericVector pars) {
 	}
 }
 
-void VamModel::update_Vleft(bool with_gradient) {
+void VamModel::update_Vleft(bool with_gradient,bool with_hessian) {//LD
+	int j;//LD
+	int i;//LD
 	/*if(model->k < 10) printf("Vleft:%lf\n", model->Vleft);*/
 	Vleft =(models->at(idMod))->virtual_age(time[k+1]);
 	//printf("Vleft:%lf\n", model->Vleft);
-	if(with_gradient) {
+	if(with_hessian) {//LD
+		double* tmp=(models->at(idMod))->virtual_age_derivative(time[k+1]);//LD
+		double* dtmp=(models->at(idMod))->virtual_age_hessian(time[k+1]);//LD
+		for(i=0;i<nbPM+1;i++) {//LD
+			dVleft[i]=tmp[i];//LD
+			for (j=0;j<=i;j++) d2Vleft[i*(i+1)/2+j]=dtmp[i*(i+1)/2+j];//LD
+		}//LD
+	}//LD
+	else if(with_gradient) {//LD
 		double* tmp=(models->at(idMod))->virtual_age_derivative(time[k+1]);
-		for(int i=0;i<nbPM+1;i++) dVleft[i]=tmp[i];
+		for(i=0;i<nbPM+1;i++) dVleft[i]=tmp[i];//LD:sortie la déclaration int i de la boucle
 	}
+	
 }
 
 void VamModel::set_data(List data_) {
@@ -105,6 +120,10 @@ void VamModel::init(List model_) {
 	dVleft=new double[nbPM+1];
 	dS1=new double[nbPM+2];
 	dS2=new double[nbPM+2];
+	d2Vright=new double[(nbPM+1)*(nbPM+2)/2];//inferior diagonal part of the hessian matrice by lines//LD
+	d2Vleft=new double[(nbPM+1)*(nbPM+2)/2];//inferior diagonal part of the hessian matrice by lines//LD
+	d2S1=new double[(nbPM+2)*(nbPM+3)/2];//inferior diagonal part of the hessian matrice by lines//LD
+	d2S2=new double[(nbPM+2)*(nbPM+3)/2];//inferior diagonal part of the hessian matrice by lines//LD
 	//DEBUG: printf("dVright:%p,dVleft:%p\n",dVright,dVleft);
 };
 
@@ -154,13 +173,13 @@ List VamModel::get_virtual_age_infos(double by) {
 	List res(n);
 	while(k < n) {
 		//printf("k=%d/n=%d\n",k,n);
-		update_Vleft(false);
+		update_Vleft(false,false);
 		res[k]=get_virtual_age_info(time[k],time[k+1],by);
 		S1 += family->cumulative_density(Vleft) - family->cumulative_density(Vright);
 		//gradient_update_for_current_system();
 		int type2=type[k + 1];
 		if(type2 < 0) type2=0;
-		models->at(type2)->update(false);
+		models->at(type2)->update(false,false);
 	}
 	return res;
 };

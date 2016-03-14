@@ -28,6 +28,14 @@ public:
 	virtual double density_param_derivative(double x) = 0;
 
 	virtual double cumulative_density_param_derivative(double x) = 0;
+
+  virtual double density_derivative_param_derivative(double x) = 0;//LD
+
+  virtual double density_2derivative(double x) = 0;//LD
+
+  virtual double density_param_2derivative(double x) = 0;//LD
+
+  virtual double cumulative_density_param_2derivative(double x) = 0;//LD
 };
 
 class WeibullFamilyModel : public FamilyModel {
@@ -78,6 +86,22 @@ public:
   double cumulative_density_param_derivative(double x) {
   	return (x==0 ? 0 : alpha*log(x)*pow(x,beta));
   }
+
+  double density_derivative_param_derivative(double x) {//LD
+    return (x==0 ? 0 : alpha*(2*beta-1+beta*(beta-1)*log(x))*pow(x,beta-2));//LD
+  }//LD
+
+  double density_2derivative(double x) {//LD
+    return (x<=0 ? 0 : alpha*beta*(beta-1)*(beta-2)*pow(x,beta-3));//LD
+  }//LD
+
+  double density_param_2derivative(double x) {//LD
+    return (x==0 ? 0 : alpha*(2+beta*log(x))*log(x)*pow(x,beta-1));//LD
+  }//LD
+
+  double cumulative_density_param_2derivative(double x) {//LD
+    return (x==0 ? 0 : alpha*pow(log(x),2)*pow(x,beta));//LD
+  }//LD
  
 };
 
@@ -131,6 +155,23 @@ class LogLinearFamilyModel : public FamilyModel {
     return alpha*(x*exp(x*beta)/beta-(exp(beta*x)-1)/pow(beta,2));
   }
   
+  double density_derivative_param_derivative(double x) {//LD
+    return  alpha*exp(beta*x)*(1+beta*x) ;//LD
+  }//LD
+
+  double density_2derivative(double x) {//LD
+    return (x<=0 ? 0 : alpha*pow(beta,2)*exp(beta*x));//LD
+  }//LD
+
+  double density_param_2derivative(double x) {//LD
+    return  alpha*pow(x,2)*exp(beta*x) ;//LD
+  }//LD
+  
+  double cumulative_density_param_2derivative(double x) {//LD
+    return alpha*(pow(x,2)*exp(x*beta)/beta-2*x*exp(x*beta)/pow(beta,2)+2*(exp(beta*x)-1)/pow(beta,3));//LD
+  }//LD
+
+
 };
 
 FamilyModel* newFamilyModel(List family);
