@@ -41,7 +41,9 @@ public:
 
     virtual NumericVector get_params() = 0;
 
-    virtual  void set_params(double) = 0;
+    virtual  void set_params(NumericVector par, int ind) = 0;//LD3: ind indicates the indice of vector par at which the parameters to set begin
+
+    virtual int nb_params()=0;//LD3
  
     virtual void update(bool with_gradient,bool with_hessian) = 0;//LD
 
@@ -53,13 +55,20 @@ public:
 
     virtual double virtual_age_inverse(double time) = 0;
 
+
+
     VamModel* model;
 
     void set_id(int id_) {
     	id=id_;
     }
 
+    void set_id_params(int id_params_) {//LD3
+        id_params=id_params_;//LD3
+    }//LD3
+
     int id;
+    int id_params;//LD3
 
 };
 
@@ -67,8 +76,8 @@ class ARA1 : public MaintenanceModel {
 
 public:
 
-    ARA1(double rho_,VamModel* model_) : MaintenanceModel(model_) {
-    	rho = rho_;
+    ARA1(NumericVector rho_,VamModel* model_) : MaintenanceModel(model_) {
+    	rho = rho_[0];
     }
 
     NumericVector get_params() {
@@ -77,9 +86,13 @@ public:
     	return out;
     }
 
-    void set_params(double par) {
-    	rho=par;
+    void set_params(NumericVector par, int ind) {//LD3
+    	rho=par[ind];//LD3
     }
+
+    int nb_params(){//LD3
+        return 1;//LD3
+    }//LD3
 
     void update(bool with_gradient,bool with_hessian);//LD
 
@@ -100,8 +113,8 @@ class ARAInf : public MaintenanceModel {
 
 public:
 
-    ARAInf(double rho_,VamModel* model_) : MaintenanceModel(model_) {
-    	rho = rho_;
+    ARAInf(NumericVector rho_,VamModel* model_) : MaintenanceModel(model_) {
+    	rho = rho_[0];
     }
 
     NumericVector get_params() {
@@ -110,9 +123,13 @@ public:
     	return out;
     }
 
-    void set_params(double par) {
-    	rho=par;
+    void set_params(NumericVector par, int ind) {//LD3
+    	rho=par[ind];//LD3
     }
+
+    int nb_params(){//LD3
+        return 1;//LD3
+    }//LD3
 
     void update(bool with_gradient,bool with_hessian);//LD
 
@@ -127,6 +144,68 @@ public:
 private:
 
 	double rho;
+
+};
+
+class AGAN : public MaintenanceModel { //LD3//for all the class
+
+public:
+
+    AGAN(VamModel* model_) : MaintenanceModel(model_) {
+    }//LD3
+
+    NumericVector get_params() {
+        NumericVector out(0);
+        return out;
+    }
+
+    void set_params(NumericVector par, int ind) {
+    }
+
+    int nb_params(){
+        return 0;
+    }
+
+    void update(bool with_gradient,bool with_hessian);//LD
+
+    double virtual_age(double time);
+
+    double* virtual_age_derivative(double x);
+
+    double* virtual_age_hessian(double x);//LD
+
+    double virtual_age_inverse(double x);
+
+};
+
+class ABAO : public MaintenanceModel { //LD3//for all the class
+
+public:
+
+    ABAO(VamModel* model_) : MaintenanceModel(model_) {
+    }//LD3
+
+    NumericVector get_params() {
+        NumericVector out(0);
+        return out;
+    }
+
+    void set_params(NumericVector par,int ind) {
+    }
+
+    int nb_params(){
+        return 0;
+    }
+
+    void update(bool with_gradient,bool with_hessian);//LD
+
+    double virtual_age(double time);
+
+    double* virtual_age_derivative(double x);
+
+    double* virtual_age_hessian(double x);//LD
+
+    double virtual_age_inverse(double x);
 
 };
 
