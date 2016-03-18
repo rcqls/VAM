@@ -43,7 +43,7 @@ RCPP_MODULE(vam_module) {
     //.method("get_selected_data",&MLEVam::get_selected_data,"get selected data")
     .method("contrast",&MLEVam::contrast,"compute contrast")
     .method("gradient",&MLEVam::gradient,"compute gradient")
-    .method("hessian",&MLEVam::hessian,"compute hessian")//LD
+    .method("hessian",&MLEVam::hessian,"compute hessian")
     .method("alpha_est",&MLEVam::get_alpha_est,"get alpha estimation")
     .method("get_params",&MLEVam::get_params,"get params")
     .method("set_params",&MLEVam::set_params,"set params")
@@ -55,12 +55,12 @@ RCPP_MODULE(vam_module) {
     .method("hazardRate",&FamilyModel::hazardRate,"hazard rate")
     .method("cumulative_hazardRate",&FamilyModel::cumulative_hazardRate,"cumulative hazardrd rate")
     .method("hazardRate_derivative",&FamilyModel::hazardRate_derivative,"hazard rate derivative")
-    .method("hazardRate_2derivative",&FamilyModel::hazardRate_2derivative,"hazard rate second order derivative")//LD
+    .method("hazardRate_2derivative",&FamilyModel::hazardRate_2derivative,"hazard rate second order derivative")
     .method("inverse_cumulative_hazardRate",&FamilyModel::inverse_cumulative_hazardRate,"inverse cumulative hazard rate")
     .method("hazardRate_param_derivative",&FamilyModel::hazardRate_param_derivative,"hazard rate derivative with respect to beta")
     .method("cumulative_hazardRate_param_derivative",&FamilyModel::cumulative_hazardRate_param_derivative,"cumulative hazard rate derivative with respect to beta")
-    .method("hazardRate_param_2derivative",&FamilyModel::hazardRate_param_2derivative,"hazard rate second order derivative with respect to beta")//LD
-    .method("cumulative_hazardRate_param_2derivative",&FamilyModel::cumulative_hazardRate_param_2derivative,"cumulative hazard rate second order derivative with respect to beta")//LD
+    .method("hazardRate_param_2derivative",&FamilyModel::hazardRate_param_2derivative,"hazard rate second order derivative with respect to beta")
+    .method("cumulative_hazardRate_param_2derivative",&FamilyModel::cumulative_hazardRate_param_2derivative,"cumulative hazard rate second order derivative with respect to beta")
     ;
 
     function( "newMaintenancePolicy", &newMaintenancePolicy );

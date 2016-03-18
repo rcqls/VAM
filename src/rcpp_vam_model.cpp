@@ -9,69 +9,69 @@ VamModel::~VamModel() {
 	//DEBUG: printf("VamModel: %p, %p, %p, %p, %p, %p, %p\n",dVright,dVleft,dS1,dS2,models,family,maintenance_policy);
 	delete[] dS1;
 	delete[] dS2;
-	delete[] d2S1;//LD
-	delete[] d2S2;//LD
+	delete[] d2S1;
+	delete[] d2S2;
 	delete[] dVright;
 	delete[] dVleft;
-	delete[] d2Vright;//LD
-	delete[] d2Vleft;//LD
+	delete[] d2Vright;
+	delete[] d2Vleft;
 	delete models;
 	delete family;
 	delete maintenance_policy;
 };
 
 NumericVector VamModel::get_params() {
-	int i;//LD3
-	int j;//LD3
-	int k;//LD3
-	NumericVector pars(nb_paramsMaintenance+nb_paramsFamily);//LD3
-	NumericVector fam=family->get_params();//LD3
-	for(i=0;i<nb_paramsFamily;i++){//LD3
-		pars[i]=fam[i];//LD3
-	}//LD3
-	j=nb_paramsFamily-1;//LD3
+	int i;
+	int j;
+	int k;
+	NumericVector pars(nb_paramsMaintenance+nb_paramsFamily);
+	NumericVector fam=family->get_params();
+	for(i=0;i<nb_paramsFamily;i++){
+		pars[i]=fam[i];
+	}
+	j=nb_paramsFamily-1;
 	for(i=0;i<nbPM + 1;i++) {
 		MaintenanceModel* vam=models->at(i);
 		NumericVector res=vam->get_params();
-		for(k=0;k<vam->nb_params();k++){//LD3
-			j++;//LD3
-			pars[j]=res[k];//LD3
-		}//LD3
-	}//LD3
+		for(k=0;k<vam->nb_params();k++){
+			j++;
+			pars[j]=res[k];
+		}
+	}
 	return pars;
 }
 
 void VamModel::set_params(NumericVector pars) {
 	int i;
 	int j;
-	if(nb_paramsFamily>0){//LD3
-		family->set_params(pars);//LD3
-	}//LD3
-	j=nb_paramsFamily;//LD3
+	if(nb_paramsFamily>0){
+		family->set_params(pars);
+	}
+	j=nb_paramsFamily;
 	for(i=0;i<nbPM + 1;i++) {
 		MaintenanceModel* vam=models->at(i);
-		vam->set_params(pars,j);//LD3
-		j=j+vam->nb_params();//LD3
+		vam->set_params(pars,j);
+		j=j+vam->nb_params();
 	}
 }
 
-void VamModel::update_Vleft(bool with_gradient,bool with_hessian) {//LD
-	int j;//LD
-	int i;//LD
+void VamModel::update_Vleft(bool with_gradient,bool with_hessian) {
+	int j;
+	int i;
 	/*if(model->k < 10) printf("Vleft:%lf\n", model->Vleft);*/
 	Vleft =(models->at(idMod))->virtual_age(time[k+1]);
 	//printf("Vleft:%lf\n", model->Vleft);
-	if(with_hessian) {//LD
-		double* tmp=(models->at(idMod))->virtual_age_derivative(time[k+1]);//LD
-		double* dtmp=(models->at(idMod))->virtual_age_hessian(time[k+1]);//LD
-		for(i=0;i<nb_paramsMaintenance;i++) {//LD
-			dVleft[i]=tmp[i];//LD
-			for (j=0;j<=i;j++) d2Vleft[i*(i+1)/2+j]=dtmp[i*(i+1)/2+j];//LD
-		}//LD
-	}//LD
-	else if(with_gradient) {//LD
+	if(with_hessian) {
 		double* tmp=(models->at(idMod))->virtual_age_derivative(time[k+1]);
-		for(i=0;i<nb_paramsMaintenance;i++) dVleft[i]=tmp[i];//LD:sortie la déclaration int i de la boucle
+		double* dtmp=(models->at(idMod))->virtual_age_hessian(time[k+1]);
+		for(i=0;i<nb_paramsMaintenance;i++) {
+			dVleft[i]=tmp[i];
+			for (j=0;j<=i;j++) d2Vleft[i*(i+1)/2+j]=dtmp[i*(i+1)/2+j];
+		}
+	}
+	else if(with_gradient) {
+		double* tmp=(models->at(idMod))->virtual_age_derivative(time[k+1]);
+		for(i=0;i<nb_paramsMaintenance;i++) dVleft[i]=tmp[i];
 	}
 	
 }
@@ -122,27 +122,27 @@ void VamModel::init(List model_) {
 	List maintenance_policy_=model_["pm.policy"];
   	set_models(models_);
 	nbPM=models->size()-1;
-	nb_paramsMaintenance=0;//LD3
-	for(int i=0;i<nbPM + 1;i++) {//LD3
-		nb_paramsMaintenance=nb_paramsMaintenance+models->at(i)->nb_params();//LD3
-	}//LD3
+	nb_paramsMaintenance=0;
+	for(int i=0;i<nbPM + 1;i++) {
+		nb_paramsMaintenance=nb_paramsMaintenance+models->at(i)->nb_params();
+	}
 
 	set_family(family_);
-	nb_paramsFamily=family->nb_params();//LD3
+	nb_paramsFamily=family->nb_params();
 	set_maintenance_policy(maintenance_policy_);
 
 	// S1=0;S2=0;S3=0;
 	// Vleft=0;Vright=0;
 	// hVleft=0;
 	init_computation_values();
-	dS1=new double[nb_paramsMaintenance+nb_paramsFamily-1];//LD3
-	dS2=new double[nb_paramsMaintenance+nb_paramsFamily-1];//LD3
-	d2S1=new double[(nb_paramsMaintenance+nb_paramsFamily-1)*(nb_paramsMaintenance+nb_paramsFamily)/2];//inferior diagonal part of the hessian matrice by lines//LD//LD3
-	d2S2=new double[(nb_paramsMaintenance+nb_paramsFamily-1)*(nb_paramsMaintenance+nb_paramsFamily)/2];//inferior diagonal part of the hessian matrice by lines//LD//LD3
-	dVright=new double[nb_paramsMaintenance];//LD3
-	dVleft=new double[nb_paramsMaintenance];//LD3
-	d2Vright=new double[(nb_paramsMaintenance)*(nb_paramsMaintenance+1)/2];//inferior diagonal part of the hessian matrice by lines//LD//LD3
-	d2Vleft=new double[(nb_paramsMaintenance)*(nb_paramsMaintenance+1)/2];//inferior diagonal part of the hessian matrice by lines//LD//LD3
+	dS1=new double[nb_paramsMaintenance+nb_paramsFamily-1];
+	dS2=new double[nb_paramsMaintenance+nb_paramsFamily-1];
+	d2S1=new double[(nb_paramsMaintenance+nb_paramsFamily-1)*(nb_paramsMaintenance+nb_paramsFamily)/2];//inferior diagonal part of the hessian matrice by lines
+	d2S2=new double[(nb_paramsMaintenance+nb_paramsFamily-1)*(nb_paramsMaintenance+nb_paramsFamily)/2];//inferior diagonal part of the hessian matrice by lines
+	dVright=new double[nb_paramsMaintenance];
+	dVleft=new double[nb_paramsMaintenance];
+	d2Vright=new double[(nb_paramsMaintenance)*(nb_paramsMaintenance+1)/2];//inferior diagonal part of the hessian matrice by lines
+	d2Vleft=new double[(nb_paramsMaintenance)*(nb_paramsMaintenance+1)/2];//inferior diagonal part of the hessian matrice by lines
 	//DEBUG: printf("dVright:%p,dVleft:%p\n",dVright,dVleft);
 };
 

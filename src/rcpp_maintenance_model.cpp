@@ -20,8 +20,8 @@ MaintenanceModelList::MaintenanceModelList(List models_,VamModel* model) {
     	MaintenanceModel*  vam=newMaintenanceModel(maintenance,model);
         if(!(vam == NULL)) {
             vam->set_id(i++);
-            vam->set_id_params(j);//LD3
-            j+=vam->nb_params();//LD3
+            vam->set_id_params(j);
+            j+=vam->nb_params();
             model_list.push_back(vam);
         }
     }
@@ -38,7 +38,7 @@ MaintenanceModelList::~MaintenanceModelList() {
 
 }
 
-void ARA1::update(bool with_gradient,bool with_hessian) {//LD
+void ARA1::update(bool with_gradient,bool with_hessian) {
     /*# next step
     obj$vam$model$k <- obj$vam$model$k + 1
     # At T(k)
@@ -56,7 +56,7 @@ void ARA1::update(bool with_gradient,bool with_hessian) {//LD
     double dVlr = model->Vleft- model->Vright;
     model->Vright += (1-rho) * dVlr;
     if(with_gradient) {
-        model->dVright[id_params] += -dVlr;//LD3
+        model->dVright[id_params] += -dVlr;
     }
     model->idMod = id;
 }
@@ -71,40 +71,40 @@ double* ARA1::virtual_age_derivative(double x) {
     return model->dVright;
 }
 
-double* ARA1::virtual_age_hessian(double x) {//LD
-    return model->d2Vright;//LD
-}//LD
+double* ARA1::virtual_age_hessian(double x) {
+    return model->d2Vright;
+}
 
 double ARA1::virtual_age_inverse(double time) {
     return time + model->time[model->k] - model->Vright;
 }
 
-void ARAInf::update(bool with_gradient,bool with_hessian) {//LD
-    int i;//LD
-    int j;//LD
+void ARAInf::update(bool with_gradient,bool with_hessian) {
+    int i;
+    int j;
     model->k += 1;
     model->Vright = (1-rho) * model->Vleft;
-    if (with_hessian){//LD
-        for(i=0;i<model->nb_paramsMaintenance;i++) {//LD//LD3
-            for(j=0;j<=i;j++) {//LD
+    if (with_hessian){
+        for(i=0;i<model->nb_paramsMaintenance;i++) {
+            for(j=0;j<=i;j++) {
                 //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
-                model->d2Vright[i*(i+1)/2+j] = (1-rho) * model->d2Vright[i*(i+1)/2+j];//LD
-            }//LD
-        }//LD
-        for(j=0;j<=id_params;j++) {//LD3
+                model->d2Vright[i*(i+1)/2+j] = (1-rho) * model->d2Vright[i*(i+1)/2+j];
+            }
+        }
+        for(j=0;j<=id_params;j++) {
             //i(<=id_params) and id respectively correspond to the column and line indices of (inferior diagonal part of) the hessian matrice
-            model->d2Vright[id_params*(id_params+1)/2+j] = model->d2Vright[id_params*(id_params+1)/2+j] - model->dVleft[j];//LD//LD3
-        }//LD
-        for(i=id_params;i<model->nb_paramsMaintenance;i++) {//LD//LD3
+            model->d2Vright[id_params*(id_params+1)/2+j] = model->d2Vright[id_params*(id_params+1)/2+j] - model->dVleft[j];
+        }
+        for(i=id_params;i<model->nb_paramsMaintenance;i++) {
              //id and i(>=id_params) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
-            model->d2Vright[i*(i+1)/2+id_params] = model->d2Vright[i*(i+1)/2+id_params] - model->dVleft[i];//LD//LD3
-        }//LD
-    }//LD
+            model->d2Vright[i*(i+1)/2+id_params] = model->d2Vright[i*(i+1)/2+id_params] - model->dVleft[i];
+        }
+    }
     if(with_gradient||with_hessian) {
-        for(i=0;i<model->nb_paramsMaintenance;i++) {//LD: enlever la déclaration int i de la boucle//LD3
+        for(i=0;i<model->nb_paramsMaintenance;i++) {
             model->dVright[i] = (1-rho) * model->dVright[i];
         }
-        model->dVright[id_params] = model->dVright[id_params] - model->Vleft;//LD3
+        model->dVright[id_params] = model->dVright[id_params] - model->Vleft;
     }
     // save old model
     model->idMod = id;
@@ -119,16 +119,15 @@ double* ARAInf::virtual_age_derivative(double x) {
     return model->dVright;
 }
 
-double* ARAInf::virtual_age_hessian(double x) {//LD
-    return model->d2Vright;//LD
-}//LD
+double* ARAInf::virtual_age_hessian(double x) {
+    return model->d2Vright;
+}
 
 double ARAInf::virtual_age_inverse(double time) {
     return time + model->time[model->k] - model->Vright;
 }
 
-//LD3//for AGAN
-void AGAN::update(bool with_gradient,bool with_hessian) {//LD
+void AGAN::update(bool with_gradient,bool with_hessian) {
     int i;
     int j;
     model->k += 1;
@@ -142,7 +141,7 @@ void AGAN::update(bool with_gradient,bool with_hessian) {//LD
         }
     }
     if(with_gradient||with_hessian) {
-        for(i=0;i<model->nb_paramsMaintenance;i++) {//LD: enlever la déclaration int i de la boucle
+        for(i=0;i<model->nb_paramsMaintenance;i++) {
             model->dVright[i] = 0;
         }
     }
@@ -167,8 +166,7 @@ double AGAN::virtual_age_inverse(double time) {
     return time + model->time[model->k] - model->Vright;
 }
 
-//LD3//for ABAO
-void ABAO::update(bool with_gradient,bool with_hessian) {//LD
+void ABAO::update(bool with_gradient,bool with_hessian) {
     model->k += 1;
     model->Vright += model->Vleft- model->Vright;
 
@@ -198,21 +196,21 @@ MaintenanceModel* newMaintenanceModel(List maintenance,VamModel* model) {
 	NumericVector params=maintenance["params"];
 	MaintenanceModel*  mm=NULL;
 	if(name.compare("ARA1.va.model") == 0) {
-		//double rho=params[0];//LD3
-        NumericVector rho=NumericVector::create(params[0]);//LD3
+		//double rho=params[0];
+        NumericVector rho=NumericVector::create(params[0]);
 		mm=new ARA1(rho,model);
 	} else if(name.compare("ARAInf.va.model") == 0) {
-		//double rho=params[0];//LD3
-        NumericVector rho=NumericVector::create(params[0]);//LD3
+		//double rho=params[0];
+        NumericVector rho=NumericVector::create(params[0]);
 		mm=new ARAInf(rho,model);
 	} else if(name.compare("AGAN.va.model") == 0) {
-    //double rho=1.0;//LD3
-    //mm=new ARAInf(rho,model);//LD3
-        mm=new AGAN(model);//LD3
+    //double rho=1.0;
+    //mm=new ARAInf(rho,model);
+        mm=new AGAN(model);
   } else if(name.compare("ABAO.va.model") == 0) {
-    //double rho=0.0;//LD3
-    //mm=new ARAInf(rho,model);//LD3
-        mm=new ABAO(model);//LD3
+    //double rho=0.0;
+    //mm=new ARAInf(rho,model);
+        mm=new ABAO(model);
   } else {
     printf("WARNING: %s is not a proper maintenance model!\n",name.c_str());
   }

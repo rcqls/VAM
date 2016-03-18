@@ -41,17 +41,17 @@ public:
 
     virtual NumericVector get_params() = 0;
 
-    virtual  void set_params(NumericVector par, int ind) = 0;//LD3: ind indicates the indice of vector par at which the parameters to set begin
+    virtual  void set_params(NumericVector par, int ind) = 0;//ind indicates the indice of vector par at which the parameters to set begin
 
-    virtual int nb_params()=0;//LD3
+    virtual int nb_params()=0;
  
-    virtual void update(bool with_gradient,bool with_hessian) = 0;//LD
+    virtual void update(bool with_gradient,bool with_hessian) = 0;
 
     virtual double virtual_age(double time) = 0;
 
     virtual double* virtual_age_derivative(double x) = 0;
 
-    virtual double* virtual_age_hessian(double x) = 0;//LD
+    virtual double* virtual_age_hessian(double x) = 0;
 
     virtual double virtual_age_inverse(double time) = 0;
 
@@ -63,12 +63,12 @@ public:
     	id=id_;
     }
 
-    void set_id_params(int id_params_) {//LD3
-        id_params=id_params_;//LD3
-    }//LD3
+    void set_id_params(int id_params_) {
+        id_params=id_params_;
+    }
 
     int id;
-    int id_params;//LD3
+    int id_params;
 
 };
 
@@ -86,21 +86,21 @@ public:
     	return out;
     }
 
-    void set_params(NumericVector par, int ind) {//LD3
-    	rho=par[ind];//LD3
+    void set_params(NumericVector par, int ind) {
+    	rho=par[ind];
     }
 
-    int nb_params(){//LD3
-        return 1;//LD3
-    }//LD3
+    int nb_params(){
+        return 1;
+    }
 
-    void update(bool with_gradient,bool with_hessian);//LD
+    void update(bool with_gradient,bool with_hessian);
 
     double virtual_age(double time);
 
     double* virtual_age_derivative(double x);
 
-    double* virtual_age_hessian(double x);//LD
+    double* virtual_age_hessian(double x);
 
     double virtual_age_inverse(double x);
 
@@ -123,21 +123,21 @@ public:
     	return out;
     }
 
-    void set_params(NumericVector par, int ind) {//LD3
-    	rho=par[ind];//LD3
+    void set_params(NumericVector par, int ind) {
+    	rho=par[ind];
     }
 
-    int nb_params(){//LD3
-        return 1;//LD3
-    }//LD3
+    int nb_params(){
+        return 1;
+    }
 
-    void update(bool with_gradient,bool with_hessian);//LD
+    void update(bool with_gradient,bool with_hessian);
 
     double virtual_age(double time);
 
     double* virtual_age_derivative(double x);
 
-    double* virtual_age_hessian(double x);//LD
+    double* virtual_age_hessian(double x);
 
     double virtual_age_inverse(double x);
 
@@ -147,12 +147,12 @@ private:
 
 };
 
-class AGAN : public MaintenanceModel { //LD3//for all the class
+class AGAN : public MaintenanceModel {
 
 public:
 
     AGAN(VamModel* model_) : MaintenanceModel(model_) {
-    }//LD3
+    }
 
     NumericVector get_params() {
         NumericVector out(0);
@@ -166,24 +166,24 @@ public:
         return 0;
     }
 
-    void update(bool with_gradient,bool with_hessian);//LD
+    void update(bool with_gradient,bool with_hessian);
 
     double virtual_age(double time);
 
     double* virtual_age_derivative(double x);
 
-    double* virtual_age_hessian(double x);//LD
+    double* virtual_age_hessian(double x);
 
     double virtual_age_inverse(double x);
 
 };
 
-class ABAO : public MaintenanceModel { //LD3//for all the class
+class ABAO : public MaintenanceModel { 
 
 public:
 
     ABAO(VamModel* model_) : MaintenanceModel(model_) {
-    }//LD3
+    }
 
     NumericVector get_params() {
         NumericVector out(0);
@@ -197,13 +197,13 @@ public:
         return 0;
     }
 
-    void update(bool with_gradient,bool with_hessian);//LD
+    void update(bool with_gradient,bool with_hessian);
 
     double virtual_age(double time);
 
     double* virtual_age_derivative(double x);
 
-    double* virtual_age_hessian(double x);//LD
+    double* virtual_age_hessian(double x);
 
     double virtual_age_inverse(double x);
 
