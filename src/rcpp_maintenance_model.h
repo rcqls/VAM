@@ -47,15 +47,6 @@ public:
  
     virtual void update(bool with_gradient,bool with_hessian) = 0;
 
-    virtual double virtual_age(double time) = 0;
-
-    virtual double* virtual_age_derivative(double x) = 0;
-
-    virtual double* virtual_age_hessian(double x) = 0;
-
-    virtual double virtual_age_inverse(double time) = 0;
-
-
 
     VamModel* model;
 
@@ -69,6 +60,24 @@ public:
 
     int id;
     int id_params;
+
+    double virtual_age(double time) {
+    //max(0.0000001,obj$vam$model$Vright+time-obj$vam$data$Time[obj$vam$model$k])
+    //printf("virtual_age:%lf,%lf,%lf\n",model -> Vright, time,model->time[model->k]);
+        return model -> Vright + time  - model->time[model->k];
+    }
+
+    double* virtual_age_derivative(double x) {
+        return model->dVright;
+    }
+
+    double* virtual_age_hessian(double x) {
+        return model->d2Vright;
+    }
+
+    double virtual_age_inverse(double time) {
+        return time + model->time[model->k] - model->Vright;
+    }
 
 };
 
@@ -95,14 +104,6 @@ public:
     }
 
     void update(bool with_gradient,bool with_hessian);
-
-    double virtual_age(double time);
-
-    double* virtual_age_derivative(double x);
-
-    double* virtual_age_hessian(double x);
-
-    double virtual_age_inverse(double x);
 
 private:
     double rho;
@@ -133,14 +134,6 @@ public:
 
     void update(bool with_gradient,bool with_hessian);
 
-    double virtual_age(double time);
-
-    double* virtual_age_derivative(double x);
-
-    double* virtual_age_hessian(double x);
-
-    double virtual_age_inverse(double x);
-
 private:
 
 	double rho;
@@ -168,14 +161,6 @@ public:
 
     void update(bool with_gradient,bool with_hessian);
 
-    double virtual_age(double time);
-
-    double* virtual_age_derivative(double x);
-
-    double* virtual_age_hessian(double x);
-
-    double virtual_age_inverse(double x);
-
 };
 
 class ABAO : public MaintenanceModel { 
@@ -198,14 +183,6 @@ public:
     }
 
     void update(bool with_gradient,bool with_hessian);
-
-    double virtual_age(double time);
-
-    double* virtual_age_derivative(double x);
-
-    double* virtual_age_hessian(double x);
-
-    double virtual_age_inverse(double x);
 
 };
 

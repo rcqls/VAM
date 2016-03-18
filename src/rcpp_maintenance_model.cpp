@@ -61,24 +61,6 @@ void ARA1::update(bool with_gradient,bool with_hessian) {
     model->idMod = id;
 }
 
-double ARA1::virtual_age(double time) {
-    //max(0.0000001,obj$vam$model$Vright+time-obj$vam$data$Time[obj$vam$model$k])
-    //printf("virtual_age:%lf,%lf,%lf\n",model -> Vright, time,model->time[model->k]);
-    return model -> Vright + time  - model->time[model->k];
-}
-
-double* ARA1::virtual_age_derivative(double x) {
-    return model->dVright;
-}
-
-double* ARA1::virtual_age_hessian(double x) {
-    return model->d2Vright;
-}
-
-double ARA1::virtual_age_inverse(double time) {
-    return time + model->time[model->k] - model->Vright;
-}
-
 void ARAInf::update(bool with_gradient,bool with_hessian) {
     int i;
     int j;
@@ -110,23 +92,6 @@ void ARAInf::update(bool with_gradient,bool with_hessian) {
     model->idMod = id;
 }
 
-double ARAInf::virtual_age(double time) {
-    //max(0.0000001,obj$vam$model$Vright+time-obj$vam$data$Time[obj$vam$model$k])
-    return model -> Vright + time  - model->time[model->k];
-}
-
-double* ARAInf::virtual_age_derivative(double x) {
-    return model->dVright;
-}
-
-double* ARAInf::virtual_age_hessian(double x) {
-    return model->d2Vright;
-}
-
-double ARAInf::virtual_age_inverse(double time) {
-    return time + model->time[model->k] - model->Vright;
-}
-
 void AGAN::update(bool with_gradient,bool with_hessian) {
     int i;
     int j;
@@ -149,23 +114,6 @@ void AGAN::update(bool with_gradient,bool with_hessian) {
     model->idMod = id;
 }
 
-double AGAN::virtual_age(double time) {
-    //max(0.0000001,obj$vam$model$Vright+time-obj$vam$data$Time[obj$vam$model$k])
-    return model -> Vright + time  - model->time[model->k];
-}
-
-double* AGAN::virtual_age_derivative(double x) {
-    return model->dVright;
-}
-
-double* AGAN::virtual_age_hessian(double x) {
-    return model->d2Vright;
-}
-
-double AGAN::virtual_age_inverse(double time) {
-    return time + model->time[model->k] - model->Vright;
-}
-
 void ABAO::update(bool with_gradient,bool with_hessian) {
     model->k += 1;
     model->Vright += model->Vleft- model->Vright;
@@ -174,22 +122,6 @@ void ABAO::update(bool with_gradient,bool with_hessian) {
     model->idMod = id;
 }
 
-double ABAO::virtual_age(double time) {
-    //max(0.0000001,obj$vam$model$Vright+time-obj$vam$data$Time[obj$vam$model$k])
-    return model -> Vright + time  - model->time[model->k];
-}
-
-double* ABAO::virtual_age_derivative(double x) {
-    return model->dVright;
-}
-
-double* ABAO::virtual_age_hessian(double x) {
-    return model->d2Vright;
-}
-
-double ABAO::virtual_age_inverse(double time) {
-    return time + model->time[model->k] - model->Vright;
-}
 
 MaintenanceModel* newMaintenanceModel(List maintenance,VamModel* model) {
 	std::string name=maintenance["name"];
