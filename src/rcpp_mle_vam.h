@@ -311,9 +311,9 @@ private:
         int i;
     	contrast_update_for_current_system(true,false);//LD
         
-        NumericVector cumhVright_param_derivative=model->family->cumulative_hazardRate_param_derivative(model->Vright);//LD3
-        NumericVector cumhVleft_param_derivative=model->family->cumulative_hazardRate_param_derivative(model->Vleft);//LD3
-        NumericVector hVleft_param_derivative=model->family->hazardRate_param_derivative(model->Vleft);//LD3
+        double *cumhVright_param_derivative=model->family->cumulative_hazardRate_param_derivative(model->Vright,true);//LD3
+        double *cumhVleft_param_derivative=model->family->cumulative_hazardRate_param_derivative(model->Vleft,false);//LD3
+        double *hVleft_param_derivative=model->family->hazardRate_param_derivative(model->Vleft,false);//LD3
         for(i=0;i<model->nb_paramsFamily-1;i++){//LD3
             model->dS1[i] +=  cumhVleft_param_derivative[i]-cumhVright_param_derivative[i] ;//LD3
             model->dS2[i] += hVleft_param_derivative[i]/model->hVleft*model->indType ;//LD3
@@ -335,12 +335,12 @@ private:
         int j;//LD
         contrast_update_for_current_system(true,true);//LD
 
-        NumericVector cumhVright_param_derivative=model->family->cumulative_hazardRate_param_derivative(model->Vright);//LD3
-        NumericVector cumhVleft_param_derivative=model->family->cumulative_hazardRate_param_derivative(model->Vleft);//LD3
-        NumericVector hVleft_param_derivative=model->family->hazardRate_param_derivative(model->Vleft);//LD3
-        NumericVector cumhVright_param_2derivative=model->family->cumulative_hazardRate_param_2derivative(model->Vright);//LD3
-        NumericVector cumhVleft_param_2derivative=model->family->cumulative_hazardRate_param_2derivative(model->Vleft);//LD3
-        NumericVector hVleft_param_2derivative=model->family->hazardRate_param_2derivative(model->Vleft);//LD3
+        double *cumhVright_param_derivative=model->family->cumulative_hazardRate_param_derivative(model->Vright,true);//LD3
+        double *cumhVleft_param_derivative=model->family->cumulative_hazardRate_param_derivative(model->Vleft,false);//LD3
+        double *hVleft_param_derivative=model->family->hazardRate_param_derivative(model->Vleft,false);//LD3
+        double *cumhVright_param_2derivative=model->family->cumulative_hazardRate_param_2derivative(model->Vright,true);//LD3
+        double *cumhVleft_param_2derivative=model->family->cumulative_hazardRate_param_2derivative(model->Vleft,false);//LD3
+        double *hVleft_param_2derivative=model->family->hazardRate_param_2derivative(model->Vleft);//LD3
         for(i=0;i<model->nb_paramsFamily-1;i++){//LD3
             model->dS1[i] +=  cumhVleft_param_derivative[i]-cumhVright_param_derivative[i] ;//LD3
             model->dS2[i] += hVleft_param_derivative[i]/model->hVleft*model->indType ;//LD3
@@ -352,8 +352,8 @@ private:
         double hVright=model->family->hazardRate(model->Vright);//LD
         double dhVleft=model->family->hazardRate_derivative(model->Vleft);//LD
         double dhVright=model->family->hazardRate_derivative(model->Vright);//LD
-        NumericVector hVright_param_derivative=model->family->hazardRate_param_derivative(model->Vright);//LD
-        NumericVector dhVleft_param_derivative=model->family->hazardRate_derivative_param_derivative(model->Vleft);//LD
+        double *hVright_param_derivative=model->family->hazardRate_param_derivative(model->Vright,true);//LD
+        double *dhVleft_param_derivative=model->family->hazardRate_derivative_param_derivative(model->Vleft);//LD
         double d2hVleft=model->family->hazardRate_2derivative(model->Vleft);//LD
         //printf("k:%d,hVright:%lf,dhVleft:%lf,indType:%lf\n",model->k,hVright,dhVleft,model->indType);
         for(i=0;i<model->nb_paramsMaintenance;i++) {//LD

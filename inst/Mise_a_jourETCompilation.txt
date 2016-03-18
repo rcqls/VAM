@@ -1,0 +1,16 @@
+pour faire un répertoir clone sur mon oridnateur:
+git clone git://github.com/rcqls/VAM.git
+
+pour mettre à jour les sources du package:
+git pull
+
+quand ca veut pas mettre à jour
+git checkout master
+
+pour compiler:
+R CMD INSTALL VAM
+
+ou
+R CMD INSTALL VAM --preclean
+
+selon les cas
