@@ -51,6 +51,7 @@ where \eqn{h} is a deterministic function characterizing the time to failure haz
 	\describe{
 	\item{\code{Weibull(alpha,beta)}}{for a Weibull initial hazard rate with parametrization \eqn{h(t)=\alpha\beta t^(\beta-1)} with \eqn{\alpha>0} and \eqn{\beta>0}.}
 	\item{\code{LogLinear(alpha,beta)}}{for a log-linear hazard rate with parametrization \eqn{h(t)=\alpha exp(\beta t)} with \eqn{\alpha>0}.}
+	\item{\code{Weibull3(alpha,beta,c)}}{for a three parameter Weibull initial hazard rate with parametrization \eqn{h(t)=\alpha\beta (t+c)^(\beta-1)} with \eqn{\alpha>0}, \eqn{\beta>0} and \eqn{c>0}.}
 	}
 }
 

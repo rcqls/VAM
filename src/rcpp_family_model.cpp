@@ -15,6 +15,10 @@ FamilyModel* newFamilyModel(List family) {
 		//double alpha=params[0],beta=params[1];
 		NumericVector par=NumericVector::create(params[0],params[1]);//LD3
 		fam=new LogLinearFamilyModel(par);//LD3
+	} else if(name.compare("Weibull3.family.cm") == 0) {
+		//double alpha=params[0],beta=params[1];
+		NumericVector par=NumericVector::create(params[0],params[1],params[2]);//LD3
+		fam=new Weibull3FamilyModel(par);//LD3
 	} else {
     printf("WARNING: %s is not a proper baseline hazard rate!\n",name.c_str());
   }

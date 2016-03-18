@@ -1,7 +1,7 @@
 # R script used to develop the testthat test for log-likelihood.R 
 
 # The number of the test
-nbtest<-"T14"
+nbtest<-"T15"
 
 switch(nbtest,
   
@@ -38,6 +38,23 @@ switch(nbtest,
     Lcalc<-Lcalc+log(h(T[2]-rho*T[1]))-(H(T[2]-rho*T[1])-H(T[1]-rho*T[1]))
     Lcalc<-Lcalc+log(h(T[3]-rho*T[2]-rho*(1-rho)*T[1]))-(H(T[3]-rho*T[2]-rho*(1-rho)*T[1])-H(T[2]-rho*T[2]-rho*(1-rho)*T[1]))
     Lcalc<-Lcalc+log(h(T[4]-rho*T[3]-rho*(1-rho)*T[2]-rho*(1-rho)^2*T[1]))-(H(T[4]-rho*T[3]-rho*(1-rho)*T[2]-rho*(1-rho)^2*T[1])-H(T[3]-rho*T[3]-rho*(1-rho)*T[2]-rho*(1-rho)^2*T[1]))
+    fix<-rep(TRUE,length(theta))
+    fix[1]=FALSE
+    alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+    Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
+  },
+  T03={
+    #Weibull3
+    simData<-data.frame(Time=c(3.36),Type=c(-1),row.names=1:1)
+    mle <- mle.vam(Time & Type ~ (ARAInf(0.4) | Weibull3(0.001,2.5,5)),data=simData)
+    theta<-c(0.3,1.8,4,0.6)
+    
+    c<-theta[3]
+    rho<-theta[4]
+    h<-function(t) theta[1]*theta[2]*(t+c)^(theta[2]-1)
+    H<-function(t) theta[1]*((t+c)^(theta[2])-c^(theta[2]))
+    T<-simData$Time
+    Lcalc<-log(h(T[1]))-H(T[1])
     fix<-rep(TRUE,length(theta))
     fix[1]=FALSE
     alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
@@ -702,6 +719,69 @@ switch(nbtest,
     rhoMP2<-theta[4]
     h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
     H<-function(t) theta[1]*t^(theta[2])
+    T<-simData$Time[simData$System==1]
+    Lcalc<--H(T[1])
+    Lcalc<-Lcalc-(H(T[2]-rhoMP1*T[1])-H(T[1]-rhoMP1*T[1]))
+    V<-(1-rhoMP2)*(T[2]-T[1])+T[1]-rhoMP1*T[1]
+    Lcalc<-Lcalc-(H(T[3]-T[2]+V)-H(V))
+    V<-(1-rhoMP2)*(T[3]-T[2])+V
+    Lcalc<-Lcalc-(H(T[4]-T[3]+V)-H(V))
+    T<-simData$Time[simData$System==2]
+    rho<-rhoMC
+    Lcalc<-Lcalc+log(h(T[1]))-H(T[1])
+    Lcalc<-Lcalc+log(h(T[2]-rho*T[1]))-(H(T[2]-rho*T[1])-H(T[1]-rho*T[1]))
+    Lcalc<-Lcalc+log(h(T[3]-rho*T[2]-rho*(1-rho)*T[1]))-(H(T[3]-rho*T[2]-rho*(1-rho)*T[1])-H(T[2]-rho*T[2]-rho*(1-rho)*T[1]))
+    Lcalc<-Lcalc-(H(T[4]-rho*T[3]-rho*(1-rho)*T[2]-rho*(1-rho)^2*T[1])-H(T[3]-rho*T[3]-rho*(1-rho)*T[2]-rho*(1-rho)^2*T[1]))
+    T<-simData$Time[simData$System==3]
+    Lcalc<-Lcalc-H(T[1])
+    Lcalc<-Lcalc+log(h(T[2]-rhoMP1*T[1]))-(H(T[2]-rhoMP1*T[1])-H(T[1]-rhoMP1*T[1]))
+    V<-(1-rhoMC)*(T[2]-rhoMP1*T[1])
+    Lcalc<-Lcalc+log(h(T[3]-T[2]+V))-(H(T[3]-T[2]+V)-H(V))
+    V<-(1-rhoMC)*(T[3]-T[2]+V)
+    Lcalc<-Lcalc-(H(T[4]-T[3]+V)-H(V))
+    T<-simData$Time[simData$System==4]
+    Lcalc<-Lcalc+log(h(T[1]))-H(T[1])
+    Lcalc<-Lcalc-(H(T[2]-rhoMC*T[1])-H(T[1]-rhoMC*T[1]))
+    V<-(1-rhoMP2)*(T[2]-T[1])+T[1]-rhoMC*T[1]
+    Lcalc<-Lcalc-(H(T[3]-T[2]+V)-H(V))
+    V<-(1-rhoMP2)*(T[3]-T[2])+V
+    Lcalc<-Lcalc-(H(T[4]-T[3]+V)-H(V))
+    T<-simData$Time[simData$System==5]
+    Lcalc<-Lcalc-H(T[1])
+    Lcalc<-Lcalc+log(h(T[2]-rhoMP1*T[1]))-(H(T[2]-rhoMP1*T[1])-H(T[1]-rhoMP1*T[1]))
+    V<-(1-rhoMC)*(T[2]-rhoMP1*T[1])
+    Lcalc<-Lcalc-(H(T[3]-T[2]+V)-H(V))
+    V<-(1-rhoMP1)*(T[3]-T[2]+V)
+    Lcalc<-Lcalc+log(h(T[4]-T[3]+V))-(H(T[4]-T[3]+V)-H(V))
+    V<-(1-rhoMC)*(T[4]-T[3]+V)
+    Lcalc<-Lcalc+log(h(T[5]-T[4]+V))-(H(T[5]-T[4]+V)-H(V))
+    V<-(1-rhoMC)*(T[5]-T[4]+V)
+    Lcalc<-Lcalc-(H(T[6]-T[5]+V)-H(V))
+    V<-(1-rhoMP2)*(T[6]-T[5])+V
+    Lcalc<-Lcalc-(H(T[7]-T[6]+V)-H(V))
+    V<-(1-rhoMP1)*(T[7]-T[6]+V)
+    Lcalc<-Lcalc-(H(T[8]-T[7]+V)-H(V))
+    V<-(1-rhoMP2)*(T[8]-T[7])+V
+    Lcalc<-Lcalc+log(h(T[9]-T[8]+V))-(H(T[9]-T[8]+V)-H(V))
+    V<-(1-rhoMC)*(T[9]-T[8]+V)
+    Lcalc<-Lcalc-(H(T[10]-T[9]+V)-H(V))
+    fix<-rep(TRUE,length(theta))
+    fix[1]=FALSE
+    alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+    Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
+  },
+  T15={
+    #Weibull3 + CM ARAInf + PM AGAN + PM ARA1 + mutlisystems
+    simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,4),rep(4,4),rep(5,10)),Time=c(3.36,4.04,4.97,5.16, 2.34,3.46,5.02,5.45, 1.18,2.22,3.14,4.83, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98,7.51,8.02,9.43),Type=c(1,2,2,1, -1,-1,-1,0, 1,-1,-1,2, -1,2,2,0, 1,-1,1,-1,-1,2,1,2,-1,0),row.names=1:26)
+    mle <- mle.vam(System & Time & Type ~ (ARAInf(0.4) | Weibull3(0.001,2.5,3)) & (AGAN()+ARA1(-1)),data=simData)
+    theta<-c(0.3,1.8,4,0.3,-1)
+    
+    c<-theta[3]
+    rhoMC<-theta[4]
+    rhoMP1<-1
+    rhoMP2<-theta[5]
+    h<-function(t) theta[1]*theta[2]*(t+c)^(theta[2]-1)
+    H<-function(t) theta[1]*((t+c)^(theta[2])-(c)^(theta[2]))
     T<-simData$Time[simData$System==1]
     Lcalc<--H(T[1])
     Lcalc<-Lcalc-(H(T[2]-rhoMP1*T[1])-H(T[1]-rhoMP1*T[1]))

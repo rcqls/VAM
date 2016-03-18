@@ -100,15 +100,15 @@ public:
   }
 
   double inverse_hazardRate(double x) {
-    return pow(x/alpha/beta,1/(beta-1));
+    return (x<=0 ? 0 : pow(x/alpha/beta,1/(beta-1)));
   }
 
   double cumulative_hazardRate(double x) {
-  	return alpha*pow(x,beta);
+  	return (x<=0 ? 0 : alpha*pow(x,beta));
   }
 
   double inverse_cumulative_hazardRate(double x) {
-  	 return pow(x/alpha,1/beta);
+  	 return (x<=0 ? 0 : pow(x/alpha,1/beta));
 
   }
 
@@ -232,6 +232,92 @@ class LogLinearFamilyModel : public FamilyModel {
 
 
 };
+
+class Weibull3FamilyModel : public FamilyModel {
+public:
+  Weibull3FamilyModel(NumericVector par) {//LD3
+    nb_params_=3;
+    alpha=par[0];beta=par[1];c=par[2];//LD3
+    init_Familiy();
+  }
+
+  double alpha, beta, c;
+
+  NumericVector get_params() {
+    NumericVector out(3);
+    out[0]=alpha;out[1]=beta;out[2]=c;
+    return out;
+  }
+
+  void set_params(NumericVector par) {//LD3
+      alpha=par[0];beta=par[1];c=par[2];//LD3
+  }
+
+  double hazardRate(double x) {
+    return (x<=0 ? 0 : alpha*beta*pow(x+c,beta-1));
+  }
+
+  double inverse_hazardRate(double x) {
+    return (x<=0 ? 0 : pow(x/alpha/beta,1/(beta-1))-c);
+  }
+
+  double cumulative_hazardRate(double x) {
+    return (x<=0 ? 0 : alpha*(pow(x+c,beta)-pow(c,beta)));
+  }
+
+  double inverse_cumulative_hazardRate(double x) {
+     return (x<=0 ? 0 : pow(pow(c,beta)+x/alpha,1/beta)-c);
+
+  }
+
+  double hazardRate_derivative(double x) {
+    return (x<=0 ? 0 : alpha*beta*(beta-1)*pow(x+c,beta-2));
+  }
+
+  double* hazardRate_param_derivative(double x,bool R) {//LD3
+    double *dh;
+    if(R) dh=dhR; else dh=dhL;
+    dh[0]=(x==0 ? 0 : alpha*(1+beta*log(x+c))*pow(x+c,beta-1));//LD3
+    dh[1]=(x<=0 ? 0 : alpha*beta*(beta-1)*pow(x+c,beta-2));
+    return dh;//LD3
+  }
+
+  double* cumulative_hazardRate_param_derivative(double x,bool R) {//LD3
+    double *dH;
+    if(R) dH=dHR; else dH=dHL;
+    dH[0]= (x==0 ? 0 : alpha*(log(x+c)*pow(x+c,beta)-log(c)*pow(c,beta)));//LD3
+    dH[1]= (x<=0 ? 0 : alpha*beta*(pow(x+c,beta-1)-pow(c,beta-1)));
+    return dH;//LD3
+  }
+
+  double* hazardRate_derivative_param_derivative(double x) {//LD//LD3
+    dhd[0]= (x==0 ? 0 : alpha*(2*beta-1+beta*(beta-1)*log(x+c))*pow(x+c,beta-2));//LD//LD3
+    dhd[1]=(x<=0 ? 0 : alpha*beta*(beta-1)*(beta-2)*pow(x+c,beta-3));
+    return dhd;//LD3
+  }//LD
+
+  double hazardRate_2derivative(double x) {//LD
+    return (x<=0 ? 0 : alpha*beta*(beta-1)*(beta-2)*pow(x+c,beta-3));//LD
+  }//LD
+
+  double* hazardRate_param_2derivative(double x) {//LD//LD3
+    d2h[0]= (x==0 ? 0 : alpha*(2+beta*log(x+c))*log(x+c)*pow(x+c,beta-1));//LD//LD3
+    d2h[1]=(x==0 ? 0 : alpha*pow(x+c,beta-2)*(2*beta-1+beta*(beta-1)*log(x+c)));
+    d2h[2]=(x<=0 ? 0 : alpha*beta*(beta-1)*(beta-2)*pow(x+c,beta-3));
+    return d2h;//LD3
+  }//LD
+
+  double* cumulative_hazardRate_param_2derivative(double x,bool R) {//LD//LD3
+    double *d2H;
+    if(R) d2H=d2HR; else d2H=d2HL;
+    d2H[0]= (x==0 ? 0 : alpha*(pow(log(x+c),2)*pow(x+c,beta)-pow(log(c),2)*pow(c,beta)));//LD//LD3
+    d2H[1]=(x==0 ? 0 : alpha*(pow(x+c,beta-1)*(beta*log(x+c)+1)-pow(c,beta-1)*(beta*log(c)+1)));
+    d2H[2]=(x<=0 ? 0 : alpha*beta*(beta-1)*(pow(x+c,beta-2)-pow(c,beta-2)));
+    return d2H;//LD3
+  }//LD
+ 
+};
+
 
 FamilyModel* newFamilyModel(List family);
 
