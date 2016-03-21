@@ -31,7 +31,7 @@ DataFrame SimVam::simulate(int nbsim) {
         //#print(c(obj$model$Vleft,obj$model$Vright))
 
 
-        double timePM= 0.0, timeCM = model->models->at(model->idMod)->virtual_age_inverse(model->family->inverse_cumulative_hazardRate(model->family->cumulative_hazardRate(model->models->at(model->idMod)->virtual_age(model->time[model->k]))-log(runif(1))[0]));
+        double timePM= 0.0, timeCM = model->virtual_age_inverse(model->family->inverse_cumulative_hazardRate(model->family->cumulative_hazardRate(model->virtual_age(model->time[model->k]))-log(runif(1))[0]));
         //TODO: submodels
         int idMod;
         List timeAndTypePM;

@@ -97,17 +97,22 @@ void AGAN::update(bool with_gradient,bool with_hessian) {
     int j;
     model->k += 1;
     model->Vright = 0;
+    model->A=1;
     if (with_hessian){
         for(i=0;i<model->nb_paramsMaintenance;i++) {
+            model->dVright[i] = 0;
+            model->dA[i] = 0;
             for(j=0;j<=i;j++) {
                 //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
                 model->d2Vright[i*(i+1)/2+j] = 0;
+                model->d2A[i*(i+1)/2+j] = 0;
             }
         }
     }
-    if(with_gradient||with_hessian) {
+    if(with_gradient) {
         for(i=0;i<model->nb_paramsMaintenance;i++) {
             model->dVright[i] = 0;
+            model->dA[i] = 0;
         }
     }
     // save old model
@@ -116,12 +121,42 @@ void AGAN::update(bool with_gradient,bool with_hessian) {
 
 void ABAO::update(bool with_gradient,bool with_hessian) {
     model->k += 1;
-    model->Vright += model->Vleft- model->Vright;
+    model->Vright = model->Vleft;
 
     // save old model
     model->idMod = id;
 }
 
+void AGAP::update(bool with_gradient,bool with_hessian) {
+    model->k += 1;
+
+    // save old model
+    model->idMod = id;
+}
+
+void QAGAN::update(bool with_gradient,bool with_hessian) {
+    int i;
+    int j;
+    model->k += 1;
+    model->Vright = 0;
+
+    if (with_hessian){
+        for(i=0;i<model->nb_paramsMaintenance;i++) {
+            model->dVright[i] = 0;
+            for(j=0;j<=i;j++) {
+                //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
+                model->d2Vright[i*(i+1)/2+j] = 0;
+            }
+        }
+    }
+    if(with_gradient) {
+        for(i=0;i<model->nb_paramsMaintenance;i++) {
+            model->dVright[i] = 0;
+        }
+    }
+    // save old model
+    model->idMod = id;
+}
 
 MaintenanceModel* newMaintenanceModel(List maintenance,VamModel* model) {
 	std::string name=maintenance["name"];
@@ -143,6 +178,14 @@ MaintenanceModel* newMaintenanceModel(List maintenance,VamModel* model) {
     //double rho=0.0;
     //mm=new ARAInf(rho,model);
         mm=new ABAO(model);
+    } else if(name.compare("AGAP.va.model") == 0) {
+    //double rho=0.0;
+    //mm=new ARAInf(rho,model);
+        mm=new AGAP(model);
+    } else if(name.compare("QAGAN.va.model") == 0) {
+    //double rho=0.0;
+    //mm=new ARAInf(rho,model);
+        mm=new QAGAN(model);
   } else {
     printf("WARNING: %s is not a proper maintenance model!\n",name.c_str());
   }

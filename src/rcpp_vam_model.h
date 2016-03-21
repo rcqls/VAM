@@ -38,12 +38,16 @@ public:
 	std::vector<double> time;
 	std::vector<int> type;
 
-	double S1, S2, S3, indType;
+	double S1, S2, S0, S3, indType;
 
 	double Vleft, Vright, hVleft;
 
-	double *dVleft, *dVright, *dS1, *dS2;
-	double *d2Vleft, *d2Vright, *d2S1, *d2S2;
+	double *dVleft, *dVright, *dS1, *dS2, *dS3;
+	double *d2Vleft, *d2Vright, *d2S1, *d2S2, *d2S3;
+
+	double A;
+	double *dA;
+	double *d2A;
 
 	MaintenanceModelList* models;
 
@@ -60,12 +64,12 @@ public:
 		int n_params=nb_paramsMaintenance+nb_paramsFamily-1;
 
 		List ret;
-		ret["S1"]=NumericVector::create(S1);ret["S2"]=NumericVector::create(S2);ret["S3"]=NumericVector::create(S3);
+		ret["S1"]=NumericVector::create(S1);ret["S2"]=NumericVector::create(S2);ret["S0"]=NumericVector::create(S0);ret["S3"]=NumericVector::create(S3);
 		ret["Vright"]=NumericVector::create(Vright);ret["Vleft"]=NumericVector::create(Vleft);
-		NumericVector dS1R(n_params),dS2R(n_params);
-		NumericMatrix d2S1R(n_params,n_params),d2S2R(n_params,n_params);
-		ret["dS1"]=dS1R;ret["dS2"]=dS2R;
-		ret["d2S1"]=d2S1R;ret["d2S2"]=d2S2R;
+		NumericVector dS1R(n_params),dS2R(n_params), dS3R(nb_paramsMaintenance);
+		NumericMatrix d2S1R(n_params,n_params),d2S2R(n_params,n_params), d2S3R(nb_paramsMaintenance,nb_paramsMaintenance);
+		ret["dS1"]=dS1R;ret["dS2"]=dS2R;ret["dS3"]=dS3R;
+		ret["d2S1"]=d2S1R;ret["d2S2"]=d2S2R;ret["d2S3"]=d2S3R;
 		for (int i=0;i<n_params;i++) {
 			dS1R[i]=dS1[i];
 			dS2R[i]=dS2[i];
@@ -81,19 +85,31 @@ public:
 		}
 		NumericVector dVrightR(nb_paramsMaintenance),dVleftR(nb_paramsMaintenance);
 		NumericMatrix d2VrightR(nb_paramsMaintenance,nb_paramsMaintenance),d2VleftR(nb_paramsMaintenance,nb_paramsMaintenance);
+		NumericVector dAR(nb_paramsMaintenance);
+		NumericMatrix d2AR(nb_paramsMaintenance,nb_paramsMaintenance);		
 		ret["dVright"]=dVrightR;ret["dVleft"]=dVleftR;
 		ret["d2Vright"]=d2VrightR;ret["d2Vleft"]=d2VleftR;
+		ret["dA"]=dAR;
+		ret["d2A"]=d2AR;
 		for (int i=0;i<nb_paramsMaintenance;i++) {
 			dVrightR[i]=dVright[i];
 			dVleftR[i]=dVleft[i];
+			dS3R[i]=dS3[i];
+			dAR[i]=dA[i];
 			d2VrightR(i,i)=d2Vright[i*(i+1)/2+i];
 			d2VleftR(i,i)=d2Vleft[i*(i+1)/2+i];
+			d2S3R(i,i)=d2S3[i*(i+1)/2+i];
+			d2AR(i,i)=d2A[i*(i+1)/2+i];
 			for (j=0;j<i;j++) {
 				//i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
 				d2VrightR(i,j)=d2Vright[i*(i+1)/2+j];
 				d2VleftR(i,j)=d2Vleft[i*(i+1)/2+j];
+				d2S3R(i,j)=d2S3[i*(i+1)/2+j];
+				d2AR(i,j)=d2A[i*(i+1)/2+j];
 				d2VrightR(j,i)=d2VrightR(i,j);
 				d2VleftR(j,i)=d2VleftR(i,j);
+				d2S3R(j,i)=d2S3R(i,j);
+				d2AR(j,i)=d2AR(i,j);
 			}
 		}
 		return ret;
@@ -108,6 +124,10 @@ public:
 	NumericVector get_params();
 
     void set_params(NumericVector pars);
+
+    double virtual_age(double x) ;
+
+    double virtual_age_inverse(double x);
 
     void update_Vleft(bool with_gradient,bool with_hessian);
 

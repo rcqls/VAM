@@ -61,23 +61,7 @@ public:
     int id;
     int id_params;
 
-    double virtual_age(double time) {
-    //max(0.0000001,obj$vam$model$Vright+time-obj$vam$data$Time[obj$vam$model$k])
-    //printf("virtual_age:%lf,%lf,%lf\n",model -> Vright, time,model->time[model->k]);
-        return model -> Vright + time  - model->time[model->k];
-    }
 
-    double* virtual_age_derivative(double x) {
-        return model->dVright;
-    }
-
-    double* virtual_age_hessian(double x) {
-        return model->d2Vright;
-    }
-
-    double virtual_age_inverse(double time) {
-        return time + model->time[model->k] - model->Vright;
-    }
 
 };
 
@@ -168,6 +152,52 @@ class ABAO : public MaintenanceModel {
 public:
 
     ABAO(VamModel* model_) : MaintenanceModel(model_) {
+    }
+
+    NumericVector get_params() {
+        NumericVector out(0);
+        return out;
+    }
+
+    void set_params(NumericVector par,int ind) {
+    }
+
+    int nb_params(){
+        return 0;
+    }
+
+    void update(bool with_gradient,bool with_hessian);
+
+};
+
+class AGAP : public MaintenanceModel { 
+
+public:
+
+    AGAP(VamModel* model_) : MaintenanceModel(model_) {
+    }
+
+    NumericVector get_params() {
+        NumericVector out(0);
+        return out;
+    }
+
+    void set_params(NumericVector par,int ind) {
+    }
+
+    int nb_params(){
+        return 0;
+    }
+
+    void update(bool with_gradient,bool with_hessian);
+
+};
+
+class QAGAN : public MaintenanceModel { 
+
+public:
+
+    QAGAN(VamModel* model_) : MaintenanceModel(model_) {
     }
 
     NumericVector get_params() {
