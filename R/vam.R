@@ -483,21 +483,23 @@ parse.vam.formula <- function(obj,formula) {
 		)
 	}
 	convert.pm <- function(pm) {
-	  if((length(pm)==1)||(length(pm[[length(pm)]])<3)){
+	  if((length(pm)==1)||(pm[[length(pm)]][[1]]!=as.name("|"))) {
 		list(
 			name=as.character(pm[[1]]),
 			##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
 			params=as.vector(if(length(pm)==1) numeric(0) else sapply(pm[2:length(pm)],function(e) as.vector(eval(e))))
 		)
-	  } else if((length(pm[[length(pm)]])!=3)||(pm[[length(pm)]][[1]]!=as.name("|"))) {
-	  	stop("Wrong definition of parameters of maintenance effect model!")
-	  } else if ( typeof(tryCatch( as.vector(eval(pm[[length(pm)]][[3]])) ,error=function(e){FALSE},finally=function(e){TRUE}))!="logical"){ 
-	  	list(
+	  } else if ( typeof(tryCatch( as.double(eval(pm[[length(pm)]][[3]])) ,error=function(e){FALSE},finally=function(e){TRUE}))!="logical"){ 
+	  	if((round(eval(pm[[length(pm)]][[3]]))!=eval(pm[[length(pm)]][[3]]))||(round(eval(pm[[length(pm)]][[3]]))<0)) {
+	  		stop("Memory argument of a maintenance model has to be a positive integer!")
+	  	} else {
+	  	  list(
 			name=as.character(pm[[1]]),
 			##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
 			params=as.vector(if(length(pm)==2) pm[[2]][[2]] else c(sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)]][[2]])))),
-			arg=as.vector(eval(pm[[length(pm)]][[3]]))
-		)
+			arg=as.integer(eval(pm[[length(pm)]][[3]]))
+		  )
+		}
 	  }	else { 
 	  	list(
 			name=as.character(pm[[1]]),

@@ -742,3 +742,41 @@ test_that("Weibull + GQR-log",{
 	expect_that(contrast(mle,theta,c(FALSE,FALSE,TRUE)),equals(d2C,tolerance=0.00000000000001))
 }
 )
+
+test_that("Weibull + GQR-sqrt",{
+	simData<-data.frame(Time=c(18.09,52.07,95.71,145.75),Type=c(-1,-1,-1,-1),row.names=1:4)
+    mle <- mle.vam(Time & Type ~ (GQR(0.7|sqrt) | Weibull(0.001,2.5)),data=simData)
+    theta<-c(0.03,2.4,0.7)
+	lnL<- -244.558483645129
+	dlnL<- c(-8207.95806347584,-788.351238674561,-1050.82462756074)
+	d2lnL<- matrix(c(-4444.44444444444,-26754.9654997246,-35501.3463704942,-26754.9654997246,-2579.29345017032,-3912.38114820971,-35501.3463704942,-3912.38114820971,-3897.23540002875),nrow=3,byrow=TRUE)
+	C<- -14.8642260155259
+	dC<-c(1.46759523701393,-2.80862496401469)
+	d2C<-matrix(c(-0.759600585249061,-2.10353871070821,-2.10353871070821,-9.8224362844605),nrow=2,byrow=TRUE)
+	expect_that(logLikelihood(mle,theta,c(TRUE,FALSE,FALSE)),equals(lnL,tolerance=0.00000000000001))
+	expect_that(logLikelihood(mle,theta,c(FALSE,TRUE,FALSE)),equals(dlnL,tolerance=0.00000000000001))
+	expect_that(logLikelihood(mle,theta,c(FALSE,FALSE,TRUE)),equals(d2lnL,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,c(TRUE,FALSE,FALSE)),equals(C,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,c(FALSE,TRUE,FALSE)),equals(dC,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,c(FALSE,FALSE,TRUE)),equals(d2C,tolerance=0.00000000000001))
+}
+)
+
+test_that("Weibull + MC ARA1 + MP GQR-log + MultiSystems + Censorship",{
+	simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,4),rep(4,4),rep(5,7)),Time=c(3.36,4.04,4.97,5.16, 2.34,3.46,5.02,5.45, 1.18,2.22,3.14,4.83, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98),Type=c(1,1,1,1, -1,-1,-1,0, 1,-1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,0),row.names=1:23)
+    mle <- mle.vam(System & Time & Type ~ (ARA1(0.2) | Weibull(0.001,2.5)) & (GQR(0.7|log)),data=simData)
+    theta<-c(0.3,2.2,0.7,0.4)
+	lnL<- -25.9295776644323
+	dlnL<- c(-19.8315635006478,-11.5441301568133,6.18485740297678,18.5557013220856)
+	d2lnL<- matrix(c(-100,-42.8895750190514,36.5331114719639,-16.5532077750091,-42.8895750190514,-15.0267599068787,13.6707008274522,9.78922374712259,36.5331114719639,13.6707008274522,-9.70090792671755,4.84792055163571,-16.5532077750091,9.78922374712259,4.84792055163571,-68.3647543081143),nrow=4,byrow=TRUE)
+	C<- -24.5471694757317
+	dC<-c(-6.42347607281054,1.82311153869292,20.5320149357969)
+	d2C<-matrix(c(-3.11946173172753,0.967523538961955,12.7215337059711,0.967523538961955,-3.10657798789795,0.726777249182269,12.7215337059711,0.726777249182269,-63.5667947445182),nrow=3,byrow=TRUE)
+	expect_that(logLikelihood(mle,theta,c(TRUE,FALSE,FALSE)),equals(lnL,tolerance=0.00000000000001))
+	expect_that(logLikelihood(mle,theta,c(FALSE,TRUE,FALSE)),equals(dlnL,tolerance=0.00000000000001))
+	expect_that(logLikelihood(mle,theta,c(FALSE,FALSE,TRUE)),equals(d2lnL,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,c(TRUE,FALSE,FALSE)),equals(C,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,c(FALSE,TRUE,FALSE)),equals(dC,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,c(FALSE,FALSE,TRUE)),equals(d2C,tolerance=0.00000000000001))
+}
+)
