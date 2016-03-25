@@ -126,6 +126,7 @@ void VamModel::init_computation_values() {
 	Vleft=0;Vright=0;
 	hVleft=0;
 	A=1;
+	for(int i=0;i<nbPM + 1;i++) models->at(i)->init();
 }
 
 void VamModel::init(List model_) {
@@ -168,6 +169,7 @@ void VamModel::init_virtual_age_infos() {
     	S1 = 0;
     	Vright=0;
     	A=1;
+    	for(int i=0;i<nbPM + 1;i++) models->at(i)->init();
 };
 
 DataFrame VamModel::get_virtual_age_info(double from,double to, double by) {

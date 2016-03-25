@@ -319,6 +319,9 @@ private:
     void init_mle_vam_for_current_system(bool with_gradient,bool with_hessian) {
         int i;
         int j;
+
+        for(i=0;i<model->nbPM + 1;i++) model->models->at(i)->init();
+
     	model->Vright = 0; //100000.;
         model->A=1;
     	model->k=0;
@@ -448,7 +451,7 @@ private:
                 //i+1 and j+1(<=i+1) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
                 model->d2S1[(i+model->nb_paramsFamily-1)*(i+model->nb_paramsFamily)/2+j+model->nb_paramsFamily-1] += dhVleft*model->dVleft[i]*model->dVleft[j] + model->hVleft * model->d2Vleft[i*(i+1)/2+j] - dhVright*model->dVright[i]*model->dVright[j] - hVright * model->d2Vright[i*(i+1)/2+j];
                 model->d2S2[(i+model->nb_paramsFamily-1)*(i+model->nb_paramsFamily)/2+j+model->nb_paramsFamily-1] += ( model->dVleft[i]*model->dVleft[j]*(d2hVleft/model->hVleft-pow(dhVleft/model->hVleft,2)) + dhVleft * model->d2Vleft[i*(i+1)/2+j]/model->hVleft )* model->indType;
-                model->d2S3[i*(i+1)/2+j] += (model->d2A[i*(i+1)/2+j]/model->A +model->dA[i]*model->dA[j])* model->indType;
+                model->d2S3[i*(i+1)/2+j] += (model->d2A[i*(i+1)/2+j]/model->A -model->dA[i]*model->dA[j]/pow(model->A,2))* model->indType;
             }
         }
         //printf("\n");

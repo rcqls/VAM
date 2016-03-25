@@ -474,29 +474,38 @@ parse.vam.formula <- function(obj,formula) {
 	}
 	cms[[cpt.cms <- cpt.cms + 1]] <- parse.cm(cm)
 
-	convert.cm <- function(cm) {
-
+	convert.family <- function(fam) {
 		list(
-			model=list(
-				name=as.character(cm$model[[1]]),
-				##TO REMOVE (obj deleted): params=if(length(cm$model)==2) numeric(0) else sapply(cm$model[2:(length(cm$model)-1)],function(e) as.vector(eval(e)))
-				params=as.vector(if(length(cm$model)==1) numeric(0) else sapply(cm$model[2:length(cm$model)],function(e) as.vector(eval(e))))
-			),
-			family=list(
-				name=as.character(cm$family[[1]]),
-				params=sapply(cm$family[-1],function(e) as.vector(eval(e)))
+				name=as.character(fam[[1]]),
+				params=sapply(fam[-1],function(e) as.vector(eval(e)))
 				## instead of : params=sapply(cm$family[-1],as.vector)
 				## which does not work with negative real since element of tmp[-1] interpreted as call!
-			)
 		)
 	}
 	convert.pm <- function(pm) {
+	  if((length(pm)==1)||(length(pm[[length(pm)]])<3)){
 		list(
 			name=as.character(pm[[1]]),
 			##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
 			params=as.vector(if(length(pm)==1) numeric(0) else sapply(pm[2:length(pm)],function(e) as.vector(eval(e))))
 		)
-
+	  } else if((length(pm[[length(pm)]])!=3)||(pm[[length(pm)]][[1]]!=as.name("|"))) {
+	  	stop("Wrong definition of parameters of maintenance effect model!")
+	  } else if ( typeof(tryCatch( as.vector(eval(pm[[length(pm)]][[3]])) ,error=function(e){FALSE},finally=function(e){TRUE}))!="logical"){ 
+	  	list(
+			name=as.character(pm[[1]]),
+			##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
+			params=as.vector(if(length(pm)==2) pm[[2]][[2]] else c(sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)]][[2]])))),
+			arg=as.vector(eval(pm[[length(pm)]][[3]]))
+		)
+	  }	else { 
+	  	list(
+			name=as.character(pm[[1]]),
+			##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
+			params=as.vector(if(length(pm)==2) pm[[2]][[2]] else c(sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)]][[2]])))),
+			fun=as.character(pm[[length(pm)]][[3]])
+		)
+	  } 
 	}
 	convert.mp <- function(mp) {#maintenance policy
 		if(is.null(mp)) list(name="None")
@@ -535,12 +544,11 @@ parse.vam.formula <- function(obj,formula) {
 		}
 	}
 
-	cms <- convert.cm(cms[[1]])
 
 	list(
 		response=response,
-		models=c(list(cms$model),lapply(pms[rev(seq(pms))],convert.pm)),
-		family=cms$family,
+		models=c(list(convert.pm(cms[[1]]$model)),lapply(pms[rev(seq(pms))],convert.pm)),
+		family=convert.family(cms[[1]]$family),
 		pm.policy=convert.mp(policy)
 	)
 
