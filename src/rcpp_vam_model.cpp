@@ -9,12 +9,16 @@ VamModel::~VamModel() {
 	//DEBUG: printf("VamModel: %p, %p, %p, %p, %p, %p, %p\n",dVright,dVleft,dS1,dS2,models,family,maintenance_policy);
 	delete[] dS1;
 	delete[] dS2;
+	delete[] dS3;
 	delete[] d2S1;
 	delete[] d2S2;
+	delete[] d2S3;
 	delete[] dVright;
 	delete[] dVleft;
 	delete[] d2Vright;
 	delete[] d2Vleft;
+	delete[] dA;
+	delete[] d2A;
 	delete models;
 	delete family;
 	delete maintenance_policy;
@@ -55,23 +59,30 @@ void VamModel::set_params(NumericVector pars) {
 	}
 }
 
+double VamModel::virtual_age(double x) {
+    return Vright + (x  - time[k])*A;
+}
+
+double VamModel::virtual_age_inverse(double x) {
+    return (x - Vright)/A + time[k] ;
+}
+
 void VamModel::update_Vleft(bool with_gradient,bool with_hessian) {
-	int j;
 	int i;
+	int j;
 	/*if(model->k < 10) printf("Vleft:%lf\n", model->Vleft);*/
-	Vleft =(models->at(idMod))->virtual_age(time[k+1]);
+	Vleft = virtual_age(time[k+1]);
 	//printf("Vleft:%lf\n", model->Vleft);
 	if(with_hessian) {
-		double* tmp=(models->at(idMod))->virtual_age_derivative(time[k+1]);
-		double* dtmp=(models->at(idMod))->virtual_age_hessian(time[k+1]);
 		for(i=0;i<nb_paramsMaintenance;i++) {
-			dVleft[i]=tmp[i];
-			for (j=0;j<=i;j++) d2Vleft[i*(i+1)/2+j]=dtmp[i*(i+1)/2+j];
-		}
+            dVleft[i]=dVright[i] + (time[k+1]  - time[k])*dA[i];
+            for (j=0;j<=i;j++) 
+                d2Vleft[i*(i+1)/2+j]= d2Vright[i*(i+1)/2+j] + (time[k+1]  - time[k])*d2A[i*(i+1)/2+j];
+        }
 	}
 	else if(with_gradient) {
-		double* tmp=(models->at(idMod))->virtual_age_derivative(time[k+1]);
-		for(i=0;i<nb_paramsMaintenance;i++) dVleft[i]=tmp[i];
+		for(i=0;i<nb_paramsMaintenance;i++)
+            dVleft[i]= dVright[i] + (time[k+1]  - time[k])*dA[i];
 	}
 	
 }
@@ -111,9 +122,11 @@ void VamModel::set_maintenance_policy(List maintenance_policy_) {
 };
 
 void VamModel::init_computation_values() {
-	S1=0;S2=0;S3=0;
+	S1=0;S2=0;S0=0;S3=0;
 	Vleft=0;Vright=0;
 	hVleft=0;
+	A=1;
+	for(int i=0;i<nbPM + 1;i++) models->at(i)->init();
 }
 
 void VamModel::init(List model_) {
@@ -131,18 +144,22 @@ void VamModel::init(List model_) {
 	nb_paramsFamily=family->nb_params();
 	set_maintenance_policy(maintenance_policy_);
 
-	// S1=0;S2=0;S3=0;
+	// S1=0;S2=0;S0=0;
 	// Vleft=0;Vright=0;
 	// hVleft=0;
 	init_computation_values();
 	dS1=new double[nb_paramsMaintenance+nb_paramsFamily-1];
 	dS2=new double[nb_paramsMaintenance+nb_paramsFamily-1];
+	dS3=new double[nb_paramsMaintenance];
 	d2S1=new double[(nb_paramsMaintenance+nb_paramsFamily-1)*(nb_paramsMaintenance+nb_paramsFamily)/2];//inferior diagonal part of the hessian matrice by lines
 	d2S2=new double[(nb_paramsMaintenance+nb_paramsFamily-1)*(nb_paramsMaintenance+nb_paramsFamily)/2];//inferior diagonal part of the hessian matrice by lines
+	d2S3=new double[(nb_paramsMaintenance)*(nb_paramsMaintenance+1)/2];//inferior diagonal part of the hessian matrice by lines
 	dVright=new double[nb_paramsMaintenance];
 	dVleft=new double[nb_paramsMaintenance];
 	d2Vright=new double[(nb_paramsMaintenance)*(nb_paramsMaintenance+1)/2];//inferior diagonal part of the hessian matrice by lines
 	d2Vleft=new double[(nb_paramsMaintenance)*(nb_paramsMaintenance+1)/2];//inferior diagonal part of the hessian matrice by lines
+	dA=new double[nb_paramsMaintenance];
+	d2A=new double[(nb_paramsMaintenance)*(nb_paramsMaintenance+1)/2];//inferior diagonal part of the hessian matrice by lines
 	//DEBUG: printf("dVright:%p,dVleft:%p\n",dVright,dVleft);
 };
 
@@ -151,6 +168,8 @@ void VamModel::init_virtual_age_infos() {
     	idMod=0; //id of current model
     	S1 = 0;
     	Vright=0;
+    	A=1;
+    	for(int i=0;i<nbPM + 1;i++) models->at(i)->init();
 };
 
 DataFrame VamModel::get_virtual_age_info(double from,double to, double by) {
@@ -163,7 +182,7 @@ DataFrame VamModel::get_virtual_age_info(double from,double to, double by) {
 	std::vector<double> H(n+1); //I for cumulative intensity
 
 	t[0]=from;t[n]=to;
-	v[0]=Vright;v[n]=Vleft;
+	v[0]=virtual_age(from);v[n]=virtual_age(to);
 	h[0]=family->hazardRate(v[0]);h[n]=family->hazardRate(v[n]);
 	H[0]=S1;H[n]=S1+family->cumulative_hazardRate(v[n])-family->cumulative_hazardRate(v[0]);
 	double by_t=(t[n]-t[0])/s;

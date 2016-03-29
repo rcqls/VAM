@@ -1,5 +1,8 @@
 LISTE d'évolutions le package VAM
 
+#########
+plot muli-system l'option nb.system ne fonctionne pas!!!!
+
 ###########
 	+ WINDOWS
 	+ GET LIKELIHOOD AND DERIVATIVE avec et sans alpha
