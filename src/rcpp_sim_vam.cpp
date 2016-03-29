@@ -31,7 +31,7 @@ DataFrame SimVam::simulate(int nbsim) {
         //#print(c(obj$model$Vleft,obj$model$Vright))
 
 
-        double timePM= 0.0, timeCM = model->models->at(model->idMod)->virtual_age_inverse(model->family->inverse_cumulative_hazardRate(model->family->cumulative_hazardRate(model->models->at(model->idMod)->virtual_age(model->time[model->k]))-log(runif(1))[0]));
+        double timePM= 0.0, timeCM = model->virtual_age_inverse(model->family->inverse_cumulative_hazardRate(model->family->cumulative_hazardRate(model->virtual_age(model->time[model->k]))-log(runif(1))[0]));
         //TODO: submodels
         int idMod;
         List timeAndTypePM;
@@ -75,7 +75,9 @@ void SimVam::add_stop_policy(List policy) {
 
 void SimVam::init(int cache_size_) {
     model->Vright=0;
+    model->A=1;
     model->k=0;
+    for(int i=0;i<model->nbPM + 1;i++) model->models->at(i)->init();
     size=cache_size_+1;cache_size=cache_size_;
     model->idMod=0; // Since no maintenance is possible!
     //model->time=rep(0,size);

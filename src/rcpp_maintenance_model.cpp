@@ -39,6 +39,8 @@ MaintenanceModelList::~MaintenanceModelList() {
 }
 
 void ARA1::update(bool with_gradient,bool with_hessian) {
+    int i;
+    int j;
     /*# next step
     obj$vam$model$k <- obj$vam$model$k + 1
     # At T(k)
@@ -53,11 +55,32 @@ void ARA1::update(bool with_gradient,bool with_hessian) {
     obj$model$mod <- obj
     */
     model->k += 1;
-    double dVlr = model->Vleft- model->Vright;
-    model->Vright += (1-rho) * dVlr;
-    if(with_gradient) {
-        model->dVright[id_params] += -dVlr;
+
+    if (with_hessian){
+        for(i=0;i<model->nb_paramsMaintenance;i++) {
+            for(j=0;j<=i;j++) {
+                //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
+                model->d2Vright[i*(i+1)/2+j] = (1-rho) * model->d2Vleft[i*(i+1)/2+j] + rho * model->d2Vright[i*(i+1)/2+j];
+            }
+        }
+        for(j=0;j<=id_params;j++) {
+            //i(<=id_params) and id respectively correspond to the column and line indices of (inferior diagonal part of) the hessian matrice
+            model->d2Vright[id_params*(id_params+1)/2+j] = model->d2Vright[id_params*(id_params+1)/2+j] - model->dVleft[j]+model->dVright[j];
+        }
+        for(i=id_params;i<model->nb_paramsMaintenance;i++) {
+             //id and i(>=id_params) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
+            model->d2Vright[i*(i+1)/2+id_params] = model->d2Vright[i*(i+1)/2+id_params] - model->dVleft[i]+model->dVright[i];
+        }
     }
+    if(with_gradient||with_hessian) {
+        for(i=0;i<model->nb_paramsMaintenance;i++) {
+            model->dVright[i] = (1-rho) * model->dVleft[i]+ rho * model->dVright[i];
+        }
+        model->dVright[id_params] = model->dVright[id_params] - model->Vleft + model->Vright;
+    }
+
+    model->Vright= (1-rho)*model->Vleft + rho*model->Vright;
+
     model->idMod = id;
 }
 
@@ -70,7 +93,7 @@ void ARAInf::update(bool with_gradient,bool with_hessian) {
         for(i=0;i<model->nb_paramsMaintenance;i++) {
             for(j=0;j<=i;j++) {
                 //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
-                model->d2Vright[i*(i+1)/2+j] = (1-rho) * model->d2Vright[i*(i+1)/2+j];
+                model->d2Vright[i*(i+1)/2+j] = (1-rho) * model->d2Vleft[i*(i+1)/2+j];
             }
         }
         for(j=0;j<=id_params;j++) {
@@ -84,7 +107,7 @@ void ARAInf::update(bool with_gradient,bool with_hessian) {
     }
     if(with_gradient||with_hessian) {
         for(i=0;i<model->nb_paramsMaintenance;i++) {
-            model->dVright[i] = (1-rho) * model->dVright[i];
+            model->dVright[i] = (1-rho) * model->dVleft[i];
         }
         model->dVright[id_params] = model->dVright[id_params] - model->Vleft;
     }
@@ -97,15 +120,75 @@ void AGAN::update(bool with_gradient,bool with_hessian) {
     int j;
     model->k += 1;
     model->Vright = 0;
+    model->A=1;
     if (with_hessian){
         for(i=0;i<model->nb_paramsMaintenance;i++) {
+            model->dVright[i] = 0;
+            model->dA[i] = 0;
+            for(j=0;j<=i;j++) {
+                //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
+                model->d2Vright[i*(i+1)/2+j] = 0;
+                model->d2A[i*(i+1)/2+j] = 0;
+            }
+        }
+    }
+    if(with_gradient) {
+        for(i=0;i<model->nb_paramsMaintenance;i++) {
+            model->dVright[i] = 0;
+            model->dA[i] = 0;
+        }
+    }
+    // save old model
+    model->idMod = id;
+}
+
+void ABAO::update(bool with_gradient,bool with_hessian) {
+    int i;
+    int j;
+    model->k += 1;
+    if (with_hessian){
+        for(i=0;i<model->nb_paramsMaintenance;i++) {
+            for(j=0;j<=i;j++) {
+                //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
+                model->d2Vright[i*(i+1)/2+j] = model->d2Vleft[i*(i+1)/2+j];
+            }
+        }
+    }
+    if(with_gradient||with_hessian) {
+        for(i=0;i<model->nb_paramsMaintenance;i++) {
+            model->dVright[i] =  model->dVleft[i];
+        }
+    }
+
+    model->Vright = model->Vleft;
+
+    // save old model
+    model->idMod = id;
+}
+
+void AGAP::update(bool with_gradient,bool with_hessian) {
+    model->k += 1;
+
+    // save old model
+    model->idMod = id;
+}
+
+void QAGAN::update(bool with_gradient,bool with_hessian) {
+    int i;
+    int j;
+    model->k += 1;
+    model->Vright = 0;
+
+    if (with_hessian){
+        for(i=0;i<model->nb_paramsMaintenance;i++) {
+            model->dVright[i] = 0;
             for(j=0;j<=i;j++) {
                 //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
                 model->d2Vright[i*(i+1)/2+j] = 0;
             }
         }
     }
-    if(with_gradient||with_hessian) {
+    if(with_gradient) {
         for(i=0;i<model->nb_paramsMaintenance;i++) {
             model->dVright[i] = 0;
         }
@@ -114,14 +197,77 @@ void AGAN::update(bool with_gradient,bool with_hessian) {
     model->idMod = id;
 }
 
-void ABAO::update(bool with_gradient,bool with_hessian) {
+void QR::update(bool with_gradient,bool with_hessian) {
+    int i;
+    int j;
     model->k += 1;
-    model->Vright += model->Vleft- model->Vright;
-
+    model->Vright = 0;
+    if (with_hessian){
+        for(i=0;i<model->nb_paramsMaintenance;i++) {
+            for(j=0;j<=i;j++) {
+                //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
+                model->d2A[i*(i+1)/2+j] = rho* model->d2A[i*(i+1)/2+j];
+                model->d2Vright[i*(i+1)/2+j] = 0;
+            }
+        }
+        for(j=0;j<=id_params;j++) {
+            //i(<=id_params) and id respectively correspond to the column and line indices of (inferior diagonal part of) the hessian matrice
+            model->d2A[id_params*(id_params+1)/2+j] = model->d2A[id_params*(id_params+1)/2+j] + model->dA[j];
+        }
+        for(i=id_params;i<model->nb_paramsMaintenance;i++) {
+             //id and i(>=id_params) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
+            model->d2A[i*(i+1)/2+id_params] = model->d2A[i*(i+1)/2+id_params] + model->dA[i];
+        }
+    }
+    if(with_gradient||with_hessian) {
+        for(i=0;i<model->nb_paramsMaintenance;i++) {
+            model->dA[i] = rho *  model->dA[i];
+            model->dVright[i] = 0;
+        }
+        model->dA[id_params] = model->dA[id_params] +  model->A;
+    }
+    model->A=rho*model->A;
     // save old model
     model->idMod = id;
 }
 
+void GQR::update(bool with_gradient,bool with_hessian) {
+
+
+    int i;
+    int j;
+    model->k += 1;
+    model->Vright = 0;
+    K++;
+    if (with_hessian){
+        for(i=0;i<model->nb_paramsMaintenance;i++) {
+            for(j=0;j<=i;j++) {
+                //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
+                model->d2A[i*(i+1)/2+j] = pow(rho,f->eval(K)-f->eval(K-1))* model->d2A[i*(i+1)/2+j];
+                model->d2Vright[i*(i+1)/2+j] = 0;
+            }
+        }
+        for(j=0;j<id_params;j++) {
+            //i(<=id_params) and id respectively correspond to the column and line indices of (inferior diagonal part of) the hessian matrice
+            model->d2A[id_params*(id_params+1)/2+j] = model->d2A[id_params*(id_params+1)/2+j] + pow(rho,f->eval(K)-f->eval(K-1))*(f->eval(K)-f->eval(K-1))/rho*model->dA[j];
+        }
+        model->d2A[id_params*(id_params+1)/2+id_params] = model->d2A[id_params*(id_params+1)/2+id_params] + pow(rho,f->eval(K)-f->eval(K-1))*(f->eval(K)-f->eval(K-1))/rho*(2*model->dA[id_params]+(f->eval(K)-f->eval(K-1)-1)/rho*model->A);
+        for(i=id_params+1;i<model->nb_paramsMaintenance;i++) {
+             //id and i(>=id_params) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
+            model->d2A[i*(i+1)/2+id_params] = model->d2A[i*(i+1)/2+id_params] + pow(rho,f->eval(K)-f->eval(K-1))*(f->eval(K)-f->eval(K-1))/rho*model->dA[i];
+        }
+    }
+    if(with_gradient||with_hessian) {
+        for(i=0;i<model->nb_paramsMaintenance;i++) {
+            model->dA[i] = pow(rho,f->eval(K)-f->eval(K-1)) *  model->dA[i];
+            model->dVright[i] = 0;
+        }
+        model->dA[id_params] = model->dA[id_params] + pow(rho,f->eval(K)-f->eval(K-1)) * (f->eval(K)-f->eval(K-1))/rho * model->A;
+    }
+    model->A=pow(rho,f->eval(K)-f->eval(K-1))*model->A;
+    // save old model
+    model->idMod = id;
+}
 
 MaintenanceModel* newMaintenanceModel(List maintenance,VamModel* model) {
 	std::string name=maintenance["name"];
@@ -139,12 +285,32 @@ MaintenanceModel* newMaintenanceModel(List maintenance,VamModel* model) {
     //double rho=1.0;
     //mm=new ARAInf(rho,model);
         mm=new AGAN(model);
-  } else if(name.compare("ABAO.va.model") == 0) {
+    } else if(name.compare("ABAO.va.model") == 0) {
     //double rho=0.0;
     //mm=new ARAInf(rho,model);
         mm=new ABAO(model);
-  } else {
-    printf("WARNING: %s is not a proper maintenance model!\n",name.c_str());
-  }
+    } else if(name.compare("AGAP.va.model") == 0) {
+    //double rho=0.0;
+    //mm=new ARAInf(rho,model);
+        mm=new AGAP(model);
+    } else if(name.compare("QAGAN.va.model") == 0) {
+    //double rho=0.0;
+    //mm=new ARAInf(rho,model);
+        mm=new QAGAN(model);
+    } else if(name.compare("QR.va.model") == 0) {
+        NumericVector rho=NumericVector::create(params[0]);
+        mm=new QR(rho,model);
+    } else if(name.compare("GQR.va.model") == 0) {
+        NumericVector rho=NumericVector::create(params[0]);
+        if (maintenance.containsElementNamed("fun")) {
+            std::string fun=maintenance["fun"];
+            mm=new GQR(rho,fun,model);
+        } else {
+            std::string fun="identity";
+            mm=new GQR(rho,fun,model);
+        }
+    } else {
+        printf("WARNING: %s is not a proper maintenance model!\n",name.c_str());
+    }
 	return mm;
 }
