@@ -29,29 +29,44 @@ More details of formula specifications are given under `Details'.
  }}
  
 \details{
-From a mathematical point of view the CM-PM process can be specified by its failure intensity. The failure intensity of a virtual age model verifies for \eqn{t>=0}
-\deqn{\lambda(t)=h(V(t))}
-where \eqn{h} is a deterministic function characterizing the time to failure hazard rate of the new unmaintained system (specified by "\code{InitDist}" in "\code{formula}"). And \eqn{V} is an adapted process, called virtual age, that takes into account the effects of the different maintenances. In order to be able to simulate the CM-PM process, one has also to specify how PM are planned. This is done thanks to the PM policy denoted "\code{PMpol}" or "\code{PMpol_1}", ...., "\code{PMpol_k}" in "\code{formula}".
+From a mathematical point of view the CM-PM process can be specified by its failure intensity. The general failure intensity of a virtual age model verifies for \eqn{t >= 0}
+\deqn{\lambda(t) = V'(t) h(V(t))}
+where \eqn{h} is a deterministic function characterizing the time to failure hazard rate of the new unmaintained system (specified by "\code{InitDist}" in "\code{formula}"). \eqn{V(.)} is an adapted process, called virtual age, that takes into account the effects of the different maintenances, and \eqn{V'(.)} denotes its derivative. Let us denote \eqn{C[k]} the successive maintenance times and \eqn{V(t | k)} the virtual age at time \eqn{t} given that \eqn{k} maintenance times have already been observed. \eqn{V(t | 0)} denotes the virtual age of a new never maintained system, it is assumed to be equal to \eqn{t}. Consequently, the cumulative intensity or compensator of the CM-PM process, \eqn{\Lambda} verifies for \eqn{C[k] <= t <= C[k+1]},
+\deqn{\Lambda(t)-\Lambda(C[k]) = H(V(t | k)) - H(V(C[k] | k))}
+with \eqn{H(t) = \int_{0}^{t} h(s) ds}.
+
+In order to be able to simulate the CM-PM process, one has also to specify how PM are planned. This is done thanks to the PM policy denoted "\code{PMpol}" or "\code{PMpol_1}", ...., "\code{PMpol_k}" in "\code{formula}". 
 
 \subsection{Maintenance effects}{
 "\code{CMeff}", "\code{PMeff}", "\code{PMeff_1}", ....,, "\code{PMeff_n}" specified respectively the effect of CM, of PM (where only one type of PM effect is considered) and of the different types of PM effect. Notice that only one type of CM effect can be considered. The available maintenance effects are :
 \describe{
 	\item{\code{AGAN()}}{for As Good As New maintenance. An AGAN maintenance renews the system. That is to say,
-	after an AGAN maintenance done at time \eqn{C[k]}, the virtual age is equal to \eqn{V(t)=t-C[k]} up to the next maintenance time \eqn{C[k+1]} (for \eqn{C[k]<t<= C[k+1]}).}
+	after an AGAN maintenance done at time \eqn{C[k]}, the virtual age is equal to \eqn{V(t | k) = V(t-C[k] | 0) = t-C[k]} up to the next maintenance time \eqn{C[k+1]} (for \eqn{C[k] < t <= C[k+1]}).}
 	\item{\code{ABAO()}}{for As Bad As Old maintenance. An ABAO maintenance has no effect on the propensity of the system to break done, it continues to evolve similarly to what it was before maintenance. That is to say,
-	after an ABAO maintenance  done at time \eqn{C[k]}, the virtual age is equal to \eqn{V(t)=t-C[k]+V(C[k])} up to the newt maintenance time \eqn{C[k+1]} (for \eqn{C[k]<t<= C[k+1]}).}
+	after an ABAO maintenance  done at time \eqn{C[k]}, the virtual age is equal to \eqn{V(t | k) = V(t | k-1)} up to the next maintenance time \eqn{C[k+1]} (for \eqn{C[k] < t <= C[k+1]}).}
+	\item{\code{AGAP()}}{for As Good As Previous maintenance. An AGAP maintenance puts the system exactly in the same state as it was just after the last previous maintenance. That is to say, after an AGAP maintenance  done at time \eqn{C[k]}, the virtual age is equal to \eqn{V(t | k) = V(t-(C[k]-C[k-1]) | k-1)} up to the next maintenance time \eqn{C[k+1]} (for \eqn{C[k] < t <= C[k+1]}).}
+	\item{\code{QAGAN()}}{for Quasi As Good As New maintenance. A QAGAN maintenance puts back the virtual age to zero without necessary renewing the system. That is to say, after a QAGAN maintenance  done at time \eqn{C[k]}, the virtual age is equal to \eqn{V(t | k) = V(t | k-1)-V(C[k] | k-1)} up to the next maintenance time \eqn{C[k+1]} (for \eqn{C[k] < t <= C[k+1]}).}
 	\item{\code{ARAInf(rho)}}{for Arithmetic Reduction of Age model with infinite memory. This is also equivalent to a Kijima type II model with deterministic constant effect. The effect of such maintenance is to reduce the virtual age from a quantity proportional to its value just before maintenance. That is to say, after an ARAInf maintenance  done at time \eqn{C[k]}, the virtual age is equal to
-	 \eqn{V(t)=t-C[k]+(1-\rho)V(C[k])} up to the newt maintenance time \eqn{C[k+1]} (for \eqn{C[k]<t<= C[k+1]}). "\code{rho}" is a scalar smaller or equal to 1, representing the maintenance effect \eqn{\rho}.}
-	\item{\code{ARA1(rho)}}{for Arithmetic Reduction of Age model with memory one. This also equivalent to a Kijima type I model with deterministic constant effect. The effect of such maintenance is to reduce the virtual age from a quantity proportional to the supplement of age accumulated since the last maintenance. That is to say, after an ARA1 maintenance  done at time \eqn{C[k]} (\eqn{C[k-1]} denotes the previous maintenance time), the virtual age is equal to
-	\eqn{V(t)=t-C[k]+(1-\rho)(V(C[k])-V(C[k-1]))} up to the newt maintenance time \eqn{C[k+1]} (for \eqn{C[k]<t<= C[k+1]}). "\code{rho}" is a scalar smaller or equal to 1, representing the maintenance effect \eqn{\rho}.}
+	 \eqn{V(t | k) = V(t | k-1) - \rho V(C[k] | k-1)} up to the next maintenance time \eqn{C[k+1]} (for \eqn{C[k] < t <= C[k+1]}). "\code{rho}" is a scalar smaller or equal to 1, representing the maintenance effect \eqn{\rho}.}
+	\item{\code{ARA1(rho)}}{for Arithmetic Reduction of Age model with memory one. This also equivalent to a Kijima type I model with deterministic constant effect. The effect of such maintenance is to reduce the virtual age from a quantity proportional to the supplement of age accumulated since the last maintenance. That is to say, after an ARA1 maintenance  done at time \eqn{C[k]}, the virtual age is equal to
+	\eqn{V(t | k) = V(t | k-1) - \rho ( V(C[k] | k-1) - V(C[k-1] | k-1) )} up to the next maintenance time \eqn{C[k+1]} (for \eqn{C[k] < t <= C[k+1]}). "\code{rho}" is a scalar smaller or equal to 1, representing the maintenance effect \eqn{\rho}.}
+	\item{\code{QR(rho)}}{for Quasi Renewal maintenance model. This also equivalent to the geometric model. Let \eqn{Y_1, Y_2, Y_3, ...} be iid random variables. The classical geometric process assumes that the successive times between failures follows the same distribution as \eqn{Y_1, a Y_2, a^2 Y_3, ...}. Consequently, after a QR maintenance  done at time \eqn{C[k]}, the virtual age is equal to
+	\eqn{V(t | k) = \rho ( V(t | k-1) -  V(C[k] | k-1) )} up to the next maintenance time \eqn{C[k+1]} (for \eqn{C[k] < t <= C[k+1]}). "\code{rho}" is a positive scalar, representing the maintenance effect \eqn{\rho = 1/a}.}
+	\item{\code{GQR(rho)} or \code{GQR(rho | fun)}}{for Generalized Quasi Renewal maintenance model. This model is similar to the extended geometric process. The geometric evolution of the times between maintenances in the QR model often seems to much explosive to be realistic from a practical point of view. The idea of the GQR model is simply to replace \eqn{a^n} by \eqn{a^(f(n))} where \eqn{f()} stands for a non decreasing function that can be specified by the "\code{fun}" argument. The possible values for "\code{fun}" are 
+	\itemize{
+		\item{\code{identity}} : (default value) \eqn{f(x)=x}, in this case the GQR model corresponds to a QR model,
+		\item{\code{sqrt}} : \eqn{f(x)=x^(0.5)},
+		\item{\code{log}} : \eqn{f(x)=log(x+1)}.
+	}
+	"\code{rho}" is a positive scalar representing the maintenance effect.}
 	}}
 
 \subsection{Time to failure distribution of the new unmaintained system}{
 	"\code{InitDistr}" characterizes the hazard rate of the new unmaintained system \eqn{h(.)}. The available distributions are:
 	\describe{
-	\item{\code{Weibull(alpha,beta)}}{for a Weibull initial hazard rate with parametrization \eqn{h(t)=\alpha\beta t^(\beta-1)} with \eqn{\alpha>0} and \eqn{\beta>0}.}
-	\item{\code{LogLinear(alpha,beta)}}{for a log-linear hazard rate with parametrization \eqn{h(t)=\alpha exp(\beta t)} with \eqn{\alpha>0}.}
-	\item{\code{Weibull3(alpha,beta,c)}}{for a three parameter Weibull initial hazard rate with parametrization \eqn{h(t)=\alpha\beta (t+c)^(\beta-1)} with \eqn{\alpha>0}, \eqn{\beta>0} and \eqn{c>0}.}
+	\item{\code{Weibull(alpha,beta)}}{for a Weibull initial hazard rate with parametrization \eqn{h(t) = \alpha \beta t^(\beta-1)} with \eqn{\alpha > 0} and \eqn{\beta > 0}.}
+	\item{\code{LogLinear(alpha,beta)}}{for a log-linear hazard rate with parametrization \eqn{h(t) = \alpha exp(\beta t)} with \eqn{\alpha > 0}.}
+	\item{\code{Weibull3(alpha,beta,c)}}{for a three parameter Weibull initial hazard rate with parametrization \eqn{h(t) = \alpha \beta (t+c)^(\beta-1)} with \eqn{\alpha > 0}, \eqn{\beta > 0} and \eqn{c > 0}.}
 	}
 }
 
