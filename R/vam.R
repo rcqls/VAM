@@ -497,7 +497,7 @@ parse.vam.formula <- function(obj,formula) {
 			name=as.character(pm[[1]]),
 			##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
 			params=as.vector(if(length(pm)==2) pm[[2]][[2]] else c(sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)]][[2]])))),
-			arg=as.integer(eval(pm[[length(pm)]][[3]]))
+			m=as.integer(eval(pm[[length(pm)]][[3]]))
 		  )
 		}
 	  }	else { 
@@ -505,7 +505,7 @@ parse.vam.formula <- function(obj,formula) {
 			name=as.character(pm[[1]]),
 			##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
 			params=as.vector(if(length(pm)==2) pm[[2]][[2]] else c(sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)]][[2]])))),
-			fun=as.character(pm[[length(pm)]][[3]])
+			extra=as.character(pm[[length(pm)]][[3]])
 		)
 	  } 
 	}

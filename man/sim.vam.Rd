@@ -47,18 +47,27 @@ In order to be able to simulate the CM-PM process, one has also to specify how P
 	\item{\code{AGAP()}}{for As Good As Previous maintenance. An AGAP maintenance puts the system exactly in the same state as it was just after the last previous maintenance. That is to say, after an AGAP maintenance  done at time \eqn{C[k]}, the virtual age is equal to \eqn{V(t | k) = V(t-(C[k]-C[k-1]) | k-1)} up to the next maintenance time \eqn{C[k+1]} (for \eqn{C[k] < t <= C[k+1]}).}
 	\item{\code{QAGAN()}}{for Quasi As Good As New maintenance. A QAGAN maintenance puts back the virtual age to zero without necessary renewing the system. That is to say, after a QAGAN maintenance  done at time \eqn{C[k]}, the virtual age is equal to \eqn{V(t | k) = V(t | k-1)-V(C[k] | k-1)} up to the next maintenance time \eqn{C[k+1]} (for \eqn{C[k] < t <= C[k+1]}).}
 	\item{\code{ARAInf(rho)}}{for Arithmetic Reduction of Age model with infinite memory. This is also equivalent to a Kijima type II model with deterministic constant effect. The effect of such maintenance is to reduce the virtual age from a quantity proportional to its value just before maintenance. That is to say, after an ARAInf maintenance  done at time \eqn{C[k]}, the virtual age is equal to
-	 \eqn{V(t | k) = V(t | k-1) - \rho V(C[k] | k-1)} up to the next maintenance time \eqn{C[k+1]} (for \eqn{C[k] < t <= C[k+1]}). "\code{rho}" is a scalar smaller or equal to 1, representing the maintenance effect \eqn{\rho}.}
+	 \eqn{V(t | k) = V(t | k-1) - \rho V(C[k] | k-1)} up to the next maintenance time \eqn{C[k+1]} (for \eqn{C[k] < t <= C[k+1]}). "\code{rho}" is the corresponding maintenance effect parameter vector, it is of size 1 and  represents \eqn{\rho}.}
 	\item{\code{ARA1(rho)}}{for Arithmetic Reduction of Age model with memory one. This also equivalent to a Kijima type I model with deterministic constant effect. The effect of such maintenance is to reduce the virtual age from a quantity proportional to the supplement of age accumulated since the last maintenance. That is to say, after an ARA1 maintenance  done at time \eqn{C[k]}, the virtual age is equal to
-	\eqn{V(t | k) = V(t | k-1) - \rho ( V(C[k] | k-1) - V(C[k-1] | k-1) )} up to the next maintenance time \eqn{C[k+1]} (for \eqn{C[k] < t <= C[k+1]}). "\code{rho}" is a scalar smaller or equal to 1, representing the maintenance effect \eqn{\rho}.}
+	\eqn{V(t | k) = V(t | k-1) - \rho ( V(C[k] | k-1) - V(C[k-1] | k-1) )} up to the next maintenance time \eqn{C[k+1]} (for \eqn{C[k] < t <= C[k+1]}). "\code{rho}" is the corresponding maintenance effect parameter vector, it is of size 1 and  represents \eqn{\rho}.}
 	\item{\code{QR(rho)}}{for Quasi Renewal maintenance model. This also equivalent to the geometric model. Let \eqn{Y_1, Y_2, Y_3, ...} be iid random variables. The classical geometric process assumes that the successive times between failures follows the same distribution as \eqn{Y_1, a Y_2, a^2 Y_3, ...}. Consequently, after a QR maintenance  done at time \eqn{C[k]}, the virtual age is equal to
-	\eqn{V(t | k) = \rho ( V(t | k-1) -  V(C[k] | k-1) )} up to the next maintenance time \eqn{C[k+1]} (for \eqn{C[k] < t <= C[k+1]}). "\code{rho}" is a positive scalar, representing the maintenance effect \eqn{\rho = 1/a}.}
+	\eqn{V(t | k) = \rho ( V(t | k-1) -  V(C[k] | k-1) )} up to the next maintenance time \eqn{C[k+1]} (for \eqn{C[k] < t <= C[k+1]}). A QR maintenance modifies the virtual age time speed. "\code{rho}" is the corresponding maintenance effect parameter vector, it is of size 1 and  represents \eqn{\rho = 1/a}.}
 	\item{\code{GQR(rho)} or \code{GQR(rho | fun)}}{for Generalized Quasi Renewal maintenance model. This model is similar to the extended geometric process. The geometric evolution of the times between maintenances in the QR model often seems to much explosive to be realistic from a practical point of view. The idea of the GQR model is simply to replace \eqn{a^n} by \eqn{a^(f(n))} where \eqn{f()} stands for a non decreasing function that can be specified by the "\code{fun}" argument. The possible values for "\code{fun}" are 
 	\itemize{
 		\item{\code{identity}} : (default value) \eqn{f(x)=x}, in this case the GQR model corresponds to a QR model,
 		\item{\code{sqrt}} : \eqn{f(x)=x^(0.5)},
 		\item{\code{log}} : \eqn{f(x)=log(x+1)}.
 	}
-	"\code{rho}" is a positive scalar representing the maintenance effect.}
+	A GQR maintenance modifies the virtual age time speed.
+	"\code{rho}" is the corresponding maintenance effect parameter vector, it is of size 1.}
+	\item{\code{GQR_ARAInf(rho)} or \code{GQR_ARAInf(rho | fun)}}{
+	A GQR maintenance puts back the virtual age to zero and modifies the virtual age time speed.
+	An ARAInf maintenance does not modify the virtual age time speed but restores the virtual age into an intermediate condition between its value before maintenance and zero. The GQR_ARAInf model mixes both effects.
+	"\code{rho}" is the corresponding maintenance effect parameter vector, it is of size 2 : "\code{rho[1]}" characterizes the GQR effect and "\code{rho[2]}" characterizes the ARAInf effect.}
+	\item{\code{GQR_ARA1(rho)} or \code{GQR_ARA1(rho | fun)}}{
+	A GQR maintenance puts back the virtual age to zero and modifies the virtual age time speed.
+	An ARA1 maintenance does not modify the virtual age time speed but restores the virtual age into an intermediate condition between its value before maintenance and zero. The GQR_ARA1 model mixes both effects.
+	"\code{rho}" is the corresponding maintenance effect parameter vector, it is of size 2 : "\code{rho[1]}" characterizes the GQR effect and "\code{rho[2]}" characterizes the ARA1 effect.}
 	}}
 
 \subsection{Time to failure distribution of the new unmaintained system}{
