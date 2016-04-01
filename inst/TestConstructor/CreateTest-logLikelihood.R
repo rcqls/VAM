@@ -1,7 +1,7 @@
 # R script used to develop the testthat test for log-likelihood.R 
 
 # The number of the test
-nbtest<-"TGQRARA_5"
+nbtest<-"T3"
 
 switch(nbtest,
        TGQRARA_5={

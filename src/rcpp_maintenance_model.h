@@ -49,6 +49,8 @@ public:
  
     virtual void update(bool with_gradient,bool with_hessian) = 0;
 
+    void update_Vright(bool with_gradient,bool with_hessian);
+
 
     VamModel* model;
 

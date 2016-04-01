@@ -483,31 +483,106 @@ parse.vam.formula <- function(obj,formula) {
 		)
 	}
 	convert.pm <- function(pm) {
-	  if((length(pm)==1)||(pm[[length(pm)]][[1]]!=as.name("|"))) {
-		list(
-			name=as.character(pm[[1]]),
-			##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
-			params=as.vector(if(length(pm)==1) numeric(0) else sapply(pm[2:length(pm)],function(e) as.vector(eval(e))))
-		)
-	  } else if ( typeof(tryCatch( as.double(eval(pm[[length(pm)]][[3]])) ,error=function(e){FALSE},finally=function(e){TRUE}))!="logical"){ 
-	  	if((round(eval(pm[[length(pm)]][[3]]))!=eval(pm[[length(pm)]][[3]]))||(round(eval(pm[[length(pm)]][[3]]))<0)) {
-	  		stop("Memory argument of a maintenance model has to be a positive integer!")
-	  	} else {
-	  	  list(
-			name=as.character(pm[[1]]),
-			##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
-			params=as.vector(if(length(pm)==2) pm[[2]][[2]] else c(sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)]][[2]])))),
-			m=as.integer(eval(pm[[length(pm)]][[3]]))
-		  )
+		n_pip<-c()
+		if(length(pm)>1){
+			for(i in 2:length(pm)){
+				if((length(pm[[i]])==3)&&(pm[[i]][[1]]==as.name("|"))) {
+					n_pip<-c(n_pip,i)
+				}
+			}
 		}
-	  }	else { 
-	  	list(
-			name=as.character(pm[[1]]),
-			##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
-			params=as.vector(if(length(pm)==2) pm[[2]][[2]] else c(sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)]][[2]])))),
-			extra=as.character(pm[[length(pm)]][[3]])
-		)
-	  } 
+		if(length(n_pip)==0) {
+			list(
+				name=as.character(pm[[1]]),
+				##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
+				params=as.vector(if(length(pm)==1) numeric(0) else sapply(pm[2:length(pm)],function(e) as.vector(eval(e))))
+			)
+		} else if(length(n_pip)==1) {
+			if(n_pip<(length(pm)-1)) {
+				stop("Maximum two arguments after a | in a maintenance effect!")
+			} else if(n_pip==length(pm)) {
+				if( typeof(tryCatch( as.double(eval(pm[[length(pm)]][[3]])) ,error=function(e){FALSE},finally=function(e){TRUE}))!="logical"){ 
+	  				if((round(eval(pm[[length(pm)]][[3]]))!=eval(pm[[length(pm)]][[3]]))||(round(eval(pm[[length(pm)]][[3]]))<0)) {
+	  					stop("Memory argument of a maintenance model has to be a positive integer!")
+	  				} else {
+	  	  				list(
+							name=as.character(pm[[1]]),
+							##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
+							params=as.vector(if(length(pm)==2) pm[[2]][[2]] else c(sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)]][[2]])))),
+							m=as.integer(eval(pm[[length(pm)]][[3]]))
+		  				)
+					}
+	  			} else { 
+	  				list(
+						name=as.character(pm[[1]]),
+						##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
+						params=as.vector(if(length(pm)==2) pm[[2]][[2]] else c(sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)]][[2]])))),
+						extra=as.character(pm[[length(pm)]][[3]])
+					)
+	  			} 
+			} else {
+				if( typeof(tryCatch( as.double(eval(pm[[length(pm)-1]][[3]])) ,error=function(e){FALSE},finally=function(e){TRUE}))!="logical"){ 
+	  				if((round(eval(pm[[length(pm)-1]][[3]]))!=eval(pm[[length(pm)-1]][[3]]))||(round(eval(pm[[length(pm)-1]][[3]]))<0)) {
+	  					stop("Memory argument of a maintenance model has to be a positive integer!")
+	  				} else {
+	  	  				list(
+							name=as.character(pm[[1]]),
+							##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
+							params=as.vector(if(length(pm)==3) pm[[2]][[2]] else c(sapply(pm[2:(length(pm)-2)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)-1]][[2]])))),
+							m=as.integer(eval(pm[[length(pm)-1]][[3]])),
+							extra=as.character(pm[[length(pm)]])
+		  				)
+					}
+				} else {
+					if( typeof(tryCatch( as.double(eval(pm[[length(pm)]])) ,error=function(e){FALSE},finally=function(e){TRUE}))=="logical"){
+						stop("At least one of the two argument of maintenance model after a | must be a memory that is to say a non negative positive integer!")
+					} else {
+						if((round(eval(pm[[length(pm)]]))!=eval(pm[[length(pm)]]))||(round(eval(pm[[length(pm)]]))<0)) {
+	  						stop("Memory argument of a maintenance model has to be a positive integer!")
+	  					} else {
+	  	  					list(
+								name=as.character(pm[[1]]),
+								##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
+								params=as.vector(if(length(pm)==3) pm[[2]][[2]] else c(sapply(pm[2:(length(pm)-2)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)-1]][[2]])))),
+								m=as.integer(eval(pm[[length(pm)]])),
+								extra=as.character(pm[[length(pm)-1]][[3]])
+		  					)
+	  	  				}
+					}
+
+				}
+			}
+		} else {
+			stop("Maximum one | in a maintenance effect!")
+		}
+
+
+
+	 #  if((length(pm)==1)||(pm[[length(pm)]][[1]]!=as.name("|"))) {
+		# list(
+		# 	name=as.character(pm[[1]]),
+		# 	##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
+		# 	params=as.vector(if(length(pm)==1) numeric(0) else sapply(pm[2:length(pm)],function(e) as.vector(eval(e))))
+		# )
+	 #  } else if ( typeof(tryCatch( as.double(eval(pm[[length(pm)]][[3]])) ,error=function(e){FALSE},finally=function(e){TRUE}))!="logical"){ 
+	 #  	if((round(eval(pm[[length(pm)]][[3]]))!=eval(pm[[length(pm)]][[3]]))||(round(eval(pm[[length(pm)]][[3]]))<0)) {
+	 #  		stop("Memory argument of a maintenance model has to be a positive integer!")
+	 #  	} else {
+	 #  	  list(
+		# 	name=as.character(pm[[1]]),
+		# 	##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
+		# 	params=as.vector(if(length(pm)==2) pm[[2]][[2]] else c(sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)]][[2]])))),
+		# 	m=as.integer(eval(pm[[length(pm)]][[3]]))
+		#   )
+		# }
+	 #  }	else { 
+	 #  	list(
+		# 	name=as.character(pm[[1]]),
+		# 	##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
+		# 	params=as.vector(if(length(pm)==2) pm[[2]][[2]] else c(sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)]][[2]])))),
+		# 	extra=as.character(pm[[length(pm)]][[3]])
+		# )
+	 #  } 
 	}
 	convert.mp <- function(mp) {#maintenance policy
 		if(is.null(mp)) list(name="None")
@@ -547,11 +622,18 @@ parse.vam.formula <- function(obj,formula) {
 	}
 
 
-	list(
+	res<-list(
 		response=response,
 		models=c(list(convert.pm(cms[[1]]$model)),lapply(pms[rev(seq(pms))],convert.pm)),
 		family=convert.family(cms[[1]]$family),
 		pm.policy=convert.mp(policy)
 	)
+	mem<-1
+	for(i in (1:length(res$models))) {
+		if(exists("m",where=res$models[[i]])) {
+			mem<-max(mem,res$models[[i]]$m)
+		}
+	}
+	c(res,list(max_memory=mem))
 
 }
