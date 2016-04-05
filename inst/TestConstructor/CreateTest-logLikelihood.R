@@ -1,9 +1,68 @@
 # R script used to develop the testthat test for log-likelihood.R 
 
 # The number of the test
-nbtest<-"TQR4"
+nbtest<-"TARAm_2"
 
 switch(nbtest,
+       TARAm_2={
+         #Weibull + ARAm-m=4
+         simData<-data.frame(Time=c(18.09,52.07,95.71,145.75,198.7,220.9),Type=c(-1,-1,-1,-1,-1,-1),row.names=1:6)
+         mle <- mle.vam(Time & Type ~ (ARAm(0.5|4) | Weibull(0.001,2.5)),data=simData)
+         theta<-c(0.03,2.4,0.7)
+         rho<-theta[3]
+         h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
+         H<-function(t) theta[1]*t^(theta[2])
+         T<-simData$Time
+         Lcalc<-log(h(T[1]))-H(T[1])
+         A<-rho*T[1]
+         Lcalc<-Lcalc+log(h(T[2]-A))-(H(T[2]-A)-H(T[1]-A))
+         i<-2
+         A<-rho*(T[i]+(1-rho)*T[i-1])
+         Lcalc<-Lcalc+log(h(T[i+1]-A))-(H(T[i+1]-A)-H(T[i]-A))
+         i<-3
+         A<-rho*(T[i]+(1-rho)*T[i-1]+(1-rho)^2*T[i-2])
+         Lcalc<-Lcalc+log(h(T[i+1]-A))-(H(T[i+1]-A)-H(T[i]-A))
+         i<-4
+         A<-rho*(T[i]+(1-rho)*T[i-1]+(1-rho)^2*T[i-2]+(1-rho)^3*T[i-2])
+         Lcalc<-Lcalc+log(h(T[i+1]-A))-(H(T[i+1]-A)-H(T[i]-A))
+         i<-5
+         A<-rho*(T[i]+(1-rho)*T[i-1]+(1-rho)^2*T[i-2]+(1-rho)^3*T[i-2])
+         Lcalc<-Lcalc+log(h(T[i+1]-A))-(H(T[i+1]-A)-H(T[i]-A))
+         fix<-rep(TRUE,length(theta))
+         fix[1]=FALSE
+         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
+       },
+       TARAm={
+         #Weibull + ARAm-m=2
+         simData<-data.frame(Time=c(18.09,52.07,95.71,145.75,198.7,220.9),Type=c(-1,-1,-1,-1,-1,-1),row.names=1:6)
+         mle <- mle.vam(Time & Type ~ (ARAm(0.5|2) | Weibull(0.001,2.5)),data=simData)
+         theta<-c(0.03,2.4,0.7)
+         rho<-theta[3]
+         h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
+         H<-function(t) theta[1]*t^(theta[2])
+         T<-simData$Time
+         Lcalc<-log(h(T[1]))-H(T[1])
+         A<-rho*T[1]
+         Lcalc<-Lcalc+log(h(T[2]-A))-(H(T[2]-A)-H(T[1]-A))
+         i<-2
+         A<-rho*(T[i]+(1-rho)*T[i-1])
+         Lcalc<-Lcalc+log(h(T[i+1]-A))-(H(T[i+1]-A)-H(T[i]-A))
+          i<-3
+          A<-rho*(T[i]+(1-rho)*T[i-1])
+          Lcalc<-Lcalc+log(h(T[i+1]-A))-(H(T[i+1]-A)-H(T[i]-A))
+          i<-4
+          A<-rho*(T[i]+(1-rho)*T[i-1])
+          Lcalc<-Lcalc+log(h(T[i+1]-A))-(H(T[i+1]-A)-H(T[i]-A))
+          i<-5
+          A<-rho*(T[i]+(1-rho)*T[i-1])
+          Lcalc<-Lcalc+log(h(T[i+1]-A))-(H(T[i+1]-A)-H(T[i]-A))
+         fix<-rep(TRUE,length(theta))
+         fix[1]=FALSE
+         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
+       },
+       
        TGQRARA_5={
          #Weibull + MC ARA1 + MP GQ_RARAInf-log + MultiSystems + Censorship
          simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,4),rep(4,4),rep(5,7)),Time=c(3.36,4.04,4.97,5.16, 2.34,3.46,5.02,5.45, 1.18,2.22,3.14,4.83, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98),Type=c(1,1,1,1, -1,-1,-1,0, 1,-1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,0),row.names=1:23)

@@ -443,6 +443,41 @@ private:
     f_GQR *f;
 };
 
+class ARAm : public MaintenanceModel { 
+
+public:
+
+    ARAm(NumericVector rho_, int m_, VamModel* model_) : MaintenanceModel(model_) {
+        rho = rho_[0];
+        m = m_;
+    }
+
+    NumericVector get_params() {
+        NumericVector out(1);
+        out[0]=rho;
+        return out;
+    }
+
+    void set_params(NumericVector par, int ind) {
+        rho=par[ind];
+    }
+
+    void init(){
+    }
+
+    int nb_params(){
+        return 1;
+    }
+
+    void update(bool with_gradient,bool with_hessian);
+
+private:
+
+    double rho;
+    int m;
+
+};
+
 
 MaintenanceModel* newMaintenanceModel(List maintenance,VamModel* model);
 

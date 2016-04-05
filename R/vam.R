@@ -502,8 +502,8 @@ parse.vam.formula <- function(obj,formula) {
 				stop("Maximum two arguments after a | in a maintenance effect!")
 			} else if(n_pip==length(pm)) {
 				if( typeof(tryCatch( as.double(eval(pm[[length(pm)]][[3]])) ,error=function(e){FALSE},finally=function(e){TRUE}))!="logical"){ 
-	  				if((round(eval(pm[[length(pm)]][[3]]))!=eval(pm[[length(pm)]][[3]]))||(round(eval(pm[[length(pm)]][[3]]))<0)) {
-	  					stop("Memory argument of a maintenance model has to be a positive integer!")
+	  				if((round(eval(pm[[length(pm)]][[3]]))!=eval(pm[[length(pm)]][[3]]))||(round(eval(pm[[length(pm)]][[3]]))<=0)) {
+	  					stop("Memory argument of a maintenance model has to be a strictly positive integer!")
 	  				} else {
 	  	  				list(
 							name=as.character(pm[[1]]),

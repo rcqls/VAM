@@ -265,7 +265,7 @@ test_that("Weibull + CM ARAInf + PM ARAInf + PM ARA1 + mutlisystems",{
 test_that("Weibull + AGAN",{
 	simData<-data.frame(Time=c(3.36,4.04,4.97,5.16),Type=c(-1,-1,-1,-1),row.names=1:4)
     mle <- mle.vam(Time & Type ~ (AGAN() | Weibull(0.001,2.5)),data=simData)
-    theta<-c(0.3,0.8,1)
+    theta<-c(0.3,0.8)
 	lnL<- -6.90098251895707
 	dlnL<- c(8.75359407434948,3.3717767832448)
 	d2lnL<- matrix(c(-44.4444444444444,-2.40399936753948,-2.40399936753948,-7.6652713149061),nrow=2,byrow=TRUE)
@@ -284,7 +284,7 @@ test_that("Weibull + AGAN",{
 test_that("LogLinear + CM ABAO",{
     simData<-data.frame(Time=c(3.36,4.04,4.97,5.16),Type=c(-1,-1,-1,-1),row.names=1:4)
     mle <- mle.vam(Time & Type ~ (ABAO() | LogLinear(0.001,2.5)),data=simData)
-    theta<-c(0.3,0.8,1)
+    theta<-c(0.3,0.8)
 	lnL<- -13.6870254780068
 	dlnL<- c(-62.9837808690102,-73.9249749593491)
 	d2lnL<- matrix(c(-44.4444444444444,-304.849916531164,-304.849916531164,-390.943849373404),nrow=2,byrow=TRUE)
@@ -815,7 +815,7 @@ test_that("Weibull + GQR_ARAInf",{
 	expect_that(logLikelihood(mle,theta,c(FALSE,FALSE,TRUE)),equals(d2lnL,tolerance=0.00000000000001))
 	expect_that(contrast(mle,theta,c(TRUE,FALSE,FALSE)),equals(C,tolerance=0.00000000000001))
 	expect_that(contrast(mle,theta,c(FALSE,TRUE,FALSE)),equals(dC,tolerance=0.00000000000001))
-	expect_that(contrast(mle,theta,c(FALSE,FALSE,TRUE)),equals(d2C,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,c(FALSE,FALSE,TRUE)),equals(d2C,tolerance=0.0000000000001))
 }
 )
 
@@ -867,6 +867,84 @@ test_that("Weibull + MC ARA1 + MP GQ_RARAInf-log + MultiSystems + Censorship",{
 	C<- -19.568162233621
 	dC<-c(-4.65710153153946,-0.795765584639633,-5.88281332709037,2.95530764264158)
 	d2C<-matrix(c(-7.85285540201067,-2.78664457162768,-10.5680421360252,7.12689306214278,-2.78664457162768,-4.14065180208066,-2.82691291028266,1.32051846411931,-10.5680421360252,-2.82691291028266,-2.44964958457988,6.71488713174694,7.12689306214278,1.32051846411931,6.71488713174694,-1.62344453972361),nrow=4,byrow=TRUE)
+	expect_that(logLikelihood(mle,theta,c(TRUE,FALSE,FALSE)),equals(lnL,tolerance=0.00000000000001))
+	expect_that(logLikelihood(mle,theta,c(FALSE,TRUE,FALSE)),equals(dlnL,tolerance=0.00000000000001))
+	expect_that(logLikelihood(mle,theta,c(FALSE,FALSE,TRUE)),equals(d2lnL,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,c(TRUE,FALSE,FALSE)),equals(C,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,c(FALSE,TRUE,FALSE)),equals(dC,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,c(FALSE,FALSE,TRUE)),equals(d2C,tolerance=0.0000000000001))
+}
+)
+
+test_that("Weibull + ARAm-m=2",{
+	simData<-data.frame(Time=c(18.09,52.07,95.71,145.75,198.7,220.9),Type=c(-1,-1,-1,-1,-1,-1),row.names=1:6)
+    mle <- mle.vam(Time & Type ~ (ARAm(0.5|2) | Weibull(0.001,2.5)),data=simData)
+    theta<-c(0.03,2.4,0.7)
+	lnL<- -2600.46156675627
+	dlnL<- c(-87032.7099834185,-10989.6661601188,6745.47891744838)
+	d2lnL<- matrix(c(-6666.66666666667,-367174.735520771,225153.425274492,-367174.735520771,-46307.9946188132,32956.7724964216,225153.425274492,32956.7724964216,-16880.4479240297),nrow=3,byrow=TRUE)
+	C<- -25.948370978711
+	dC<-c(0.32106229767103,6.36255820206048)
+	d2C<-matrix(c(-0.909264674311954,3.87406673594902,3.87406673594902,-0.394244003389716),nrow=2,byrow=TRUE)
+	expect_that(logLikelihood(mle,theta,c(TRUE,FALSE,FALSE)),equals(lnL,tolerance=0.00000000000001))
+	expect_that(logLikelihood(mle,theta,c(FALSE,TRUE,FALSE)),equals(dlnL,tolerance=0.00000000000001))
+	expect_that(logLikelihood(mle,theta,c(FALSE,FALSE,TRUE)),equals(d2lnL,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,c(TRUE,FALSE,FALSE)),equals(C,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,c(FALSE,TRUE,FALSE)),equals(dC,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,c(FALSE,FALSE,TRUE)),equals(d2C,tolerance=0.00000000000001))
+}
+)
+
+test_that("Weibull + ARAm-m=3",{
+	simData<-data.frame(Time=c(18.09,52.07,95.71,145.75,198.7,220.9),Type=c(-1,-1,-1,-1,-1,-1),row.names=1:6)
+    mle <- mle.vam(Time & Type ~ (ARAm(0.5|3) | Weibull(0.001,2.5)),data=simData)
+    theta<-c(0.03,2.4,0.7)
+	lnL<- -2436.77330082115
+	dlnL<- c(-81567.7532962045,-10188.2094022023,5719.57195795803)
+	d2lnL<- matrix(c(-6666.66666666667,-340453.309431142,190929.671896146,-340453.309431142,-42483.9898494684,27534.7616151142,190929.671896146,27534.7616151142,-14554.2780650748),nrow=3,byrow=TRUE)
+	C<- -25.8206271210325
+	dC<-c(0.407907102520102,5.69194547894592)
+	d2C<-matrix(c(-0.936417820176478,3.08815779480951,3.08815779480951,-0.920858811778887),nrow=2,byrow=TRUE)
+	expect_that(logLikelihood(mle,theta,c(TRUE,FALSE,FALSE)),equals(lnL,tolerance=0.00000000000001))
+	expect_that(logLikelihood(mle,theta,c(FALSE,TRUE,FALSE)),equals(dlnL,tolerance=0.00000000000001))
+	expect_that(logLikelihood(mle,theta,c(FALSE,FALSE,TRUE)),equals(d2lnL,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,c(TRUE,FALSE,FALSE)),equals(C,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,c(FALSE,TRUE,FALSE)),equals(dC,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,c(FALSE,FALSE,TRUE)),equals(d2C,tolerance=0.00000000000001))
+}
+)
+
+test_that("Weibull + ARAm-m=1",{
+	simData<-data.frame(Time=c(18.09,52.07,95.71,145.75,198.7,220.9),Type=c(-1,-1,-1,-1,-1,-1),row.names=1:6)
+    mle <- mle.vam(Time & Type ~ (ARAm(0.5|1) | Weibull(0.001,2.5)),data=simData)
+    mle2 <- mle.vam(Time & Type ~ (ARA1(0.5) | Weibull(0.001,2.5)),data=simData)
+    theta<-c(0.03,2.4,0.7)
+	lnL<- logLikelihood(mle2,theta,c(TRUE,FALSE,FALSE))
+	dlnL<- logLikelihood(mle2,theta,c(FALSE,TRUE,FALSE))
+	d2lnL<- logLikelihood(mle2,theta,c(FALSE,FALSE,TRUE))
+	C<-contrast(mle2,theta,c(TRUE,FALSE,FALSE))
+	dC<-contrast(mle2,theta,c(FALSE,TRUE,FALSE))
+	d2C<-contrast(mle2,theta,c(FALSE,FALSE,TRUE))
+	expect_that(logLikelihood(mle,theta,c(TRUE,FALSE,FALSE)),equals(lnL,tolerance=0.00000000000001))
+	expect_that(logLikelihood(mle,theta,c(FALSE,TRUE,FALSE)),equals(dlnL,tolerance=0.00000000000001))
+	expect_that(logLikelihood(mle,theta,c(FALSE,FALSE,TRUE)),equals(d2lnL,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,c(TRUE,FALSE,FALSE)),equals(C,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,c(FALSE,TRUE,FALSE)),equals(dC,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,c(FALSE,FALSE,TRUE)),equals(d2C,tolerance=0.00000000000001))
+}
+)
+
+test_that("Weibull + ARAm-m=Inf",{
+	simData<-data.frame(Time=c(18.09,52.07,95.71,145.75,198.7,220.9),Type=c(-1,-1,-1,-1,-1,-1),row.names=1:6)
+    mle <- mle.vam(Time & Type ~ (ARAm(0.5|8) | Weibull(0.001,2.5)),data=simData)
+    mle2 <- mle.vam(Time & Type ~ (ARAInf(0.5) | Weibull(0.001,2.5)),data=simData)
+    theta<-c(0.03,2.4,0.7)
+	lnL<- logLikelihood(mle2,theta,c(TRUE,FALSE,FALSE))
+	dlnL<- logLikelihood(mle2,theta,c(FALSE,TRUE,FALSE))
+	d2lnL<- logLikelihood(mle2,theta,c(FALSE,FALSE,TRUE))
+	C<-contrast(mle2,theta,c(TRUE,FALSE,FALSE))
+	dC<-contrast(mle2,theta,c(FALSE,TRUE,FALSE))
+	d2C<-contrast(mle2,theta,c(FALSE,FALSE,TRUE))
 	expect_that(logLikelihood(mle,theta,c(TRUE,FALSE,FALSE)),equals(lnL,tolerance=0.00000000000001))
 	expect_that(logLikelihood(mle,theta,c(FALSE,TRUE,FALSE)),equals(dlnL,tolerance=0.00000000000001))
 	expect_that(logLikelihood(mle,theta,c(FALSE,FALSE,TRUE)),equals(d2lnL,tolerance=0.00000000000001))

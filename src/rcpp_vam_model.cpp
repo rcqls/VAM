@@ -6,7 +6,6 @@
 using namespace Rcpp ;
 
 VamModel::~VamModel() {
-	printf("Deb bg VAM\n");
 	//DEBUG: printf("VamModel: %p, %p, %p, %p, %p, %p, %p\n",dVright,dVleft,dS1,dS2,models,family,maintenance_policy);
 	delete[] dS1;
 	delete[] dS2;
@@ -28,7 +27,6 @@ VamModel::~VamModel() {
 	delete models;
 	delete family;
 	delete maintenance_policy;
-	printf("Fin gb VAM\n");
 };
 
 NumericVector VamModel::get_params() {
@@ -55,14 +53,40 @@ NumericVector VamModel::get_params() {
 void VamModel::set_params(NumericVector pars) {
 	int i;
 	int j;
-	if(nb_paramsFamily>0){
-		family->set_params(pars);
-	}
-	j=nb_paramsFamily;
-	for(i=0;i<nbPM + 1;i++) {
-		MaintenanceModel* vam=models->at(i);
-		vam->set_params(pars,j);
-		j=j+vam->nb_params();
+	double toto;
+	if (pars.size()!=nb_paramsFamily+nb_paramsMaintenance){
+		if (pars.size()>nb_paramsFamily+nb_paramsMaintenance){
+			toto=time[1];
+			printf("The length of the parameter vector is to big, some values are not considered !%f \n",toto);
+		} else {
+			printf("The length of the parameter vector is to small, the missing values are fixed to 0.5 !\n");
+		}
+		NumericVector pars2(nb_paramsMaintenance+nb_paramsFamily);
+		for(i=0;i<std::min(pars.size(),pars2.size());i++){
+			pars2[i]=pars[i];
+		}
+		for(i=std::min(pars.size(),pars2.size());i<pars2.size();i++){
+			pars2[i]=0.5;
+		}
+		if(nb_paramsFamily>0){
+			family->set_params(pars2);
+		}
+		j=nb_paramsFamily;
+		for(i=0;i<nbPM + 1;i++) {
+			MaintenanceModel* vam=models->at(i);
+			vam->set_params(pars2,j);
+			j=j+vam->nb_params();
+		}
+	} else {
+		if(nb_paramsFamily>0){
+			family->set_params(pars);
+		}
+		j=nb_paramsFamily;
+		for(i=0;i<nbPM + 1;i++) {
+			MaintenanceModel* vam=models->at(i);
+			vam->set_params(pars,j);
+			j=j+vam->nb_params();
+		}
 	}
 }
 
