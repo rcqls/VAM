@@ -6,6 +6,7 @@
 using namespace Rcpp ;
 
 VamModel::~VamModel() {
+	printf("Deb bg VAM\n");
 	//DEBUG: printf("VamModel: %p, %p, %p, %p, %p, %p, %p\n",dVright,dVleft,dS1,dS2,models,family,maintenance_policy);
 	delete[] dS1;
 	delete[] dS2;
@@ -27,6 +28,7 @@ VamModel::~VamModel() {
 	delete models;
 	delete family;
 	delete maintenance_policy;
+	printf("Fin gb VAM\n");
 };
 
 NumericVector VamModel::get_params() {

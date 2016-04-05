@@ -20,6 +20,7 @@ public:
     }
 
     ~MLEVam() {
+        printf("Deb gb mle.vam\n");
         //DEBUG: printf("MLEVAM: %p, %p, %p\n",model,dS1,dS2);
         delete model;
         delete[] dS1;
@@ -28,6 +29,7 @@ public:
         delete[] d2S1;
         delete[] d2S2;
         delete[] d2S3;
+        printf("Deb gb mle.vam\n");
     };
 
     void set_data(List data_) {
