@@ -750,7 +750,7 @@ void ARAm::update(bool with_gradient,bool with_hessian) {
     }
     int nk2=nk;
     if(nk>m){
-        nk=m;
+        nk2=m;
     }
     //printf("ARAinf k=%d,max_mem=%d, nk=%d\n",model->k,model->max_mem,nk);
     if (with_hessian){
@@ -954,7 +954,7 @@ MaintenanceModel* newMaintenanceModel(List maintenance,VamModel* model) {
         }
         if (maintenance.containsElementNamed("m")) {
             mem=maintenance["m"];
-            printf("WARNING: no memory argument like %d can be considered in ARAInf model !\n",mem);
+            printf("WARNING: no memory argument like %d can be considered in QR model !\n",mem);
         }
         mm=new QR(rho,model);
 
