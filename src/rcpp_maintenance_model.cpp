@@ -831,6 +831,119 @@ void ARAm::update(bool with_gradient,bool with_hessian) {
     model->idMod = id;
 }
 
+void GQR_ARAm::update(bool with_gradient,bool with_hessian) {
+    int i;
+    int j;
+    int k;
+    model->k += 1;
+    K++;
+
+    int nk=model->k;
+    if(model->k>model->max_mem){
+        nk=model->max_mem;
+    }
+    int nk2=nk;
+    if(nk>m){
+        nk2=m;
+    }
+    //printf("ARAinf k=%d,max_mem=%d, nk=%d\n",model->k,model->max_mem,nk);
+    if (with_hessian){
+        if(model->k>model->max_mem){
+            for(i=0;i<model->nb_paramsMaintenance;i++) {
+                for(j=0;j<=i;j++) {
+                    model->d2C[i*(i+1)/2+j]=(model->d2B[(model->max_mem - 1)*(model->nb_paramsMaintenance*(model->nb_paramsMaintenance+1)/2)+i*(i+1)/2+j]*(model->time[model->k - model->max_mem]-model->time[model->k - model->max_mem - 1])+model->d2C[i*(i+1)/2+j]);
+                }
+            }
+        }
+        for(k=nk-1;k>nk2-1;k--) {
+            for(i=0;i<model->nb_paramsMaintenance;i++) {
+                for(j=0;j<=i;j++) {
+                    model->d2B[k*(model->nb_paramsMaintenance*(model->nb_paramsMaintenance+1)/2)+i*(i+1)/2+j]=model->d2B[(k-1)*(model->nb_paramsMaintenance*(model->nb_paramsMaintenance+1)/2)+i*(i+1)/2+j];
+                }
+            }
+        }
+        for(k=nk2-1;k>0;k--) {
+            for(i=0;i<model->nb_paramsMaintenance;i++) {
+                for(j=0;j<=i;j++) {
+                    model->d2B[k*(model->nb_paramsMaintenance*(model->nb_paramsMaintenance+1)/2)+i*(i+1)/2+j]=(1-rho_ARA)*model->d2B[(k-1)*(model->nb_paramsMaintenance*(model->nb_paramsMaintenance+1)/2)+i*(i+1)/2+j];
+                }
+            }
+            for(j=0;j<=id_params+1;j++) {
+                model->d2B[k*(model->nb_paramsMaintenance*(model->nb_paramsMaintenance+1)/2)+(id_params+1)*(id_params+2)/2+j]-= model->dB[(k-1)*model->nb_paramsMaintenance+j];
+            }
+            for(i=id_params+1;i<model->nb_paramsMaintenance;i++) {
+                model->d2B[k*(model->nb_paramsMaintenance*(model->nb_paramsMaintenance+1)/2)+i*(i+1)/2+id_params+1] -= model->dB[(k-1)*(model->nb_paramsMaintenance)+i];
+            }
+        }
+        for(i=0;i<model->nb_paramsMaintenance;i++) {
+            for(j=0;j<=i;j++) {
+                model->d2B[i*(i+1)/2+j] = (1-rho_ARA)*model->d2A[i*(i+1)/2+j];
+            }
+        }
+        for(j=0;j<=id_params+1;j++) {
+            model->d2B[(id_params+1)*(id_params+2)/2+j] -= model->dA[j];
+        }
+        for(i=id_params+1;i<model->nb_paramsMaintenance;i++) {
+            model->d2B[i*(i+1)/2+id_params+1] -= model->dA[i];
+        }
+        for(i=0;i<model->nb_paramsMaintenance;i++) {
+            for(j=0;j<=i;j++) {
+                //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
+                model->d2A[i*(i+1)/2+j] = pow(rho_QR,f->eval(K)-f->eval(K-1))* model->d2A[i*(i+1)/2+j];
+            }
+        }
+        for(j=0;j<id_params;j++) {
+            //i(<=id_params) and id respectively correspond to the column and line indices of (inferior diagonal part of) the hessian matrice
+            model->d2A[id_params*(id_params+1)/2+j] = model->d2A[id_params*(id_params+1)/2+j] + pow(rho_QR,f->eval(K)-f->eval(K-1))*(f->eval(K)-f->eval(K-1))/rho_QR*model->dA[j];
+        }
+        model->d2A[id_params*(id_params+1)/2+id_params] = model->d2A[id_params*(id_params+1)/2+id_params] + pow(rho_QR,f->eval(K)-f->eval(K-1))*(f->eval(K)-f->eval(K-1))/rho_QR*(2*model->dA[id_params]+(f->eval(K)-f->eval(K-1)-1)/rho_QR*model->A);
+        for(i=id_params+1;i<model->nb_paramsMaintenance;i++) {
+             //id and i(>=id_params) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
+            model->d2A[i*(i+1)/2+id_params] = model->d2A[i*(i+1)/2+id_params] + pow(rho_QR,f->eval(K)-f->eval(K-1))*(f->eval(K)-f->eval(K-1))/rho_QR*model->dA[i];
+        }
+    }  
+    if(with_gradient||with_hessian) {
+        if(model->k>model->max_mem){
+            for(i=0;i<model->nb_paramsMaintenance;i++) {
+                model->dC[i]=(model->dB[(model->max_mem - 1)*model->nb_paramsMaintenance+i]*(model->time[model->k - model->max_mem]-model->time[model->k - model->max_mem - 1])+model->dC[i]);
+            }
+        }
+        for(k=nk-1;k>nk2-1;k--) {
+            for(i=0;i<model->nb_paramsMaintenance;i++) {
+                model->dB[k*model->nb_paramsMaintenance+i]=model->dB[(k-1)*model->nb_paramsMaintenance+i];
+            }
+        } 
+        for(k=nk2-1;k>0;k--) {
+            for(i=0;i<model->nb_paramsMaintenance;i++) {
+                model->dB[k*model->nb_paramsMaintenance+i]=(1-rho_ARA)*model->dB[(k-1)*model->nb_paramsMaintenance+i];
+            }
+            model->dB[k * (model->nb_paramsMaintenance)+id_params+1] -= model->B[k-1];
+        }
+        for(i=0;i<model->nb_paramsMaintenance;i++) {
+            model->dB[i]=(1-rho_ARA)*model->dA[i];
+        }
+        model->dB[id_params+1]-= model->A;
+        for(i=0;i<model->nb_paramsMaintenance;i++) {
+            model->dA[i] = pow(rho_QR,f->eval(K)-f->eval(K-1)) *  model->dA[i];
+        }
+        model->dA[id_params] = model->dA[id_params] + pow(rho_QR,f->eval(K)-f->eval(K-1)) * (f->eval(K)-f->eval(K-1))/rho_QR * model->A;
+    }
+    if(model->k>model->max_mem){
+        model->C=((model->B[model->max_mem - 1])*(model->time[model->k - model->max_mem]-model->time[model->k - model->max_mem - 1])+model->C);
+    }
+    for(k=nk-1;k>nk2-1;k--) {
+        model->B[k]=model->B[k-1];
+    }
+    for(k=nk2-1;k>0;k--) {
+        model->B[k]=(1-rho_ARA)*model->B[k-1];
+    }
+    model->B[0]=(1-rho_ARA)*model->A;
+    model->A=pow(rho_QR,f->eval(K)-f->eval(K-1))*model->A;
+    update_Vright(with_gradient,with_hessian);
+
+    // save old model
+    model->idMod = id;
+}
 
 MaintenanceModel* newMaintenanceModel(List maintenance,VamModel* model) {
 	std::string name=maintenance["name"];
@@ -1052,6 +1165,39 @@ MaintenanceModel* newMaintenanceModel(List maintenance,VamModel* model) {
             mm=new ARAm(rho,1,model);
         } else {
             mm=new ARAm(rho,1,model);
+        }
+
+    } else if(name.compare("GQR_ARAm.va.model") == 0) {
+        NumericVector rho=NumericVector::create(0.5,0.5);
+        if (params.size()==0){
+            printf("WARNING: GQR_ARAm model needs a parameter vector of length 2 ! It has been fixed to c(0.5,0.5). \n");
+        } else if (params.size()==1){
+            printf("WARNING: GQR_ARAm model needs a parameter vector of length 2 ! It has been fixed to c(%f,0.5). \n",params[0]);
+            rho[1]=params[0];   
+        } else if(params.size()!=2){
+            printf("WARNING: GQR_ARAm model needs a parameter vector of length 2 !\n");
+            rho[0]=params[0];
+            rho[1]=params[1];
+        } else {
+            rho[0]=params[0];
+            rho[1]=params[1];
+        }
+        if (maintenance.containsElementNamed("m")) {
+            if (maintenance.containsElementNamed("extra")) {
+                std::string fun=maintenance["extra"];
+                mm=new GQR_ARAm(rho,fun,maintenance["m"],model);
+            } else {
+                std::string fun="identity";
+                mm=new GQR_ARAm(rho,fun,maintenance["m"],model);
+            }
+        } else {
+            if (maintenance.containsElementNamed("extra")) {
+                std::string fun=maintenance["extra"];
+                mm=new GQR_ARAm(rho,fun,1,model);
+            } else {
+                std::string fun="identity";
+                mm=new GQR_ARAm(rho,fun,1,model);
+            }
         }
 
     } else {

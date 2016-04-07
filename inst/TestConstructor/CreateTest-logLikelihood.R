@@ -1,9 +1,72 @@
 # R script used to develop the testthat test for log-likelihood.R 
 
 # The number of the test
-nbtest<-"TARAm_6"
+nbtest<-"TGQRARAm"
 
 switch(nbtest,
+       TGQRARAm={
+         #Weibull + GQR_ARAm-m=3
+         simData<-data.frame(Time=c(18.09,52.07,95.71,145.75,198.7,220.9,230),Type=c(-1,-1,-1,-1,-1,-1,0),row.names=1:7)
+         mle <- mle.vam(Time & Type ~ (GQR_ARAm(1.2,0.5|3) | Weibull(0.001,2.5)),data=simData)
+         theta<-c(0.03,2.4,1.3,0.7)
+         rho<-theta[4]
+         rhoA<-theta[3]
+         h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
+         H<-function(t) theta[1]*t^(theta[2])
+         T<-simData$Time
+         Lcalc<-0
+         C<-0
+         V1=0;V2=0;V3=0;V4=0
+         A=1
+         V=V1+V2+V3+V4
+         Lcalc<-Lcalc+(1-C)*log(h(T[1]))-H(T[1])
+         C<-0;i<-1
+         V1=A*(1-rho)*(T[1])
+         A=A*rhoA
+         V=V1+V2+V3+V4
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         C<-0;i<-i+1
+         V2=(1-rho)*V1
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         A=A*rhoA
+         V=V1+V2+V3+V4
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         C<-0;i<-i+1
+         V3=(1-rho)*V2
+         V2=(1-rho)*V1
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         A=A*rhoA
+         V=V1+V2+V3+V4
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         C<-0;i<-i+1
+         V4=V3+V4
+         V3=(1-rho)*V2
+         V2=(1-rho)*V1
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         A=A*rhoA
+         V=V1+V2+V3+V4
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         C<-0;i<-i+1
+         V4=V3+V4
+         V3=(1-rho)*V2
+         V2=(1-rho)*V1
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         A=A*rhoA
+         V=V1+V2+V3+V4
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         C<-1;i<-i+1
+         V4=V3+V4
+         V3=(1-rho)*V2
+         V2=(1-rho)*V1
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         A=A*rhoA
+         V=V1+V2+V3+V4
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         fix<-rep(TRUE,length(theta))
+         fix[1]=FALSE
+         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
+       },
        TARAm_6={
          #Weibull + CM ARAm-m=3 + PM QR + mutlisystems
          simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,14)),Time=c(3.36,4.04,4.97,5.16, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98,7.51,8.02,9.43,10.2,11.5,12,13.78),Type=c(1,1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,1,1,-1,1,-1,1,-1,0),row.names=1:22)

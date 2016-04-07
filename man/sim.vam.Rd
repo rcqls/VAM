@@ -70,7 +70,11 @@ In order to be able to simulate the CM-PM process, one has also to specify how P
 	A GQR maintenance puts back the virtual age to zero and modifies the virtual age time speed.
 	An ARA1 maintenance does not modify the virtual age time speed but restores the virtual age into an intermediate condition between its value before maintenance and zero. The GQR_ARA1 model mixes both effects.
 	"\code{rho}" is the corresponding maintenance effect parameter vector, it is of size 2 : "\code{rho[1]}" characterizes the GQR effect and "\code{rho[2]}" characterizes the ARA1 effect.}
-	}}
+	\item{\code{GQR_ARAm(rho)} or \code{GQR_ARAm(rho | fun)} or \code{GQR_ARAm(rho | m)} or \code{GQR_ARAm(rho | m, fun)} or \code{GQR_ARAm(rho | fun, m)}}{
+	The GQR_ARAm model mixes simultaneously GQR effect and ARAm effect.
+	"\code{rho}" is the corresponding maintenance effect parameter vector, it is of size 2 : "\code{rho[1]}" characterizes the GQR effect and "\code{rho[2]}" characterizes the ARAm effect.}
+	}
+}
 
 \subsection{Time to failure distribution of the new unmaintained system}{
 	"\code{InitDistr}" characterizes the hazard rate of the new unmaintained system \eqn{h(.)}. The available distributions are:

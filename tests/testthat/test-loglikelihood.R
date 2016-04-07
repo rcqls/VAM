@@ -1109,3 +1109,22 @@ test_that("Weibull + CM ARAm-m=3 + PM QR + mutlisystems",{
 	expect_that(contrast(mle,theta,FALSE,FALSE,TRUE),equals(d2C,tolerance=0.00000000000001))
 }
 )
+
+test_that("Weibull + GQR_ARAm-m=3",{
+	simData<-data.frame(Time=c(18.09,52.07,95.71,145.75,198.7,220.9,230),Type=c(-1,-1,-1,-1,-1,-1,0),row.names=1:7)
+    mle <- mle.vam(Time & Type ~ (GQR_ARAm(1.2,0.5|3) | Weibull(0.001,2.5)),data=simData)
+    theta<-c(0.03,2.4,1.3,0.7)
+	lnL<- -19524.0996600096
+	dlnL<- c(-651440.845101926,-98931.83785181,-130451.573242292,44948.9374958108)
+	d2lnL<- matrix(c(-6666.66666666667,-3298691.66087083,-4349260.39370564,1498505.11901772,-3298691.66087083,-501269.384415686,-717595.854835935,254816.142137408,-4349260.39370564,-717595.854835935,-837390.260758198,292604.491724178,1498505.11901772,254816.142137408,292604.491724178,-115028.435473886),nrow=4,byrow=TRUE)
+	C<- -29.4078957809114
+	dC<-c(-1.46081479729706,-13.8073591192265,7.58145006849591)
+	d2C<-matrix(c(-1.13865627103432,-7.02814050027214,3.92396572758071,-7.02814050027214,-8.65037145925458,2.91612651943195,3.92396572758071,2.91612651943195,-2.45231214454718),nrow=3,byrow=TRUE)
+	expect_that(logLikelihood(mle,theta,c(TRUE,FALSE,FALSE)),equals(lnL,tolerance=0.00000000000001))
+	expect_that(logLikelihood(mle,theta,c(FALSE,TRUE,FALSE)),equals(dlnL,tolerance=0.00000000000001))
+	expect_that(logLikelihood(mle,theta,c(FALSE,FALSE,TRUE)),equals(d2lnL,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,c(TRUE,FALSE,FALSE)),equals(C,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,c(FALSE,TRUE,FALSE)),equals(dC,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,c(FALSE,FALSE,TRUE)),equals(d2C,tolerance=0.00000000000001))
+}
+)

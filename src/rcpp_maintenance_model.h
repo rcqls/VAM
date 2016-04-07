@@ -479,6 +479,58 @@ private:
 };
 
 
+class GQR_ARAm : public MaintenanceModel { 
+
+public:
+
+    GQR_ARAm(NumericVector rho_, std::string extra, int m_, VamModel* model_) : MaintenanceModel(model_) {
+        rho_QR = rho_[0];
+        rho_ARA = rho_[1];
+        m = m_;
+        K=0;
+        if(extra.compare("identity")==0){
+            f=new id_GQR();
+        } else if(extra.compare("log")==0){
+            f=new log_GQR();
+        }  else if(extra.compare("sqrt")==0){
+            f=new sqrt_GQR();
+        } else {
+            std::cout<<"Undefined argument"<< extra<< "for GQR model: replaced by identity function\n";
+            f=new id_GQR();
+        }
+    }
+
+    NumericVector get_params() {
+        NumericVector out(2);
+        out[0]=rho_QR;
+        out[1]=rho_ARA;
+        return out;
+    }
+
+    void set_params(NumericVector par, int ind) {
+        rho_QR=par[ind];
+        rho_ARA=par[ind+1];
+        K=0;
+    }
+
+    void init(){
+        K=0;
+    }
+
+    int nb_params(){
+        return 2;
+    }
+
+    void update(bool with_gradient,bool with_hessian);
+
+private:
+    double rho_QR;
+    double rho_ARA;
+    int m;
+    double K;
+    f_GQR *f;
+};
+
 MaintenanceModel* newMaintenanceModel(List maintenance,VamModel* model);
 
 #endif //RCPP_VAM_MODEL_H
