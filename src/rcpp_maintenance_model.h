@@ -49,6 +49,8 @@ public:
  
     virtual void update(bool with_gradient,bool with_hessian) = 0;
 
+    void update_Vright(bool with_gradient,bool with_hessian);
+
 
     VamModel* model;
 
@@ -299,17 +301,17 @@ class GQR : public MaintenanceModel {
 
 public:
 
-    GQR(NumericVector rho_, std::string fun, VamModel* model_) : MaintenanceModel(model_) {
+    GQR(NumericVector rho_, std::string extra, VamModel* model_) : MaintenanceModel(model_) {
         rho = rho_[0];
         K=0;
-        if(fun.compare("identity")==0){
+        if(extra.compare("identity")==0){
             f=new id_GQR();
-        } else if(fun.compare("log")==0){
+        } else if(extra.compare("log")==0){
             f=new log_GQR();
-        }  else if(fun.compare("sqrt")==0){
+        }  else if(extra.compare("sqrt")==0){
             f=new sqrt_GQR();
         } else {
-            std::cout<<"Undefined argument"<< fun<< "for GQR model: replaced by identity function\n";
+            std::cout<<"Undefined argument"<< extra<< "for GQR model: replaced by identity function\n";
             f=new id_GQR();
         }
     }
@@ -337,6 +339,194 @@ public:
 
 private:
     double rho;
+    double K;
+    f_GQR *f;
+};
+
+class GQR_ARA1 : public MaintenanceModel { 
+
+public:
+
+    GQR_ARA1(NumericVector rho_, std::string extra, VamModel* model_) : MaintenanceModel(model_) {
+        rho_QR = rho_[0];
+        rho_ARA = rho_[1];
+        K=0;
+        if(extra.compare("identity")==0){
+            f=new id_GQR();
+        } else if(extra.compare("log")==0){
+            f=new log_GQR();
+        }  else if(extra.compare("sqrt")==0){
+            f=new sqrt_GQR();
+        } else {
+            std::cout<<"Undefined argument"<< extra<< "for GQR model: replaced by identity function\n";
+            f=new id_GQR();
+        }
+    }
+
+    NumericVector get_params() {
+        NumericVector out(2);
+        out[0]=rho_QR;
+        out[1]=rho_ARA;
+        return out;
+    }
+
+    void set_params(NumericVector par, int ind) {
+        rho_QR=par[ind];
+        rho_ARA=par[ind+1];
+        K=0;
+    }
+
+    void init(){
+        K=0;
+    }
+
+    int nb_params(){
+        return 2;
+    }
+
+    void update(bool with_gradient,bool with_hessian);
+
+private:
+    double rho_QR;
+    double rho_ARA;
+    double K;
+    f_GQR *f;
+};
+
+class GQR_ARAInf : public MaintenanceModel { 
+
+public:
+
+    GQR_ARAInf(NumericVector rho_, std::string extra, VamModel* model_) : MaintenanceModel(model_) {
+        rho_QR = rho_[0];
+        rho_ARA = rho_[1];
+        K=0;
+        if(extra.compare("identity")==0){
+            f=new id_GQR();
+        } else if(extra.compare("log")==0){
+            f=new log_GQR();
+        }  else if(extra.compare("sqrt")==0){
+            f=new sqrt_GQR();
+        } else {
+            std::cout<<"Undefined argument"<< extra<< "for GQR model: replaced by identity function\n";
+            f=new id_GQR();
+        }
+    }
+
+    NumericVector get_params() {
+        NumericVector out(2);
+        out[0]=rho_QR;
+        out[1]=rho_ARA;
+        return out;
+    }
+
+    void set_params(NumericVector par, int ind) {
+        rho_QR=par[ind];
+        rho_ARA=par[ind+1];
+        K=0;
+    }
+
+    void init(){
+        K=0;
+    }
+
+    int nb_params(){
+        return 2;
+    }
+
+    void update(bool with_gradient,bool with_hessian);
+
+private:
+    double rho_QR;
+    double rho_ARA;
+    double K;
+    f_GQR *f;
+};
+
+class ARAm : public MaintenanceModel { 
+
+public:
+
+    ARAm(NumericVector rho_, int m_, VamModel* model_) : MaintenanceModel(model_) {
+        rho = rho_[0];
+        m = m_;
+    }
+
+    NumericVector get_params() {
+        NumericVector out(1);
+        out[0]=rho;
+        return out;
+    }
+
+    void set_params(NumericVector par, int ind) {
+        rho=par[ind];
+    }
+
+    void init(){
+    }
+
+    int nb_params(){
+        return 1;
+    }
+
+    void update(bool with_gradient,bool with_hessian);
+
+private:
+
+    double rho;
+    int m;
+
+};
+
+
+class GQR_ARAm : public MaintenanceModel { 
+
+public:
+
+    GQR_ARAm(NumericVector rho_, std::string extra, int m_, VamModel* model_) : MaintenanceModel(model_) {
+        rho_QR = rho_[0];
+        rho_ARA = rho_[1];
+        m = m_;
+        K=0;
+        if(extra.compare("identity")==0){
+            f=new id_GQR();
+        } else if(extra.compare("log")==0){
+            f=new log_GQR();
+        }  else if(extra.compare("sqrt")==0){
+            f=new sqrt_GQR();
+        } else {
+            std::cout<<"Undefined argument"<< extra<< "for GQR model: replaced by identity function\n";
+            f=new id_GQR();
+        }
+    }
+
+    NumericVector get_params() {
+        NumericVector out(2);
+        out[0]=rho_QR;
+        out[1]=rho_ARA;
+        return out;
+    }
+
+    void set_params(NumericVector par, int ind) {
+        rho_QR=par[ind];
+        rho_ARA=par[ind+1];
+        K=0;
+    }
+
+    void init(){
+        K=0;
+    }
+
+    int nb_params(){
+        return 2;
+    }
+
+    void update(bool with_gradient,bool with_hessian);
+
+private:
+    double rho_QR;
+    double rho_ARA;
+    int m;
     double K;
     f_GQR *f;
 };

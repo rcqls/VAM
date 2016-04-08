@@ -1,9 +1,1081 @@
 # R script used to develop the testthat test for log-likelihood.R 
 
 # The number of the test
-nbtest<-"TGQR3"
+nbtest<-"TGQRARAm"
 
 switch(nbtest,
+       TGQRARAm={
+         #Weibull + GQR_ARAm-m=3
+         simData<-data.frame(Time=c(18.09,52.07,95.71,145.75,198.7,220.9,230),Type=c(-1,-1,-1,-1,-1,-1,0),row.names=1:7)
+         mle <- mle.vam(Time & Type ~ (GQR_ARAm(1.2,0.5|3) | Weibull(0.001,2.5)),data=simData)
+         theta<-c(0.03,2.4,1.3,0.7)
+         rho<-theta[4]
+         rhoA<-theta[3]
+         h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
+         H<-function(t) theta[1]*t^(theta[2])
+         T<-simData$Time
+         Lcalc<-0
+         C<-0
+         V1=0;V2=0;V3=0;V4=0
+         A=1
+         V=V1+V2+V3+V4
+         Lcalc<-Lcalc+(1-C)*log(h(T[1]))-H(T[1])
+         C<-0;i<-1
+         V1=A*(1-rho)*(T[1])
+         A=A*rhoA
+         V=V1+V2+V3+V4
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         C<-0;i<-i+1
+         V2=(1-rho)*V1
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         A=A*rhoA
+         V=V1+V2+V3+V4
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         C<-0;i<-i+1
+         V3=(1-rho)*V2
+         V2=(1-rho)*V1
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         A=A*rhoA
+         V=V1+V2+V3+V4
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         C<-0;i<-i+1
+         V4=V3+V4
+         V3=(1-rho)*V2
+         V2=(1-rho)*V1
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         A=A*rhoA
+         V=V1+V2+V3+V4
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         C<-0;i<-i+1
+         V4=V3+V4
+         V3=(1-rho)*V2
+         V2=(1-rho)*V1
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         A=A*rhoA
+         V=V1+V2+V3+V4
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         C<-1;i<-i+1
+         V4=V3+V4
+         V3=(1-rho)*V2
+         V2=(1-rho)*V1
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         A=A*rhoA
+         V=V1+V2+V3+V4
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         fix<-rep(TRUE,length(theta))
+         fix[1]=FALSE
+         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
+       },
+       TARAm_6={
+         #Weibull + CM ARAm-m=3 + PM QR + mutlisystems
+         simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,14)),Time=c(3.36,4.04,4.97,5.16, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98,7.51,8.02,9.43,10.2,11.5,12,13.78),Type=c(1,1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,1,1,-1,1,-1,1,-1,0),row.names=1:22)
+         #simData<-simData[1:4,]
+         theta<-c(0.3,1.8,0.3,0.7)
+         #L<-logLikelihood(mle,theta,c(TRUE,FALSE,FALSE))
+         
+         
+         mle <- mle.vam(System & Time & Type ~ (ARAm(0.3|2) | Weibull(0.001,2.5)) & (QR(0.6)),data=simData)
+         h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
+         H<-function(t) theta[1]*t^(theta[2])
+         rho<-theta[3]
+         rhoMP<-theta[4]
+         T<-simData$Time[1:4]
+         Lcalc<-0
+         C<-1
+         V1=0;V2=0;V3=0;V4=0;V5=0
+         A=1
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[1]))-H(T[1])
+         #rho=rhoMP
+         A=A*rhoMP
+         C<-1;i<-1
+         V1=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         #rho=rhoMP
+         A=A*rhoMP
+         C<-0;i<-2
+         V2=0
+         V1=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         C<-1;i<-3
+         V3=V2+V3
+         V2=(1-rho)*(V1)
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         T<-simData$Time[5:8]
+         C<-0
+         A<-1
+         V1=0;V2=0;V3=0;V4=0;V5=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[1]))-H(T[1])
+         #rho=0
+         #A=rhoMC*A
+         C<-1;i<-1
+         V1=A*(1-rho)*(T[i])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         A=A*rhoMP
+         C<-1;i<-2
+         V2=0
+         V1=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         A=A*rhoMP
+         C<-1;i<-3
+         V3=0
+         V2=0
+         V1=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         T<-simData$Time[9:22]
+         C<-1
+         A=1
+         V1=0;V2=0;V3=0;V4=0;V5=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[1]))-H(T[1])
+         A=A*rhoMP
+         C<-0;i<-1
+         V1=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         #rho=0
+         #A=rhoMC*A
+         C<-1;i<-2
+         V2=(1-rho)*(V1)
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         A=A*rhoMP
+         C<-0;i<-3
+         V3=0
+         V2=0
+         V1=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         #rho=0
+         #A=A*rhoMC
+         C<-0;i<-4
+         V3=V2+V3
+         V2=(1-rho)*(V1)
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         C<-1;i<-5
+         V3=V2+V3
+         V2=(1-rho)*(V1)
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         A=A*rhoMP
+         C<-1;i<-6
+         V3=0
+         V2=0
+         V1=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         A=A*rhoMP
+         C<-1;i<-7
+         V3=0
+         V2=0
+         V1=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         A=A*rhoMP
+         C<-0;i<-8
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         C<-1;i<-9
+         V3=V2+V3
+         V2=(1-rho)*(V1)
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         A=A*rhoMP
+         C<-0;i<-10
+         V3=0
+         V2=0
+         V1=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         C<-1;i<-11
+         V3=V2+V3
+         V2=(1-rho)*(V1)
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         A=A*rhoMP
+         C<-0;i<-12
+         V3=0
+         V2=0
+         V1=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         C<-1;i<-13
+         V3=V2+V3
+         V2=(1-rho)*(V1)
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         fix<-rep(TRUE,length(theta))
+         fix[1]=FALSE
+         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
+       },
+       TARAm_5={
+         #Weibull + CM QR + PM ARAm-m=3 + mutlisystems
+         simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,14)),Time=c(3.36,4.04,4.97,5.16, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98,7.51,8.02,9.43,10.2,11.5,12,13.78),Type=c(1,1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,1,1,-1,1,-1,1,-1,0),row.names=1:22)
+         #simData<-simData[1:4,]
+         theta<-c(0.3,1.8,1.3,0.7)
+         #L<-logLikelihood(mle,theta,c(TRUE,FALSE,FALSE))
+         
+
+         mle <- mle.vam(System & Time & Type ~ (QR(0.3) | Weibull(0.001,2.5)) & (ARAm(0.6|2)),data=simData)
+         h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
+         H<-function(t) theta[1]*t^(theta[2])
+         rhoMC<-theta[3]
+         rhoMP<-theta[4]
+         T<-simData$Time[1:4]
+         Lcalc<-0
+         C<-1
+         V1=0;V2=0;V3=0;V4=0;V5=0
+         A=1
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[1]))-H(T[1])
+         rho=rhoMP
+         C<-1;i<-1
+         V1=A*(1-rho)*(T[i])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         rho=rhoMP
+         C<-0;i<-2
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         rho=0
+         C<-1;i<-3
+         V3=0
+         V2=0
+         V1=0
+         A=rhoMC*A
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         T<-simData$Time[5:8]
+         C<-0
+         A<-1
+         V1=0;V2=0;V3=0;V4=0;V5=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[1]))-H(T[1])
+         rho=0
+         A=rhoMC*A
+         C<-1;i<-1
+         V1=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         rho=rhoMP
+         C<-1;i<-2
+         V2=(1-rho)*(V1)
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         rho=rhoMP
+         C<-1;i<-3
+         V3=V2
+         V2=(1-rho)*(V1)
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         T<-simData$Time[9:22]
+         C<-1
+         A=1
+         V1=0;V2=0;V3=0;V4=0;V5=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[1]))-H(T[1])
+         rho=rhoMP
+         C<-0;i<-1
+         V1=A*(1-rho)*(T[i])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         rho=0
+         A=rhoMC*A
+         C<-1;i<-2
+         V2=0
+         V1=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         rho=rhoMP
+         C<-0;i<-3
+         V3=V2
+         V2=(1-rho)*(V1)
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         rho=0
+         A=A*rhoMC
+         C<-0;i<-4
+         V4=0
+         V3=0
+         V2=0
+         V1=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         rho=0
+         A=A*rhoMC
+         C<-1;i<-5
+         V5=0
+         V4=0
+         V3=0
+         V2=0
+         V1=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         rho=rhoMP
+         C<-1;i<-6
+         V5=V4+V5
+         V4=V3
+         V3=(V2)
+         V2=(1-rho)*(V1)
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         rho=rhoMP
+         C<-1;i<-7
+         V5=V4+V5
+         V4=V3
+         V3=(V2)
+         V2=(1-rho)*(V1)
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         rho=rhoMP
+         C<-0;i<-8
+         V5=V4+V5
+         V4=V3
+         V3=(V2)
+         V2=(1-rho)*(V1)
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         rho=0
+         A=A*rhoMC
+         C<-1;i<-9
+         V5=0
+         V4=0
+         V3=0
+         V2=0
+         V1=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         rho=rhoMP
+         C<-0;i<-10
+         V5=V4+V5
+         V4=V3
+         V3=(V2)
+         V2=(1-rho)*(V1)
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         rho=0
+         A=A*rhoMC
+         C<-1;i<-11
+         V5=0
+         V4=0
+         V3=0
+         V2=0
+         V1=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         rho=rhoMP
+         C<-0;i<-12
+         V5=V4+V5
+         V4=V3
+         V3=(1-rho)*(V2)
+         V2=(1-rho)*(V1)
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         rho=0
+         A=A*rhoMC
+         C<-1;i<-13
+         V5=0
+         V4=0
+         V3=0
+         V2=0
+         V1=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         fix<-rep(TRUE,length(theta))
+         fix[1]=FALSE
+         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
+       },
+       TARAm_4={
+         #Weibull + CM ARAm-m=4 + PM ARAm-m=2 + mutlisystems
+         simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,14)),Time=c(3.36,4.04,4.97,5.16, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98,7.51,8.02,9.43,10.2,11.5,12,13.78),Type=c(1,1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,1,1,-1,1,-1,1,-1,0),row.names=1:22)
+         theta<-c(0.3,1.8,0.3,0.7)
+         mle <- mle.vam(System & Time & Type ~ (ARAm(0.3|4) | Weibull(0.001,2.5)) & (ARAm(0.6|2)),data=simData)
+         h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
+         H<-function(t) theta[1]*t^(theta[2])
+         rhoMC<-theta[3]
+         rhoMP<-theta[4]
+         T<-simData$Time[1:4]
+         Lcalc<-0
+         C<-1
+         V1=0;V2=0;V3=0;V4=0;V5=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[1]))-H(T[1])
+         rho=rhoMP
+         C<-1;i<-1
+         V1=(1-rho)*(T[i])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMP
+         C<-0;i<-2
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMC
+         C<-1;i<-3
+         V3=(1-rho)*V2
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         T<-simData$Time[5:8]
+         C<-0
+         V1=0;V2=0;V3=0;V4=0;V5=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[1]))-H(T[1])
+         rho=rhoMC
+         C<-1;i<-1
+         V1=(1-rho)*(T[i])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMP
+         C<-1;i<-2
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMP
+         C<-1;i<-3
+         V3=V2
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         T<-simData$Time[9:22]
+         C<-1
+         V1=0;V2=0;V3=0;V4=0;V5=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[1]))-H(T[1])
+         rho=rhoMP
+         C<-0;i<-1
+         V1=(1-rho)*(T[i])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMC
+         C<-1;i<-2
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMP
+         C<-0;i<-3
+         V3=V2
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMC
+         C<-0;i<-4
+         V4=(1-rho)*V3
+         V3=(1-rho)*V2
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMC
+         C<-1;i<-5
+         V5=V4+V5
+         V4=(1-rho)*V3
+         V3=(1-rho)*V2
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMP
+         C<-1;i<-6
+         V5=V4+V5
+         V4=V3
+         V3=(V2)
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMP
+         C<-1;i<-7
+         V5=V4+V5
+         V4=V3
+         V3=(V2)
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMP
+         C<-0;i<-8
+         V5=V4+V5
+         V4=V3
+         V3=(V2)
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMC
+         C<-1;i<-9
+         V5=V4+V5
+         V4=(1-rho)*V3
+         V3=(1-rho)*(V2)
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMP
+         C<-0;i<-10
+         V5=V4+V5
+         V4=V3
+         V3=(V2)
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMC
+         C<-1;i<-11
+         V5=V4+V5
+         V4=(1-rho)*V3
+         V3=(1-rho)*(V2)
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMP
+         C<-0;i<-12
+         V5=V4+V5
+         V4=V3
+         V3=(V2)
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMC
+         C<-1;i<-13
+         V5=V4+V5
+         V4=(1-rho)*V3
+         V3=(1-rho)*(V2)
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         fix<-rep(TRUE,length(theta))
+         fix[1]=FALSE
+         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
+       },
+       TARAm_3={
+         #Weibull + CM ARAm-m=2 + PM ARAm-m=4 + mutlisystems
+         simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,14)),Time=c(3.36,4.04,4.97,5.16, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98,7.51,8.02,9.43,10.2,11.5,12,13.78),Type=c(1,1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,1,1,-1,1,-1,1,-1,0),row.names=1:22)
+         theta<-c(0.3,1.8,0.3,0.7)
+         mle <- mle.vam(System & Time & Type ~ (ARAm(0.3|2) | Weibull(0.001,2.5)) & (ARAm(0.6|4)),data=simData)
+         h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
+         H<-function(t) theta[1]*t^(theta[2])
+         rhoMC<-theta[3]
+         rhoMP<-theta[4]
+         T<-simData$Time[1:4]
+         Lcalc<-0
+         C<-1
+         V1=0;V2=0;V3=0;V4=0;V5=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[1]))-H(T[1])
+         rho=rhoMP
+         C<-1;i<-1
+         V1=(1-rho)*(T[i])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMP
+         C<-0;i<-2
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMC
+         C<-1;i<-3
+         V3=V2
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         T<-simData$Time[5:8]
+         C<-0
+         V1=0;V2=0;V3=0;V4=0;V5=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[1]))-H(T[1])
+         rho=rhoMC
+         C<-1;i<-1
+         V1=(1-rho)*(T[i])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMP
+         C<-1;i<-2
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMP
+         C<-1;i<-3
+         V3=(1-rho)*V2
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         T<-simData$Time[9:22]
+         C<-1
+         V1=0;V2=0;V3=0;V4=0;V5=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[1]))-H(T[1])
+         rho=rhoMP
+         C<-0;i<-1
+         V1=(1-rho)*(T[i])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMC
+         C<-1;i<-2
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMP
+         C<-0;i<-3
+         V3=(1-rho)*V2
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMC
+         C<-0;i<-4
+         V4=V3
+         V3=V2
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMC
+         C<-1;i<-5
+         V5=V4+V5
+         V4=V3
+         V3=V2
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMP
+         C<-1;i<-6
+         V5=V4+V5
+         V4=(1-rho)*V3
+         V3=(1-rho)*(V2)
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMP
+         C<-1;i<-7
+         V5=V4+V5
+         V4=(1-rho)*V3
+         V3=(1-rho)*(V2)
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMP
+         C<-0;i<-8
+         V5=V4+V5
+         V4=(1-rho)*V3
+         V3=(1-rho)*(V2)
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMC
+         C<-1;i<-9
+         V5=V4+V5
+         V4=V3
+         V3=(V2)
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMP
+         C<-0;i<-10
+         V5=V4+V5
+         V4=(1-rho)*V3
+         V3=(1-rho)*(V2)
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMC
+         C<-1;i<-11
+         V5=V4+V5
+         V4=V3
+         V3=(V2)
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMP
+         C<-0;i<-12
+         V5=V4+V5
+         V4=(1-rho)*V3
+         V3=(1-rho)*(V2)
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         rho=rhoMC
+         C<-1;i<-13
+         V5=V4+V5
+         V4=V3
+         V3=(V2)
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
+         fix<-rep(TRUE,length(theta))
+         fix[1]=FALSE
+         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
+       },
+       TARAm_2={
+         #Weibull + ARAm-m=4
+         simData<-data.frame(Time=c(18.09,52.07,95.71,145.75,198.7,220.9),Type=c(-1,-1,-1,-1,-1,-1),row.names=1:6)
+         mle <- mle.vam(Time & Type ~ (ARAm(0.5|3) | Weibull(0.001,2.5)),data=simData)
+         theta<-c(0.03,2.4,0.7)
+         rho<-theta[3]
+         h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
+         H<-function(t) theta[1]*t^(theta[2])
+         T<-simData$Time
+         Lcalc<-log(h(T[1]))-H(T[1])
+         A<-rho*T[1]
+         Lcalc<-Lcalc+log(h(T[2]-A))-(H(T[2]-A)-H(T[1]-A))
+         i<-2
+         A<-rho*(T[i]+(1-rho)*T[i-1])
+         Lcalc<-Lcalc+log(h(T[i+1]-A))-(H(T[i+1]-A)-H(T[i]-A))
+         i<-3
+         A<-rho*(T[i]+(1-rho)*T[i-1]+(1-rho)^2*T[i-2])
+         Lcalc<-Lcalc+log(h(T[i+1]-A))-(H(T[i+1]-A)-H(T[i]-A))
+         i<-4
+         A<-rho*(T[i]+(1-rho)*T[i-1]+(1-rho)^2*T[i-2])
+         Lcalc<-Lcalc+log(h(T[i+1]-A))-(H(T[i+1]-A)-H(T[i]-A))
+         i<-5
+         A<-rho*(T[i]+(1-rho)*T[i-1]+(1-rho)^2*T[i-2])
+         Lcalc<-Lcalc+log(h(T[i+1]-A))-(H(T[i+1]-A)-H(T[i]-A))
+         fix<-rep(TRUE,length(theta))
+         fix[1]=FALSE
+         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
+       },
+       TARAm={
+         #Weibull + ARAm-m=2
+         simData<-data.frame(Time=c(18.09,52.07,95.71,145.75,198.7,220.9),Type=c(-1,-1,-1,-1,-1,-1),row.names=1:6)
+         mle <- mle.vam(Time & Type ~ (ARAm(0.5|2) | Weibull(0.001,2.5)),data=simData)
+         theta<-c(0.03,2.4,0.7)
+         rho<-theta[3]
+         h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
+         H<-function(t) theta[1]*t^(theta[2])
+         T<-simData$Time
+         Lcalc<-log(h(T[1]))-H(T[1])
+         A<-rho*T[1]
+         Lcalc<-Lcalc+log(h(T[2]-A))-(H(T[2]-A)-H(T[1]-A))
+         i<-2
+         A<-rho*(T[i]+(1-rho)*T[i-1])
+         Lcalc<-Lcalc+log(h(T[i+1]-A))-(H(T[i+1]-A)-H(T[i]-A))
+          i<-3
+          A<-rho*(T[i]+(1-rho)*T[i-1])
+          Lcalc<-Lcalc+log(h(T[i+1]-A))-(H(T[i+1]-A)-H(T[i]-A))
+          i<-4
+          A<-rho*(T[i]+(1-rho)*T[i-1])
+          Lcalc<-Lcalc+log(h(T[i+1]-A))-(H(T[i+1]-A)-H(T[i]-A))
+          i<-5
+          A<-rho*(T[i]+(1-rho)*T[i-1])
+          Lcalc<-Lcalc+log(h(T[i+1]-A))-(H(T[i+1]-A)-H(T[i]-A))
+         fix<-rep(TRUE,length(theta))
+         fix[1]=FALSE
+         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
+       },
+       
+       TGQRARA_5={
+         #Weibull + MC ARA1 + MP GQ_RARAInf-log + MultiSystems + Censorship
+         simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,4),rep(4,4),rep(5,7)),Time=c(3.36,4.04,4.97,5.16, 2.34,3.46,5.02,5.45, 1.18,2.22,3.14,4.83, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98),Type=c(1,1,1,1, -1,-1,-1,0, 1,-1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,0),row.names=1:23)
+         #simData<-simData[1:12,]
+         mle <- mle.vam(System & Time & Type ~ (ARA1(0.2) | Weibull(0.001,2.5)) & (GQR_ARAInf(0.7,-1.3|log)),data=simData)
+         theta<-c(0.3,2.2,0.7,0.4,-0.9)
+         #L<-logLikelihood(mle,theta,c(TRUE,FALSE,FALSE))
+         
+         h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
+         H<-function(t) theta[1]*t^(theta[2])
+         rhoMC<-theta[3]
+         rhoMP<-theta[4]
+         rhoMP2<-theta[5]
+         h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
+         H<-function(t) theta[1]*t^(theta[2])
+         Lcalc<-0
+         T<-c(0,simData$Time[simData$System==1])
+         V<-0; C<-1; A<-1; i<-1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i])+V); A<-rhoMP^(log(2)); C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i])+V); A<-rhoMP^(log(3)); C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i])+V); A<-rhoMP^(log(4)); C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         T<-c(0,simData$Time[simData$System==2])
+         V<-0; C<-0; A<-1; i<-1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i]))+V); A<-A; C<-0;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i]))+V); A<-A; C<-0;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i]))+V); A<-A; C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         T<-c(0,simData$Time[simData$System==3])
+         V<-0; C<-1; A<-1; i<-1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i])+V); A<-rhoMP^(log(2)); C<-0;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i]))+V); A<-A; C<-0;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i]))+V); A<-A; C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         T<-c(0,simData$Time[simData$System==4])
+         V<-0; C<-0; A<-1; i<-1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i]))+V); A<-A; C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i])+V); A<-rhoMP^(log(2));  C<-1; i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i])+V); A<-rhoMP^(log(3)); C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         T<-c(0,simData$Time[simData$System==5])
+         V<-0; C<-1; A<-1; i<-1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i])+V); A<-rhoMP^(log(2)); C<-0;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i]))+V); A<-A; C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i])+V); A<-rhoMP^(log(3)); C<-0;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i]))+V); A<-A; C<-0;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i]))+V); A<-A; C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i])+V); A<-rhoMP^(log(4)); C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         fix<-rep(TRUE,length(theta))
+         fix[1]=FALSE
+         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
+       },
+       TGQRARA_4={
+         #Weibull + MC AGAN + MP GQ_RARA1-log + MultiSystems + Censorship
+         simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,4),rep(4,4),rep(5,7)),Time=c(3.36,4.04,4.97,5.16, 2.34,3.46,5.02,5.45, 1.18,2.22,3.14,4.83, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98),Type=c(1,1,1,1, -1,-1,-1,0, 1,-1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,0),row.names=1:23)
+         #simData<-simData[1:12,]
+         mle <- mle.vam(System & Time & Type ~ (AGAN() | Weibull(0.001,2.5)) & (GQR_ARA1(0.7,-1.3|log)),data=simData)
+         theta<-c(0.3,2.2,0.4,-0.9)
+         #L<-logLikelihood(mle,theta,c(TRUE,FALSE,FALSE))
+         
+         h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
+         H<-function(t) theta[1]*t^(theta[2])
+         rhoMP<-theta[3]
+         rhoMP2<-theta[4]
+         h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
+         H<-function(t) theta[1]*t^(theta[2])
+         Lcalc<-0
+         T<-c(0,simData$Time[simData$System==1])
+         V<-0; C<-1; A<-1; i<-1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i]))+V; A<-rhoMP^(log(2)); C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i]))+V; A<-rhoMP^(log(3)); C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i]))+V; A<-rhoMP^(log(4)); C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         T<-c(0,simData$Time[simData$System==2])
+         V<-0; C<-0; A<-1; i<-1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-0; A<-1; C<-0;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-0; A<-1; C<-0;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-0; A<-1; C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         T<-c(0,simData$Time[simData$System==3])
+         V<-0; C<-1; A<-1; i<-1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i]))+V; A<-rhoMP^(log(2)); C<-0;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-0; A<-1; C<-0;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-0; A<-1; C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         T<-c(0,simData$Time[simData$System==4])
+         V<-0; C<-0; A<-1; i<-1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-0; A<-1; C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i]))+V; A<-rhoMP^(log(2));  C<-1; i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i]))+V; A<-rhoMP^(log(3)); C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         T<-c(0,simData$Time[simData$System==5])
+         V<-0; C<-1; A<-1; i<-1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i]))+V; A<-rhoMP^(log(2)); C<-0;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-0; A<-1; C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i]))+V; A<-rhoMP^(log(3)); C<-0;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-0; A<-1; C<-0;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-0; A<-1; C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i]))+V; A<-rhoMP^(log(4)); C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         fix<-rep(TRUE,length(theta))
+         fix[1]=FALSE
+         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
+       },
+       TGQRARA_3={
+         #Weibull + MC ARA1 + MP GQ_RARA1-log + MultiSystems + Censorship
+         simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,4),rep(4,4),rep(5,7)),Time=c(3.36,4.04,4.97,5.16, 2.34,3.46,5.02,5.45, 1.18,2.22,3.14,4.83, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98),Type=c(1,1,1,1, -1,-1,-1,0, 1,-1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,0),row.names=1:23)
+         #simData<-simData[1:12,]
+         mle <- mle.vam(System & Time & Type ~ (ARA1(0.2) | Weibull(0.001,2.5)) & (GQR_ARA1(0.7,-1.3|log)),data=simData)
+         theta<-c(0.3,2.2,0.7,0.4,-0.9)
+         #L<-logLikelihood(mle,theta,c(TRUE,FALSE,FALSE))
+         
+         h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
+         H<-function(t) theta[1]*t^(theta[2])
+         rhoMC<-theta[3]
+         rhoMP<-theta[4]
+         rhoMP2<-theta[5]
+         h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
+         H<-function(t) theta[1]*t^(theta[2])
+         Lcalc<-0
+         T<-c(0,simData$Time[simData$System==1])
+         V<-0; C<-1; A<-1; i<-1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i]))+V; A<-rhoMP^(log(2)); C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i]))+V; A<-rhoMP^(log(3)); C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i]))+V; A<-rhoMP^(log(4)); C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         T<-c(0,simData$Time[simData$System==2])
+         V<-0; C<-0; A<-1; i<-1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i]))+V); A<-A; C<-0;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i]))+V); A<-A; C<-0;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i]))+V); A<-A; C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         T<-c(0,simData$Time[simData$System==3])
+         V<-0; C<-1; A<-1; i<-1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i]))+V; A<-rhoMP^(log(2)); C<-0;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i]))+V); A<-A; C<-0;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i]))+V); A<-A; C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         T<-c(0,simData$Time[simData$System==4])
+         V<-0; C<-0; A<-1; i<-1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i]))+V); A<-A; C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i]))+V; A<-rhoMP^(log(2));  C<-1; i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i]))+V; A<-rhoMP^(log(3)); C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         T<-c(0,simData$Time[simData$System==5])
+         V<-0; C<-1; A<-1; i<-1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i]))+V; A<-rhoMP^(log(2)); C<-0;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i]))+V); A<-A; C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i]))+V; A<-rhoMP^(log(3)); C<-0;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i]))+V); A<-A; C<-0;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i]))+V); A<-A; C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i]))+V; A<-rhoMP^(log(4)); C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         fix<-rep(TRUE,length(theta))
+         fix[1]=FALSE
+         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
+       },
+       TGQRARA_2={
+         #Weibull + GQR_ARAInf
+         simData<-data.frame(Time=c(18.09,52.07,95.71,145.75),Type=c(-1,-1,-1,-1),row.names=1:4)
+         mle <- mle.vam(Time & Type ~ (GQR_ARAInf(0.1,0.5) | Weibull(0.001,2.5)),data=simData)
+         theta<-c(0.03,2.4,0.7,-1.2)
+         rho<-theta[3]
+         rho2<-theta[4]
+         h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
+         H<-function(t) theta[1]*t^(theta[2])
+         T<-simData$Time
+         Lcalc<-log(h(T[1]))-H(T[1])
+         V<-(1-rho2)*T[1]
+         Lcalc<-Lcalc+log(rho^(1)*h(rho^(1)*(T[2]-T[1])+V))-(H(rho^(1)*(T[2]-T[1])+V)-H(V))
+         V<-(1-rho2)*(rho^(1)*(T[2]-T[1])+V )
+         Lcalc<-Lcalc+log(rho^(2)*h(rho^(2)*(T[3]-T[2])+V))-(H(rho^(2)*(T[3]-T[2])+V)-H(V))
+         V<-(1-rho2)*(rho^(2)*(T[3]-T[2])+V)
+         Lcalc<-Lcalc+log(rho^(3)*h(rho^(3)*(T[4]-T[3])+V))-(H(rho^(3)*(T[4]-T[3])+V)-H(V))
+         fix<-rep(TRUE,length(theta))
+         fix[1]=FALSE
+         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
+       },
+       TGQRARA_1={
+         #Weibull + GQR_ARA1-log
+         simData<-data.frame(Time=c(18.09,52.07,95.71,145.75),Type=c(-1,-1,-1,-1),row.names=1:4)
+         mle <- mle.vam(Time & Type ~ (GQR_ARA1(0.7,-1.2|log) | Weibull(0.001,2.5)),data=simData)
+         theta<-c(0.03,2.4,0.7,-1.2)
+         rho<-theta[3]
+         rho2<-theta[4]
+         h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
+         H<-function(t) theta[1]*t^(theta[2])
+         T<-simData$Time
+         Lcalc<-log(h(T[1]))-H(T[1])
+         V<-(1-rho2)*T[1]
+         Lcalc<-Lcalc+log(rho^(log(2))*h(rho^(log(2))*(T[2]-T[1])+V))-(H(rho^(log(2))*(T[2]-T[1])+V)-H(V))
+         V<-rho^(log(2))*(T[2]-T[1])+V -rho2 *rho^(log(2))*(T[2]-T[1])
+         Lcalc<-Lcalc+log(rho^(log(3))*h(rho^(log(3))*(T[3]-T[2])+V))-(H(rho^(log(3))*(T[3]-T[2])+V)-H(V))
+         V<-rho^(log(3))*(T[3]-T[2])+V -rho2* rho^(log(3))*(T[3]-T[2])
+         Lcalc<-Lcalc+log(rho^(log(4))*h(rho^(log(4))*(T[4]-T[3])+V))-(H(rho^(log(4))*(T[4]-T[3])+V)-H(V))
+         fix<-rep(TRUE,length(theta))
+         fix[1]=FALSE
+         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
+       },
        TGQR3={
          #Weibull + MC ARA1 + MP GQR-log + MultiSystems + Censorship
          simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,4),rep(4,4),rep(5,7)),Time=c(3.36,4.04,4.97,5.16, 2.34,3.46,5.02,5.45, 1.18,2.22,3.14,4.83, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98),Type=c(1,1,1,1, -1,-1,-1,0, 1,-1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,0),row.names=1:23)
