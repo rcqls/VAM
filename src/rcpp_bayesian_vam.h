@@ -10,13 +10,13 @@ class BayesianVam {
 public:
 
     BayesianVam(List model_,List data_) {
-        mle=new MLEVAm(model_,data_);
-        model=mle->model;
+        mle=new MLEVam(model_,data_);
+        model=mle->get_model();
     }
 
     ~BayesianVam() {
         //DEBUG: printf("BayesianVAM: %p, %p, %p\n",model,dS1,dS2);
-        model=nil;
+        model=NULL;
         delete mle;
     };
 
@@ -24,22 +24,23 @@ public:
         model->set_data(data_);
     }
 
-    NumericVector get_params() {
+    //NumericVector get_params() {
         //return model->get_params();
-    }
+    //}
 
     void set_params(NumericVector pars) {
         //model->set_params(pars);
     }
 
-    List MCMC(int nb, int burn) {
-      
-    }
+    //List MCMC(int nb, int burn) {
+    //
+    //}
 
 private:
 
     MLEVam *mle;
 
     VamModel *model;
+};
 
 #endif //RCPP_BAYESIAN_VAM_H

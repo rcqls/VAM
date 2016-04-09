@@ -51,6 +51,11 @@ RCPP_MODULE(vam_module) {
     .method("get_data",&MLEVam::get_selected_data,"get (selected) data")
     ;
 
+		class_<BayesianVam>( "BayesianVam" )
+    .constructor<List,List>()
+    //.finalizer( &finalizer_of_bayesian_vam)
+    ;
+
     class_<FamilyModel>("FamilyModel")
     .method("hazardRate",&FamilyModel::hazardRate,"hazard rate")
     .method("cumulative_hazardRate",&FamilyModel::cumulative_hazardRate,"cumulative hazardrd rate")
