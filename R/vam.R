@@ -366,6 +366,23 @@ coef.mle.vam <- function(obj,par=NULL,method=NULL,verbose=FALSE) {
 	obj$mle.coef
 }
 
+# bayesian.vam class
+
+bayesian.vam <- function(formula,data) {
+	self <- newEnv(bayesian.vam,formula=formula,data=data)
+
+	PersistentRcppObject(self,new = {
+		model <- parse.vam.formula(NULL,self$formula)
+		response <- model$response
+		data <- data.frame.to.list.multi.vam(self$data,response)
+		rcpp <- new(BayesianVam,model,data)
+		rcpp
+	})
+
+	self
+}
+
+
 # for both sim and mle
 
 parse.vam.formula <- function(obj,formula) {
@@ -629,6 +646,8 @@ parse.vam.formula <- function(obj,formula) {
 		family=convert.family(cms[[1]]$family),
 		pm.policy=convert.mp(policy)
 	)
+
+	## TODO(R->LD) MODIFY
 	mem<-1
 	for(i in (1:length(res$models))) {
 		if(exists("m",where=res$models[[i]])) {
@@ -636,5 +655,8 @@ parse.vam.formula <- function(obj,formula) {
 		}
 	}
 	c(res,list(max_memory=mem))
-
+	## TODO(R->LD) AND REPLACED WITH
+	## res$max_memory <- max(1,sapply(res$models,function(e) e$m),na.rm=TRUE)
+	##
+	## res
 }
