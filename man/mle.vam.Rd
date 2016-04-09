@@ -36,7 +36,7 @@ The symbolic description of the model done in "\code{formula}" has the form "\co
 \examples{
 simARAInf<-sim.vam(  ~ (ARAInf(.4) | Weibull(.001,2.5)))
 simData<-simulate(simARAInf,30)
-mleARAInf <- mle.vam(Time & Type ~ (ARAInf(rho_0) | Weibull(a_0,b_0)),data=simData)
+mleARAInf <- mle.vam(Time & Type ~ (ARAInf(.5) | Weibull(1,3)),data=simData)
 coef(mleARAInf)
 
 simCMPM_Multi<-sim.vam(  ~ (ARAInf(.3) | Weibull(.001,2.5)) & (ARAInf(.6)+ARAInf(-.2) | Periodic(12,prob=c(0.6,0.4))))
