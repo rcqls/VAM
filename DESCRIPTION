@@ -8,4 +8,5 @@ Description: Package dealing with Virtual Age Models.
 License: GPL (>= 2)
 Depends: R (>= 3.0.0), Rcpp (>= 0.9.10)
 LinkingTo: Rcpp
+Suggests: testthat
 RcppModules: vam_module,tools_module
