@@ -9,10 +9,10 @@ plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cum
 	if(missing(from)) from <- min(d$Time)
 	if(missing(to)) to <- max(d$Time)
 
-	if(missing(by)) by <- (from-to)/(length.out-1)
+	if(missing(by)) by <- (to-from)/(length.out-1)
 	infos <- rcpp$get_virtual_age_infos(by)
 	#print("infos");print(infos)
-	
+
 	## type
 	if(length(grep("-",type))) { # deal with modifier -cm and -pm
 		type <- gsub(" ","",type) # clear the white space
