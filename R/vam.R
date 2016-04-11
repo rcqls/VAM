@@ -629,12 +629,18 @@ parse.vam.formula <- function(obj,formula) {
 		family=convert.family(cms[[1]]$family),
 		pm.policy=convert.mp(policy)
 	)
-	mem<-1
-	for(i in (1:length(res$models))) {
-		if(exists("m",where=res$models[[i]])) {
-			mem<-max(mem,res$models[[i]]$m)
-		}
-	}
-	c(res,list(max_memory=mem))
+
+
+	## TO REMOVE: replaced by the 2 following lines
+	# mem<-1
+	# for(i in (1:length(res$models))) {
+	# 	if(exists("m",where=res$models[[i]])) {
+	# 		mem<-max(mem,res$models[[i]]$m)
+	# 	}
+	# }
+	# c(res,list(max_memory=mem))
+
+	res$max_memory <- max(1,unlist(sapply(res$models,function(e) e$m)),na.rm=TRUE)
+	res
 
 }
