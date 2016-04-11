@@ -10,9 +10,9 @@
 \description{\code{plot} plots characteristics of a virtual age model for Corrective Maintenance (CM) and planned Preventive Maintenance (PM).}
 
 \usage{
-\method{plot}{model.vam}(obj, type, from, to, by=0.1, system.index=1 ,cm.type=NA, pm.type=NA, add=FALSE, ....) 
-\method{plot}{sim.vam}(obj, type, from, to, by=0.1, system.index=1 ,cm.type=NA, pm.type=NA, add=FALSE, ....) 
-\method{plot}{mle.vam}(obj, type, from, to, by=0.1, system.index=1 ,cm.type=NA, pm.type=NA, add=FALSE, ....) 
+\method{plot}{model.vam}(obj, type, from, to, length.out=101, by, system.index=1 ,cm.type=NA, pm.type=NA, add=FALSE, ....)
+\method{plot}{sim.vam}(obj, type, from, to, length.out=101, by, system.index=1 ,cm.type=NA, pm.type=NA, add=FALSE, ....)
+\method{plot}{mle.vam}(obj, type, from, to, length.out=101, by, system.index=1 ,cm.type=NA, pm.type=NA, add=FALSE, ....)
 }
 
 \arguments{
@@ -23,10 +23,11 @@
 	\item "I" or "cumulative" for cumulative failure intensity also called compensator of the CM-PM process,
 	\item "v" or "virtual.age" for virtual age.
 }
-By default, PM times are also represented, but "-pm" can be added at the end of the string "\code{type}" in order to avoid this representation. By default, CM times are also represented (or the cumulative number of CM in the "I" case), but "-cm" can be added at the end of the string "\code{type}" in order to avoid this representation. For example, the types \code{"I-pm"} and \code{"I-pm-cm"} both correspond to the cumulative failure intensity plot, but in the first case the cumulative number of failure will also be plotted. 
+By default, PM times are also represented, but "-pm" can be added at the end of the string "\code{type}" in order to avoid this representation. By default, CM times are also represented (or the cumulative number of CM in the "I" case), but "-cm" can be added at the end of the string "\code{type}" in order to avoid this representation. For example, the types \code{"I-pm"} and \code{"I-pm-cm"} both correspond to the cumulative failure intensity plot, but in the first case the cumulative number of failure will also be plotted.
 }
 \item{\code{from, to}}{optional arguments specifying the range time over which the characteristic will be plotted.}
 \item{\code{by}}{time increment between two successive  maintenance time at which the characteristic will be plotted.}
+\item{\code{length.out}}{When provided, \code{by} is defined as \code{(from-to)/(length.out-1)}.}
 \item{\code{system.index}}{the index of the system for which to plot the characteristic.}
 \item{\code{cm.type}}{how to additionally represent the CM times or the cumulative number of CM in the "I" case. Possible types are "p" for points and "l" for lines.}
 \item{\code{pm.type}}{how to additionally represent the PM times. Possible types are "p" for points and "l" for lines.}
