@@ -107,7 +107,7 @@ void VamModel::update_Vleft(bool with_gradient,bool with_hessian) {
 	if(with_hessian) {
 		for(i=0;i<nb_paramsMaintenance;i++) {
             dVleft[i]=dVright[i] + (time[k+1]  - time[k])*dA[i];
-            for (j=0;j<=i;j++) 
+            for (j=0;j<=i;j++)
                 d2Vleft[i*(i+1)/2+j]= d2Vright[i*(i+1)/2+j] + (time[k+1]  - time[k])*d2A[i*(i+1)/2+j];
         }
 	}
@@ -115,7 +115,7 @@ void VamModel::update_Vleft(bool with_gradient,bool with_hessian) {
 		for(i=0;i<nb_paramsMaintenance;i++)
             dVleft[i]= dVright[i] + (time[k+1]  - time[k])*dA[i];
 	}
-	
+
 }
 
 void VamModel::set_data(List data_) {
