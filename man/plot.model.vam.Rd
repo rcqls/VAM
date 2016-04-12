@@ -27,7 +27,7 @@ By default, PM times are also represented, but "-pm" can be added at the end of 
 }
 \item{\code{from, to}}{optional arguments specifying the range time over which the characteristic will be plotted.}
 \item{\code{by}}{time increment between two successive  maintenance time at which the characteristic will be plotted.}
-\item{\code{length.out}}{When provided, \code{by} is defined as \code{(from-to)/(length.out-1)}.}
+\item{\code{length.out}}{When provided, \code{by} is defined as \code{(to - from)/(length.out - 1)}.}
 \item{\code{system.index}}{the index of the system for which to plot the characteristic.}
 \item{\code{cm.type}}{how to additionally represent the CM times or the cumulative number of CM in the "I" case. Possible types are "p" for points and "l" for lines.}
 \item{\code{pm.type}}{how to additionally represent the PM times. Possible types are "p" for points and "l" for lines.}

@@ -647,6 +647,7 @@ parse.vam.formula <- function(obj,formula) {
 		pm.policy=convert.mp(policy)
 	)
 
+
 	## TO REMOVE: replaced by the 2 following lines
 	# mem<-1
 	# for(i in (1:length(res$models))) {
