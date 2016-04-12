@@ -146,16 +146,45 @@ params.model.vam <- params.sim.vam <- params.mle.vam <- function(self,param) {
 	}
 }
 
-formula.model.vam <- formula.sim.vam <- function(self) {
-	self$formula
-}
+## Useless since stats:::formula.default do that by default
+# formula.model.vam <- formula.sim.vam <- function(self) {
+# 	self$formula
+# }
 
 formula.mle.vam <- function(self,origin=FALSE) {
-	if(origin) self$formula
-	else {
-		model<- parse.vam.formula(NULL,self$formula)
-		list(model=model,coef=coef(self))
+	res <- list(model=parse.vam.formula(NULL,self$formula),coef=coef(self))
+	nb_paramsFamily <- length(res$model$family$params)
+	nb_paramsCM <- length(res$model$models[[1]]$params)
+	nb_paramsPM <- sapply(res$model$models[-1],function(e) length(e$params))
+	form <- paste0(
+						paste(res$model$response,collapse=" & "),
+						"~ (",
+							strsplit(res$model$models[[1]]$name,"\\.")[[1]][1],
+							"(",paste(res$coef[nb_paramsFamily+(1:nb_paramsCM)],collapse=","),")",
+						"|",
+							strsplit(res$model$family$name,"\\.")[[1]][1],
+							"(",paste(res$coef[1:nb_paramsFamily],collapse=","),")",
+						")"
+					)
+	if(length(res$model$models)>1) {
+		pms <- res$model$models[-1]
+		form <- paste0(form,
+							" & (",
+							paste(
+								sapply(seq(pms),function(i) {
+									paste0(
+										strsplit(pms[[i]]$name,"\\.")[[1]][1],
+										"(",paste(res$coef[nb_paramsFamily+nb_paramsCM+ifelse(i>1,sum(nb_paramsPM[1:(i-1)]),0)+(1:nb_paramsPM[i])],collapse=","),")"
+									)
+								}),
+								collapse=" + "
+							),
+							")"
+						)
 	}
+	form <- eval(parse(text=form),envir=globalenv())
+	if(origin) list(formula=form,origin=self$formula)
+	else form
 }
 
 update.mle.vam <- function(mle,data) {
