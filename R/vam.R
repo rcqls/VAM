@@ -146,6 +146,18 @@ params.model.vam <- params.sim.vam <- params.mle.vam <- function(self,param) {
 	}
 }
 
+formula.model.vam <- formula.sim.vam <- function(self) {
+	self$formula
+}
+
+formula.mle.vam <- function(self,origin=FALSE) {
+	if(origin) self$formula
+	else {
+		model<- parse.vam.formula(NULL,self$formula)
+		list(model=model,coef=coef(self))
+	}
+}
+
 update.mle.vam <- function(mle,data) {
 	if(!missing(data)) {
 		self <- mle
