@@ -1,14 +1,17 @@
 ## Provide cm.type or pm.type  with value "n" to not have cm and pm elements in the plot.
 ## cm.type or pm.type to NA means default value depending on type value.
-plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cumulative"),from,to,by=0.1,system.index=1,cm.type=NA,pm.type=NA,add=FALSE,...) {
+plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cumulative"),from,to,length.out=101,by,system.index=1,cm.type=NA,pm.type=NA,add=FALSE,...) {
 	rcpp <- rcpp(obj)
 	d <- if(inherits(obj,"sim.vam")) rcpp$get_data() else rcpp$get_data(system.index-1) #0 since one-system first!
 	if(nrow(d)==0) stop("plot failed since data are required!")
 	#print("d");print(d)
-	infos <- rcpp$get_virtual_age_infos(by)
-	#print("infos");print(infos)
+
 	if(missing(from)) from <- min(d$Time)
 	if(missing(to)) to <- max(d$Time)
+
+	if(missing(by)) by <- (to-from)/(length.out-1)
+	infos <- rcpp$get_virtual_age_infos(by)
+	#print("infos");print(infos)
 
 	## type
 	if(length(grep("-",type))) { # deal with modifier -cm and -pm

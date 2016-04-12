@@ -647,16 +647,16 @@ parse.vam.formula <- function(obj,formula) {
 		pm.policy=convert.mp(policy)
 	)
 
-	## TODO(R->LD) MODIFY
-	mem<-1
-	for(i in (1:length(res$models))) {
-		if(exists("m",where=res$models[[i]])) {
-			mem<-max(mem,res$models[[i]]$m)
-		}
-	}
-	c(res,list(max_memory=mem))
-	## TODO(R->LD) AND REPLACED WITH
-	## res$max_memory <- max(1,sapply(res$models,function(e) e$m),na.rm=TRUE)
-	##
-	## res
+	## TO REMOVE: replaced by the 2 following lines
+	# mem<-1
+	# for(i in (1:length(res$models))) {
+	# 	if(exists("m",where=res$models[[i]])) {
+	# 		mem<-max(mem,res$models[[i]]$m)
+	# 	}
+	# }
+	# c(res,list(max_memory=mem))
+
+	res$max_memory <- max(1,unlist(sapply(res$models,function(e) e$m)),na.rm=TRUE)
+	res
+
 }
