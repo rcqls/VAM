@@ -5,7 +5,7 @@
 
 using namespace Rcpp ;
 
-class MLEVam { 
+class MLEVam {
 
 public:
 
@@ -120,7 +120,7 @@ public:
         model->set_params(param);
         model->select_data(0);
         gradient_for_current_system();
-        
+
         //only if multi-system
         for(int i=1;i<model->nb_system;i++) {
             model->select_data(i);
@@ -146,7 +146,7 @@ public:
                 res[i+1] = -dS1[i]*alpha + dS2[i]+dS3[i-(model->nb_paramsFamily-1)];
             }
         }
-        
+
         return res;
     }
 
@@ -226,7 +226,7 @@ public:
                 }
             }
         } else {
-            
+
             res(0,0) = -S0/pow(alpha,2);
             for(int i=0;i<(model->nb_paramsFamily-1);i++) {
                 res(0,i+1) = -dS1[i];
@@ -254,7 +254,7 @@ public:
                 }
             }
         }
-        
+
         return res;
     }
 
@@ -271,8 +271,8 @@ public:
 
 
     //delegate from model cache!
-    List get_virtual_age_infos(double by) {
-        return model->get_virtual_age_infos(by);
+    List get_virtual_age_infos(double by,double from, double to) {
+        return model->get_virtual_age_infos(by,from,to);
     }
 
     DataFrame get_selected_data(int i) {
@@ -393,7 +393,7 @@ private:
     void gradient_update_for_current_system() {
         int i;
     	contrast_update_for_current_system(true,false);
-        
+
         double *cumhVright_param_derivative=model->family->cumulative_hazardRate_param_derivative(model->Vright,true);
         double *cumhVleft_param_derivative=model->family->cumulative_hazardRate_param_derivative(model->Vleft,false);
         double *hVleft_param_derivative=model->family->hazardRate_param_derivative(model->Vleft,false);

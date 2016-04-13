@@ -10,7 +10,8 @@ plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cum
 	if(missing(to)) to <- max(d$Time)
 
 	if(missing(by)) by <- (to-from)/(length.out-1)
-	infos <- rcpp$get_virtual_age_infos(by)
+	infos <- rcpp$get_virtual_age_infos(by,from,to)
+	infos <- infos[sapply(infos,function(e) !is.null(e))]
 	#print("infos");print(infos)
 
 	## type

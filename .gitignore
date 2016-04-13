@@ -8,3 +8,5 @@ src-*
 *.RData
 *.rds
 *.Rhistory
+*.tar.gz
+*.tgz

@@ -8,7 +8,7 @@ using namespace Rcpp ;
 
 class StopPolicy;
 
-class SimVam { 
+class SimVam {
 
 public:
 
@@ -21,7 +21,7 @@ public:
     };
 
     DataFrame get_data();
-    
+
     DataFrame simulate(int nbsim);
 
     VamModel* get_model() {
@@ -37,8 +37,8 @@ public:
     }
 
     //delegate from model cache!
-    List get_virtual_age_infos(double by) {
-        return model->get_virtual_age_infos(by);
+    List get_virtual_age_infos(double by,double from, double to) {
+        return model->get_virtual_age_infos(by,from,to);
     }
 
     void add_stop_policy(List policy);

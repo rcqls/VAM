@@ -65,7 +65,7 @@ public:
 	FamilyModel* get_family() {
 	 	return family;
 	}
- 
+
 	NumericVector get_dB(int k) {
 		NumericVector dBkR(nb_paramsMaintenance);
 		for (int i=0;i<nb_paramsMaintenance;i++){
@@ -121,7 +121,7 @@ public:
 		NumericVector dVrightR(nb_paramsMaintenance),dVleftR(nb_paramsMaintenance);
 		NumericMatrix d2VrightR(nb_paramsMaintenance,nb_paramsMaintenance),d2VleftR(nb_paramsMaintenance,nb_paramsMaintenance);
 		NumericVector dAR(nb_paramsMaintenance);
-		NumericMatrix d2AR(nb_paramsMaintenance,nb_paramsMaintenance);	
+		NumericMatrix d2AR(nb_paramsMaintenance,nb_paramsMaintenance);
 		NumericVector dCR(nb_paramsMaintenance);
 		NumericMatrix d2CR(nb_paramsMaintenance,nb_paramsMaintenance);
 
@@ -189,7 +189,7 @@ public:
 
     void update_Vleft(bool with_gradient,bool with_hessian);
 
-    List get_virtual_age_infos(double by);
+    List get_virtual_age_infos(double by, double from, double to);
 
 		void init_computation_values();
 

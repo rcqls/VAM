@@ -2,7 +2,7 @@
 
 sim.vam <- function(formula) {
 
-	self <- newEnv(sim.vam,formula=formula)
+	self <- newEnv(sim.vam,formula=formula(formula))
 
 	PersistentRcppObject(self,new = {
 		model <- parse.vam.formula(NULL,self$formula)
@@ -63,7 +63,7 @@ simulate.sim.vam <- function(sim, stop.policy = 10, nb.system=1, cache.size=500,
 
 model.vam <- function(formula,data) {
 	if(missing(data)) data<-NULL
-	self <- newEnv(model.vam,formula=formula,data=data)
+	self <- newEnv(model.vam,formula=formula(formula),data=data)
 
 	PersistentRcppObject(self,new = {
 		model <- parse.vam.formula(NULL,self$formula)
@@ -121,7 +121,7 @@ check.data.vam <-function(data,response) {
 }
 
 mle.vam <- function(formula,data) {
-	self <- newEnv(mle.vam,formula=formula,data=data)
+	self <- newEnv(mle.vam,formula=formula(formula),data=data)
 
 	PersistentRcppObject(self,new = {
 		model <- parse.vam.formula(NULL,self$formula)

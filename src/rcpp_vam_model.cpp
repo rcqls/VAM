@@ -242,7 +242,7 @@ DataFrame VamModel::get_virtual_age_info(double from,double to, double by) {
 	);
 };
 
-List VamModel::get_virtual_age_infos(double by) {
+List VamModel::get_virtual_age_infos(double by,double from, double to) {
 
 	// Only one system first!
 	init_virtual_age_infos();
@@ -251,7 +251,8 @@ List VamModel::get_virtual_age_infos(double by) {
 	while(k < n) {
 		//printf("k=%d/n=%d\n",k,n);
 		update_Vleft(false,false);
-		res[k]=get_virtual_age_info(time[k],time[k+1],by);
+		if(from > time[k] || time[k+1] > to ) res[k] = R_NilValue;
+		else res[k]=get_virtual_age_info(time[k],time[k+1],by); 
 		S1 += family->cumulative_hazardRate(Vleft) - family->cumulative_hazardRate(Vright);
 		//gradient_update_for_current_system();
 		int type2=type[k + 1];
