@@ -21,7 +21,9 @@
 \itemize{
 	\item "i" or "intensity" for failure intensity,
 	\item "I" or "cumulative" for cumulative failure intensity also called compensator of the CM-PM process,
-	\item "v" or "virtual.age" for virtual age.
+	\item "v" or "virtual.age" for virtual age,
+	\item "F" or "conditional.cdf" for conditional distribution function,
+	\item "S3 or "conditional.survival" for conditional survival function.
 }
 By default, PM times are also represented, but "-pm" can be added at the end of the string "\code{type}" in order to avoid this representation. By default, CM times are also represented (or the cumulative number of CM in the "I" case), but "-cm" can be added at the end of the string "\code{type}" in order to avoid this representation. For example, the types \code{"I-pm"} and \code{"I-pm-cm"} both correspond to the cumulative failure intensity plot, but in the first case the cumulative number of failure will also be plotted.
 }
