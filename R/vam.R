@@ -5,7 +5,8 @@ sim.vam <- function(formula) {
 	self <- newEnv(sim.vam,formula=formula(formula))
 
 	PersistentRcppObject(self,new = {
-		model <- parse.vam.formula(NULL,self$formula)
+		model <- parse.vam.formula(self$formula)
+		self$formula <- substitute.vam.formula(model=model)
 		rcpp <- new(SimVam,model)
 		rcpp
 	})
@@ -66,7 +67,8 @@ model.vam <- function(formula,data) {
 	self <- newEnv(model.vam,formula=formula(formula),data=data)
 
 	PersistentRcppObject(self,new = {
-		model <- parse.vam.formula(NULL,self$formula)
+		model <- parse.vam.formula(self$formula)
+		self$formula <- substitute.vam.formula(model=model)
 		if(is.null(self$data)) {## No data
 			rcpp <- new(ModelVam,model)
 			rcpp
@@ -84,7 +86,7 @@ model.vam <- function(formula,data) {
 update.model.vam <- function(model,data) {
 	if(!missing(data)) {
 		self <- model #to have an argument more readable
-		response <- parse.vam.formula(NULL,self$formula)$response
+		response <- parse.vam.formula(self$formula)$response
 		self$data <- data
 		data2 <- data.frame.to.list.multi.vam(self$data,response)
 		self$rcpp()$set_data(data2)
@@ -124,7 +126,8 @@ mle.vam <- function(formula,data) {
 	self <- newEnv(mle.vam,formula=formula(formula),data=data)
 
 	PersistentRcppObject(self,new = {
-		model <- parse.vam.formula(NULL,self$formula)
+		model <- parse.vam.formula(self$formula)
+		self$formula <- substitute.vam.formula(model=model)
 		response <- model$response
 		data <- data.frame.to.list.multi.vam(self$data,response)
 		rcpp <- new(MLEVam,model,data)
@@ -152,37 +155,7 @@ params.model.vam <- params.sim.vam <- params.mle.vam <- function(self,param) {
 # }
 
 formula.mle.vam <- function(self,origin=FALSE) {
-	res <- list(model=parse.vam.formula(NULL,self$formula),coef=coef(self))
-	nb_paramsFamily <- length(res$model$family$params)
-	nb_paramsCM <- length(res$model$models[[1]]$params)
-	nb_paramsPM <- sapply(res$model$models[-1],function(e) length(e$params))
-	form <- paste0(
-						paste(res$model$response,collapse=" & "),
-						"~ (",
-							strsplit(res$model$models[[1]]$name,"\\.")[[1]][1],
-							"(",paste(res$coef[nb_paramsFamily+(1:nb_paramsCM)],collapse=","),")",
-						"|",
-							strsplit(res$model$family$name,"\\.")[[1]][1],
-							"(",paste(res$coef[1:nb_paramsFamily],collapse=","),")",
-						")"
-					)
-	if(length(res$model$models)>1) {
-		pms <- res$model$models[-1]
-		form <- paste0(form,
-							" & (",
-							paste(
-								sapply(seq(pms),function(i) {
-									paste0(
-										strsplit(pms[[i]]$name,"\\.")[[1]][1],
-										"(",paste(res$coef[nb_paramsFamily+nb_paramsCM+ifelse(i>1,sum(nb_paramsPM[1:(i-1)]),0)+(1:nb_paramsPM[i])],collapse=","),")"
-									)
-								}),
-								collapse=" + "
-							),
-							")"
-						)
-	}
-	form <- eval(parse(text=form),envir=globalenv())
+	form <- substitute.vam.formula(self$formula,coef(self))
 	if(origin) list(formula=form,origin=self$formula)
 	else form
 }
@@ -190,7 +163,7 @@ formula.mle.vam <- function(self,origin=FALSE) {
 update.mle.vam <- function(mle,data) {
 	if(!missing(data)) {
 		self <- mle
-		model <- parse.vam.formula(NULL,self$formula)
+		model <- parse.vam.formula(self$formula)
 		response <- model$response
 		self$data <- data
 		data2 <- data.frame.to.list.multi.vam(self$data,response)
@@ -409,7 +382,7 @@ coef.mle.vam <- function(obj,par=NULL,method=NULL,verbose=FALSE) {
 
 # for both sim and mle
 
-parse.vam.formula <- function(obj,formula) {
+parse.vam.formula <- function(formula) {
 	if(formula[[1]] != as.name("~")) stop("Argument has to be a formula")
 	if(length(formula) == 2) {
 		response <- NULL
@@ -461,7 +434,6 @@ parse.vam.formula <- function(obj,formula) {
 					## Case: One maintenance policy
 					policy[[1]] <- as.name(paste0(as.character(policy[[1]]),".maintenance.policy"))
 				}
-				# TODO: add obj as argument of policy when needed
 
 				# PMs
 				pm <- pm[[2]]
@@ -471,7 +443,6 @@ parse.vam.formula <- function(obj,formula) {
 				if(is.name(pm[[1]])) {
 					pm[[1]] <- as.name(paste0(as.character(pm[[1]]),".va.model"))
 				}
-				##TO REMOVE (obj deleted): pm[[3]] <- as.name("obj")
 				pm
 			}
 			cpt.pms <- 0
@@ -504,7 +475,6 @@ parse.vam.formula <- function(obj,formula) {
 		if(is.name(cm[[1]])) {
 			cm[[1]] <- as.name(paste0(as.character(cm[[1]]),".va.model"))
 		}
-		##TO REMOVE (obj deleted): cm[[length(cm)+1]] <- as.name("obj")
 		list(model=cm,family=family)
 	}
 	cpt.cms <- 0
@@ -536,7 +506,6 @@ parse.vam.formula <- function(obj,formula) {
 		if(length(n_pip)==0) {
 			list(
 				name=as.character(pm[[1]]),
-				##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
 				params=as.vector(if(length(pm)==1) numeric(0) else sapply(pm[2:length(pm)],function(e) as.vector(eval(e))))
 			)
 		} else if(length(n_pip)==1) {
@@ -549,7 +518,6 @@ parse.vam.formula <- function(obj,formula) {
 	  				} else {
 	  	  				list(
 									name=as.character(pm[[1]]),
-									##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
 									params=as.vector(if(length(pm)==2) pm[[2]][[2]] else c(sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)]][[2]])))),
 									m=as.integer(eval(pm[[length(pm)]][[3]]))
 		  					)
@@ -557,7 +525,6 @@ parse.vam.formula <- function(obj,formula) {
 	  			} else {
 	  				list(
 							name=as.character(pm[[1]]),
-							##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
 							params=as.vector(if(length(pm)==2) pm[[2]][[2]] else c(sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)]][[2]])))),
 							extra=as.character(pm[[length(pm)]][[3]])
 						)
@@ -569,7 +536,6 @@ parse.vam.formula <- function(obj,formula) {
   				} else {
   	  				list(
 								name=as.character(pm[[1]]),
-								##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
 								params=as.vector(if(length(pm)==3) pm[[2]][[2]] else c(sapply(pm[2:(length(pm)-2)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)-1]][[2]])))),
 								m=as.integer(eval(pm[[length(pm)-1]][[3]])),
 								extra=as.character(pm[[length(pm)]])
@@ -584,7 +550,6 @@ parse.vam.formula <- function(obj,formula) {
 	  					} else {
 	  	  					list(
 								name=as.character(pm[[1]]),
-								##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
 								params=as.vector(if(length(pm)==3) pm[[2]][[2]] else c(sapply(pm[2:(length(pm)-2)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)-1]][[2]])))),
 								m=as.integer(eval(pm[[length(pm)]])),
 								extra=as.character(pm[[length(pm)-1]][[3]])
@@ -603,7 +568,6 @@ parse.vam.formula <- function(obj,formula) {
 	 #  if((length(pm)==1)||(pm[[length(pm)]][[1]]!=as.name("|"))) {
 		# list(
 		# 	name=as.character(pm[[1]]),
-		# 	##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
 		# 	params=as.vector(if(length(pm)==1) numeric(0) else sapply(pm[2:length(pm)],function(e) as.vector(eval(e))))
 		# )
 	 #  } else if ( typeof(tryCatch( as.double(eval(pm[[length(pm)]][[3]])) ,error=function(e){FALSE},finally=function(e){TRUE}))!="logical"){
@@ -612,7 +576,6 @@ parse.vam.formula <- function(obj,formula) {
 	 #  	} else {
 	 #  	  list(
 		# 	name=as.character(pm[[1]]),
-		# 	##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
 		# 	params=as.vector(if(length(pm)==2) pm[[2]][[2]] else c(sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)]][[2]])))),
 		# 	m=as.integer(eval(pm[[length(pm)]][[3]]))
 		#   )
@@ -620,7 +583,6 @@ parse.vam.formula <- function(obj,formula) {
 	 #  }	else {
 	 #  	list(
 		# 	name=as.character(pm[[1]]),
-		# 	##TO REMOVE (obj deleted): params=if(length(pm)==2) numeric(0) else sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e)))
 		# 	params=as.vector(if(length(pm)==2) pm[[2]][[2]] else c(sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)]][[2]])))),
 		# 	extra=as.character(pm[[length(pm)]][[3]])
 		# )
@@ -671,17 +633,62 @@ parse.vam.formula <- function(obj,formula) {
 		pm.policy=convert.mp(policy)
 	)
 
-
-	## TO REMOVE: replaced by the 2 following lines
-	# mem<-1
-	# for(i in (1:length(res$models))) {
-	# 	if(exists("m",where=res$models[[i]])) {
-	# 		mem<-max(mem,res$models[[i]]$m)
-	# 	}
-	# }
-	# c(res,list(max_memory=mem))
-
 	res$max_memory <- max(1,unlist(sapply(res$models,function(e) e$m)),na.rm=TRUE)
 	res
 
+}
+
+# use substitute coef in vam formula
+substitute.vam.formula <- function(formula,coef,model) {
+	if(missing(model)) model <- parse.vam.formula(formula)
+	if(missing(coef)) coef <- c(model$family$params,sapply(model$models,function(m) m$params))
+	nb_paramsFamily <- length(model$family$params)
+	nb_paramsCM <- length(model$models[[1]]$params)
+	nb_paramsPM <- sapply(model$models[-1],function(m) length(m$params))
+	form <- paste0(
+						paste(model$response,collapse=" & "),
+						"~ (",
+							strsplit(model$models[[1]]$name,"\\.")[[1]][1],
+							"(",
+							paste(coef[nb_paramsFamily+(1:nb_paramsCM)],collapse=","),
+							if(!is.null(model$models[[1]]$m) || !is.null(model$models[[1]]$extra)) {
+								extra <- c()
+								if(!is.null(model$models[[1]]$extra)) extra <- c(extra,model$models[[1]]$extra)
+								if(!is.null(model$models[[1]]$m)) extra <- c(extra,model$models[[1]]$m)
+								paste0("|",paste(extra,collapse=","))
+							} else "",
+							")",
+						"|",
+							strsplit(model$family$name,"\\.")[[1]][1],
+							"(",
+							paste(coef[1:nb_paramsFamily],collapse=","),
+							")",
+						")"
+					)
+	if(length(model$models)>1) {
+		pms <- model$models[-1]
+		form <- paste0(form,
+							" & (",
+							paste(
+								sapply(seq(pms),function(i) {
+									paste0(
+										strsplit(pms[[i]]$name,"\\.")[[1]][1],
+										"(",
+										paste(coef[nb_paramsFamily+nb_paramsCM+ifelse(i>1,sum(nb_paramsPM[1:(i-1)]),0)+(1:nb_paramsPM[i])],collapse=","),
+										if(!is.null(pms[[i]]$m) || !is.null(pms[[i]]$extra)) {
+											extra <- c()
+											if(!is.null(pms[[i]]$extra)) extra <- c(extra,pms[[i]]$extra)
+											if(!is.null(pms[[i]]$m)) extra <- c(extra,pms[[i]]$m)
+											paste0("|",paste(extra,collapse=","))
+										} else "",
+										")"
+									)
+								}),
+								collapse=" + "
+							),
+							")"
+						)
+	}
+	form <- eval(parse(text=form),envir=globalenv())
+	form
 }
