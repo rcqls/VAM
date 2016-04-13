@@ -158,7 +158,7 @@ plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cum
 
 	if(pm.type != "n") {
 		## IMPORTANT, first remove 'pm.' before calling plot method
-		ind <- d$Type>0 & d$Time>0
+		ind <- d$Type>0 & d$Time>0 #& d$Time >= from & d$Time <= to
 		if(!is.null(args.pm))  {
 			names(args.pm) <- substring(names(args.pm),4)
 			pm.types <- d$Type[ind]
