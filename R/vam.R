@@ -518,14 +518,14 @@ parse.vam.formula <- function(formula) {
 	  				} else {
 	  	  				list(
 									name=as.character(pm[[1]]),
-									params=as.vector(if(length(pm)==2) pm[[2]][[2]] else c(sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)]][[2]])))),
+									params=as.vector(if(length(pm)==2) as.vector(eval(pm[[2]][[2]])) else c(sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)]][[2]])))),
 									m=as.integer(eval(pm[[length(pm)]][[3]]))
 		  					)
 						}
 	  			} else {
 	  				list(
 							name=as.character(pm[[1]]),
-							params=as.vector(if(length(pm)==2) pm[[2]][[2]] else c(sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)]][[2]])))),
+							params=as.vector(if(length(pm)==2) as.vector(eval(pm[[2]][[2]])) else c(sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)]][[2]])))),
 							extra=as.character(pm[[length(pm)]][[3]])
 						)
 	  			}
@@ -536,7 +536,7 @@ parse.vam.formula <- function(formula) {
   				} else {
   	  				list(
 								name=as.character(pm[[1]]),
-								params=as.vector(if(length(pm)==3) pm[[2]][[2]] else c(sapply(pm[2:(length(pm)-2)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)-1]][[2]])))),
+								params=as.vector(if(length(pm)==3) as.vector(eval(pm[[2]][[2]])) else c(sapply(pm[2:(length(pm)-2)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)-1]][[2]])))),
 								m=as.integer(eval(pm[[length(pm)-1]][[3]])),
 								extra=as.character(pm[[length(pm)]])
 	  					)
@@ -550,7 +550,7 @@ parse.vam.formula <- function(formula) {
 	  					} else {
 	  	  					list(
 								name=as.character(pm[[1]]),
-								params=as.vector(if(length(pm)==3) pm[[2]][[2]] else c(sapply(pm[2:(length(pm)-2)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)-1]][[2]])))),
+								params=as.vector(if(length(pm)==3) as.vector(eval(pm[[2]][[2]])) else c(sapply(pm[2:(length(pm)-2)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)-1]][[2]])))),
 								m=as.integer(eval(pm[[length(pm)]])),
 								extra=as.character(pm[[length(pm)-1]][[3]])
 		  					)
