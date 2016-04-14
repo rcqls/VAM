@@ -1,5 +1,10 @@
 # Simulation: sim.vam or vam.sim or vam.gen???
 
+## TODO FAST!
+# plot fast!
+# sim.vam => responses => 3) "system.name" + "response.names" used in simulate
+# model.vam
+
 sim.vam <- function(formula) {
 
 	self <- newEnv(sim.vam,formula=formula(formula))
@@ -14,6 +19,7 @@ sim.vam <- function(formula) {
 	self
 
 }
+
 
 # TODO: when data provided, complete the data!
 simulate.sim.vam <- function(sim, stop.policy = 10, nb.system=1, cache.size=500,as.list=FALSE,data) {
@@ -366,7 +372,8 @@ run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
   obj$mle.coef <- res$par
   params(obj,obj$mle.coef) #put the result in the c++ part
 
-  obj$mle.coef
+  ##obj$mle.coef
+	obj$optim
 }
 
 ## Rmk: run.mle.vam is supposed to run many times to get the best estimate!

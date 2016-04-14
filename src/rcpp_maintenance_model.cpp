@@ -120,13 +120,13 @@ void ARA1::update(bool with_gradient,bool with_hessian) {
         for(i=id_params;i<model->nb_paramsMaintenance;i++) {
             model->d2B[i*(i+1)/2+id_params] -= model->dA[i];
         }
-    }  
+    }
     if(with_gradient||with_hessian) {
         if(model->k>model->max_mem){
             for(i=0;i<model->nb_paramsMaintenance;i++) {
                 model->dC[i]=(model->dB[(model->max_mem - 1)*model->nb_paramsMaintenance+i]*(model->time[model->k - model->max_mem]-model->time[model->k - model->max_mem - 1])+model->dC[i]);
             }
-        } 
+        }
         for(k=nk-1;k>0;k--) {
             for(i=0;i<model->nb_paramsMaintenance;i++) {
                 model->dB[k*model->nb_paramsMaintenance+i]=model->dB[(k-1)*model->nb_paramsMaintenance+i];
@@ -200,14 +200,14 @@ void ARAInf::update(bool with_gradient,bool with_hessian) {
         for(i=id_params;i<model->nb_paramsMaintenance;i++) {
             model->d2B[i*(i+1)/2+id_params] -= model->dA[i];
         }
-    }  
+    }
     if(with_gradient||with_hessian) {
         if(model->k>model->max_mem){
             for(i=0;i<model->nb_paramsMaintenance;i++) {
                 model->dC[i]=(1-rho)*(model->dB[(model->max_mem - 1)*model->nb_paramsMaintenance+i]*(model->time[model->k - model->max_mem]-model->time[model->k - model->max_mem - 1])+model->dC[i]);
             }
             model->dC[id_params]-= (model->B[model->max_mem - 1])*(model->time[model->k - model->max_mem]-model->time[model->k - model->max_mem - 1]) +model->C ;
-        } 
+        }
         for(k=nk-1;k>0;k--) {
             for(i=0;i<model->nb_paramsMaintenance;i++) {
                 model->dB[k*model->nb_paramsMaintenance+i]=(1-rho)*model->dB[(k-1)*model->nb_paramsMaintenance+i];
@@ -598,13 +598,13 @@ void GQR_ARA1::update(bool with_gradient,bool with_hessian) {
              //id and i(>=id_params) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
             model->d2A[i*(i+1)/2+id_params] = model->d2A[i*(i+1)/2+id_params] + pow(rho_QR,f->eval(K)-f->eval(K-1))*(f->eval(K)-f->eval(K-1))/rho_QR*model->dA[i];
         }
-    }  
+    }
     if(with_gradient||with_hessian) {
         if(model->k>model->max_mem){
             for(i=0;i<model->nb_paramsMaintenance;i++) {
                 model->dC[i]=(model->dB[(model->max_mem - 1)*model->nb_paramsMaintenance+i]*(model->time[model->k - model->max_mem]-model->time[model->k - model->max_mem - 1])+model->dC[i]);
             }
-        } 
+        }
         for(k=nk-1;k>0;k--) {
             for(i=0;i<model->nb_paramsMaintenance;i++) {
                 model->dB[k*model->nb_paramsMaintenance+i]=model->dB[(k-1)*model->nb_paramsMaintenance+i];
@@ -700,14 +700,14 @@ void GQR_ARAInf::update(bool with_gradient,bool with_hessian) {
              //id and i(>=id_params) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
             model->d2A[i*(i+1)/2+id_params] = model->d2A[i*(i+1)/2+id_params] + pow(rho_QR,f->eval(K)-f->eval(K-1))*(f->eval(K)-f->eval(K-1))/rho_QR*model->dA[i];
         }
-    }  
+    }
     if(with_gradient||with_hessian) {
         if(model->k>model->max_mem){
             for(i=0;i<model->nb_paramsMaintenance;i++) {
                 model->dC[i]=(1-rho_ARA)*(model->dB[(model->max_mem - 1)*model->nb_paramsMaintenance+i]*(model->time[model->k - model->max_mem]-model->time[model->k - model->max_mem - 1])+model->dC[i]);
             }
             model->dC[id_params+1]-= (model->B[model->max_mem - 1])*(model->time[model->k - model->max_mem]-model->time[model->k - model->max_mem - 1]) +model->C ;
-        } 
+        }
         for(k=nk-1;k>0;k--) {
             for(i=0;i<model->nb_paramsMaintenance;i++) {
                 model->dB[k*model->nb_paramsMaintenance+i]=(1-rho_ARA)*model->dB[(k-1)*model->nb_paramsMaintenance+i];
@@ -792,7 +792,7 @@ void ARAm::update(bool with_gradient,bool with_hessian) {
         for(i=id_params;i<model->nb_paramsMaintenance;i++) {
             model->d2B[i*(i+1)/2+id_params] -= model->dA[i];
         }
-    }  
+    }
     if(with_gradient||with_hessian) {
         if(model->k>model->max_mem){
             for(i=0;i<model->nb_paramsMaintenance;i++) {
@@ -803,7 +803,7 @@ void ARAm::update(bool with_gradient,bool with_hessian) {
             for(i=0;i<model->nb_paramsMaintenance;i++) {
                 model->dB[k*model->nb_paramsMaintenance+i]=model->dB[(k-1)*model->nb_paramsMaintenance+i];
             }
-        } 
+        }
         for(k=nk2-1;k>0;k--) {
             for(i=0;i<model->nb_paramsMaintenance;i++) {
                 model->dB[k*model->nb_paramsMaintenance+i]=(1-rho)*model->dB[(k-1)*model->nb_paramsMaintenance+i];
@@ -901,7 +901,7 @@ void GQR_ARAm::update(bool with_gradient,bool with_hessian) {
              //id and i(>=id_params) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
             model->d2A[i*(i+1)/2+id_params] = model->d2A[i*(i+1)/2+id_params] + pow(rho_QR,f->eval(K)-f->eval(K-1))*(f->eval(K)-f->eval(K-1))/rho_QR*model->dA[i];
         }
-    }  
+    }
     if(with_gradient||with_hessian) {
         if(model->k>model->max_mem){
             for(i=0;i<model->nb_paramsMaintenance;i++) {
@@ -912,7 +912,7 @@ void GQR_ARAm::update(bool with_gradient,bool with_hessian) {
             for(i=0;i<model->nb_paramsMaintenance;i++) {
                 model->dB[k*model->nb_paramsMaintenance+i]=model->dB[(k-1)*model->nb_paramsMaintenance+i];
             }
-        } 
+        }
         for(k=nk2-1;k>0;k--) {
             for(i=0;i<model->nb_paramsMaintenance;i++) {
                 model->dB[k*model->nb_paramsMaintenance+i]=(1-rho_ARA)*model->dB[(k-1)*model->nb_paramsMaintenance+i];
@@ -970,7 +970,7 @@ MaintenanceModel* newMaintenanceModel(List maintenance,VamModel* model) {
             printf("WARNING: no memory argument like %d can be considered in ARA1 model : ARAm model must be used !\n",mem);
         }
 		mm=new ARA1(rho,model);
-        
+
 	} else if(name.compare("ARAInf.va.model") == 0) {
         NumericVector rho=NumericVector::create(0.5);
         if (params.size()==0){
@@ -990,12 +990,12 @@ MaintenanceModel* newMaintenanceModel(List maintenance,VamModel* model) {
             printf("WARNING: no memory argument like %d can be considered in ARAInf model : ARAm model must be used !\n",mem);
         }
 		mm=new ARAInf(rho,model);
-        
+
 	} else if(name.compare("AGAN.va.model") == 0) {
         if (params.size()!=0){
             printf("WARNING: AGAN model needs no parameter vector ! \n");
             NumericVector rho=NumericVector::create(0.5);
-        } 
+        }
         if (maintenance.containsElementNamed("extra")) {
             std::string fun=maintenance["extra"];
             std::cout<<"WARNING: no function argument like "<< fun << " can be considered for AGAN model !\n";
@@ -1010,7 +1010,7 @@ MaintenanceModel* newMaintenanceModel(List maintenance,VamModel* model) {
         if (params.size()!=0){
             printf("WARNING: ABAO model needs no parameter vector ! \n");
             NumericVector rho=NumericVector::create(0.5);
-        } 
+        }
         if (maintenance.containsElementNamed("extra")) {
             std::string fun=maintenance["extra"];
             std::cout<<"WARNING: no function argument like "<< fun << " can be considered for ABAO model !\n";
@@ -1025,7 +1025,7 @@ MaintenanceModel* newMaintenanceModel(List maintenance,VamModel* model) {
         if (params.size()!=0){
             printf("WARNING: AGAP model needs no parameter vector ! \n");
             NumericVector rho=NumericVector::create(0.5);
-        } 
+        }
         if (maintenance.containsElementNamed("extra")) {
             std::string fun=maintenance["extra"];
             std::cout<<"WARNING: no function argument like "<< fun << " can be considered for AGAP model !\n";
@@ -1040,7 +1040,7 @@ MaintenanceModel* newMaintenanceModel(List maintenance,VamModel* model) {
         if (params.size()!=0){
             printf("WARNING: QAGAN model needs no parameter vector ! \n");
             NumericVector rho=NumericVector::create(0.5);
-        } 
+        }
         if (maintenance.containsElementNamed("extra")) {
             std::string fun=maintenance["extra"];
             std::cout<<"WARNING: no function argument like "<< fun << " can be considered for QAGAN model !\n";
@@ -1099,7 +1099,7 @@ MaintenanceModel* newMaintenanceModel(List maintenance,VamModel* model) {
             printf("WARNING: GQR_ARA1 model needs a parameter vector of length 2 ! It has been fixed to c(0.5,0.5). \n");
         } else if (params.size()==1){
             printf("WARNING: GQR_ARA1 model needs a parameter vector of length 2 ! It has been fixed to c(%f,0.5). \n",params[0]);
-            rho[1]=params[0];   
+            rho[1]=params[0];
         } else if(params.size()!=2){
             printf("WARNING: GQR_ARA1 model needs a parameter vector of length 2 !\n");
             rho[0]=params[0];
@@ -1126,7 +1126,7 @@ MaintenanceModel* newMaintenanceModel(List maintenance,VamModel* model) {
             printf("WARNING: GQR_ARAInf model needs a parameter vector of length 2 ! It has been fixed to c(0.5,0.5). \n");
         } else if (params.size()==1){
             printf("WARNING: GQR_ARAInf model needs a parameter vector of length 2 ! It has been fixed to c(%f,0.5). \n",params[0]);
-            rho[1]=params[0];   
+            rho[1]=params[0];
         } else if(params.size()!=2){
             printf("WARNING: GQR_ARAInf model needs a parameter vector of length 2 !\n");
             rho[0]=params[0];
@@ -1173,7 +1173,7 @@ MaintenanceModel* newMaintenanceModel(List maintenance,VamModel* model) {
             printf("WARNING: GQR_ARAm model needs a parameter vector of length 2 ! It has been fixed to c(0.5,0.5). \n");
         } else if (params.size()==1){
             printf("WARNING: GQR_ARAm model needs a parameter vector of length 2 ! It has been fixed to c(%f,0.5). \n",params[0]);
-            rho[1]=params[0];   
+            rho[1]=params[0];
         } else if(params.size()!=2){
             printf("WARNING: GQR_ARAm model needs a parameter vector of length 2 !\n");
             rho[0]=params[0];
@@ -1201,7 +1201,7 @@ MaintenanceModel* newMaintenanceModel(List maintenance,VamModel* model) {
         }
 
     } else {
-        printf("WARNING: %s is not a proper maintenance model!\n",name.c_str());
+        stop("ERROR: %s is not a proper maintenance model!\n",name.c_str());
     }
 	return mm;
 }
