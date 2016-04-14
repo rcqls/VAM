@@ -221,6 +221,8 @@ DataFrame VamModel::get_virtual_age_info(double from,double to, double by) {
 	std::vector<double> H(n+1); //I for cumulative intensity
 	std::vector<double> F(n+1); //F for conditional cumulative distribution function
 	std::vector<double> S(n+1); //S for conditional survival function
+	std::vector<double> f(n+1); //S for conditional survival function
+
 
 	t[0]=from;t[n]=to;
 	v[0]=virtual_age(from);v[n]=virtual_age(to);
@@ -228,6 +230,7 @@ DataFrame VamModel::get_virtual_age_info(double from,double to, double by) {
 	H[0]=S1;H[n]=S1+family->cumulative_hazardRate(v[n])-family->cumulative_hazardRate(v[0]);
 	F[0]=0;F[n]=1-exp(-(family->cumulative_hazardRate(v[n])-family->cumulative_hazardRate(v[0])));
 	S[0]=1;S[n]=exp(-(family->cumulative_hazardRate(v[n])-family->cumulative_hazardRate(v[0])));
+	f[0]=family->hazardRate(v[0]);f[n]=family->hazardRate(v[n])*exp(-(family->cumulative_hazardRate(v[n])-family->cumulative_hazardRate(v[0])));
 	double by_t=(t[n]-t[0])/s;
 	double by_v=(v[n]-v[0])/s;
 
@@ -238,6 +241,7 @@ DataFrame VamModel::get_virtual_age_info(double from,double to, double by) {
 		H[i]=S1+family->cumulative_hazardRate(v[i])-family->cumulative_hazardRate(v[0]);
 		F[i]=1-exp(-(family->cumulative_hazardRate(v[i])-family->cumulative_hazardRate(v[0])));
 		S[i]=exp(-(family->cumulative_hazardRate(v[i])-family->cumulative_hazardRate(v[0])));
+		f[i]=family->hazardRate(v[i])*exp(-(family->cumulative_hazardRate(v[i])-family->cumulative_hazardRate(v[0])));
 	}
 
 	return DataFrame::create(
@@ -246,7 +250,8 @@ DataFrame VamModel::get_virtual_age_info(double from,double to, double by) {
 		_["i"]=NumericVector(h.begin(),h.end()),
 		_["I"]=NumericVector(H.begin(),H.end()),
 		_["F"]=NumericVector(F.begin(),F.end()),
-		_["S"]=NumericVector(S.begin(),S.end())
+		_["S"]=NumericVector(S.begin(),S.end()),
+		_["f"]=NumericVector(f.begin(),f.end())
 	);
 };
 

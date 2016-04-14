@@ -1,6 +1,6 @@
 ## Provide cm.type or pm.type  with value "n" to not have cm and pm elements in the plot.
 ## cm.type or pm.type to NA means default value depending on type value.
-plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cumulative","F","conditional.cdf","S","conditional.survival"),from,to,length.out=101,by,system.index=1,cm.type=NA,pm.type=NA,add=FALSE,...) {
+plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cumulative","F","conditional.cdf","S","conditional.survival","f","conditional.pdf"),from,to,length.out=101,by,system.index=1,cm.type=NA,pm.type=NA,add=FALSE,...) {
 	rcpp <- rcpp(obj)
 	d <- if(inherits(obj,"sim.vam")) rcpp$get_data() else rcpp$get_data(system.index-1) #0 since one-system first!
 	if(nrow(d)==0) stop("plot failed since data are required!")
@@ -57,7 +57,13 @@ plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cum
 			ylab<-"conditional survival function"
 			if(!is.na(cm.type) && cm.type=="s") warning(paste0("cm.type argument could not be 's' for type '",type,"'!"))
 			if(is.na(cm.type) || cm.type == "s") cm.type <- "p"
-		}
+		},
+		conditional.pdf=,f={
+			var <- "f"
+			ylab<-"conditional pdf"
+			if(!is.na(cm.type) && cm.type=="s") warning(paste0("cm.type argument could not be 's' for type '",type,"'!"))
+			if(is.na(cm.type) || cm.type == "s") cm.type <- "p"
+		},
 	)
 
 
