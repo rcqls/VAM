@@ -26,7 +26,7 @@
 	\item "S" or "conditional.survival" for conditional survival function of the next failure time,
 	\item "f" or "conditional.pdf" for conditional probability density function of the next failure time.
 }
-By default, PM times are also represented, but "-pm" can be added at the end of the string "\code{type}" in order to avoid this representation. By default, CM times are also represented (or the cumulative number of CM in the "I" case), but "-cm" can be added at the end of the string "\code{type}" in order to avoid this representation. For example, the types \code{"I-pm"} and \code{"I-pm-cm"} both correspond to the cumulative failure intensity plot, but in the first case the cumulative number of failure will also be plotted.
+By default, PM times are also represented, but "-pm" can be added at the end of the string \code{type} in order to avoid this representation. By default, CM times are also represented (or the cumulative number of CM in the "I" case), but "-cm" can be added at the end of the string "\code{type}" in order to avoid this representation. For example, the types \code{"I-pm"} and \code{"I-pm-cm"} both correspond to the cumulative failure intensity plot, but in the first case the cumulative number of failure will also be plotted.
 }
 \item{\code{from, to}}{optional arguments specifying the range time over which the characteristic will be plotted.}
 \item{\code{by}}{time increment between two successive  maintenance time at which the characteristic will be plotted.}
@@ -34,7 +34,7 @@ By default, PM times are also represented, but "-pm" can be added at the end of 
 \item{\code{system.index}}{the index of the system for which to plot the characteristic.}
 \item{\code{cm.type}}{how to additionally represent the CM times or the cumulative number of CM in the "I" case. Possible types are "p" for points and "l" for lines.}
 \item{\code{pm.type}}{how to additionally represent the PM times. Possible types are "p" for points and "l" for lines.}
-\item{\code{add}}{if "\code{add==FALSE}" the characteristic is plotted on a new graphical, otherwise it is added to the current one.}
+\item{\code{add}}{if \code{add==FALSE} the characteristic is plotted on a new graphical, otherwise it is added to the current one.}
 \item{\code{...}}{Further classical graphical parameters specifying how the plot of the characteristic. Others non usual arguments can also be added in order to specify the additional representation of the CM and PM times: \code{cm.col, cm.pch, cm.lty, cm.lwd, pm.col, pm.pch, pm.lty, pm.lwd}. For PM, those arguments can be vectors in order to specify a specific value of the argument for each PM type.}
 }
 

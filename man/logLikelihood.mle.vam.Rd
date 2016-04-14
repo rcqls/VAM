@@ -36,6 +36,9 @@ Otherwise, the log-likelihood is computed on the last parameters values obtained
 \code{\link{run.mle.vam}} to compute the MLE.
 \code{\link{coef.mle.vam}} to extract the parameters value of the MLE.
 \code{\link{contrast.mle.vam}} to compute the contrast associated to the MLE.
+\code{\link{formula.mle.vam}} to extract the original and estimated model.
+\code{\link{plot.mle.vam}} for plotting characteristics of the model.
+\code{\link{update.mle.vam}} to change the associated data set.
 }
 
 \examples{
