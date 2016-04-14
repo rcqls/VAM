@@ -23,7 +23,7 @@ Otherwise, the log-likelihood is computed on the last parameters values obtained
 
 }
 
-\value{\value{\itemize{
+\value{\itemize{
 \item If only \code{with_value} is \code{TRUE}, the method produces the log-likelihood value.
 \item If only \code{with_gradient} is \code{TRUE}, the method produces a vector corresponding to the gradient of the log-likelihood,
 \item If only \code{with_hessian} is \code{TRUE}, the method produces a matrix corresponding to the hessian of the log-likelihood.
