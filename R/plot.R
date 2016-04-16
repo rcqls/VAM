@@ -13,7 +13,7 @@ plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cum
 	if(missing(by)) by <- (to-from)/(length.out-1)
 	infos <- rcpp$get_virtual_age_infos(by,from,to)
 	infos <- infos[sapply(infos,function(e) !is.null(e))]
-	#print("infos");print(infos)
+	#print("infos");print(infos);infos2 <<- infos
 
 	## type
 	if(length(grep("-",type))) { # deal with modifier -cm and -pm
