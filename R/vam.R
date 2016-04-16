@@ -1,9 +1,4 @@
-# Simulation: sim.vam or vam.sim or vam.gen???
-
-## TODO FAST!
-# plot fast!
-# sim.vam => responses => 3) "system.name" + "response.names" used in simulate
-# model.vam
+# Simulation: sim.vam
 
 sim.vam <- function(formula) {
 
