@@ -80,6 +80,7 @@ simulate.sim.vam <- function(sim, stop.policy = 10, nb.system=1, cache.size=500,
 		names(df) <- sim$response.names
 	}
 	if(!as.list) rownames(df) <- 1:nrow(df)
+	else names(df) <- paste0(sim$system.name,1:length(df))
 	df
 }
 
