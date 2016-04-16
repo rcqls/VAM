@@ -28,7 +28,7 @@ Otherwise, the log-likelihood is computed on the last parameters values obtained
 \item If only \code{with_gradient} is \code{TRUE}, the method produces a vector corresponding to the gradient of the log-likelihood,
 \item If only \code{with_hessian} is \code{TRUE}, the method produces a matrix corresponding to the hessian of the log-likelihood.
  }
- Otherwise, the method produces a list of the log-likelihood characteristics for which the corresponding argument is \code{TRUE}.}}
+ Otherwise, the method produces a list of the log-likelihood characteristics for which the corresponding argument is \code{TRUE}.}
 
  \author{L. Doyen and R. Drouilhet}
 
