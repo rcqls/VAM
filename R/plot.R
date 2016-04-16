@@ -6,8 +6,9 @@ plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cum
 	if(nrow(d)==0) stop("plot failed since data are required!")
 	#print("d");print(d)
 
-	if(missing(from)) from <- min(d$Time)
-	if(missing(to)) to <- max(d$Time)
+	mask <- TRUE
+	if(missing(from)) from <- min(d$Time) else mask <- mask & d$Time>= from
+	if(missing(to)) to <- max(d$Time) else mask <- mask & d$Time <= to
 
 	if(missing(by)) by <- (to-from)/(length.out-1)
 	infos <- rcpp$get_virtual_age_infos(by,from,to)
@@ -157,15 +158,15 @@ plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cum
 
 		switch(cm.type,p={
 			cm.call<-"points"
-			args.cm[["x"]] <- d$Time[d$Type == -1]
-			args.cm[["y"]] <- rep(0,sum(d$Type == -1))
+			args.cm[["x"]] <- d$Time[d$Type == -1 & mask]
+			args.cm[["y"]] <- rep(0,sum(d$Type == -1 & mask))
 		},l={
 			cm.call<-"abline"
-			args.cm[["v"]]<-d$Time[d$Type == -1]
+			args.cm[["v"]]<-d$Time[d$Type == -1 & mask]
 		},s={
 			cm.call<-"lines"
-			args.cm[["x"]] <- c(0,d$Time[d$Type == -1],d$Time[nrow(d)])
-			args.cm[["y"]] <- c(0,1:(sum(d$Type == -1)->tmp),tmp)
+			args.cm[["x"]] <- c(0,d$Time[d$Type == -1 & mask],d$Time[nrow(d)])
+			args.cm[["y"]] <- c(0,1:(sum(d$Type == -1 & mask)->tmp),tmp)
 			args.cm[["type"]] <- "s"
 		})
 		##DEBUG: print(c(list(call=cm.call),args.cm))
@@ -176,7 +177,7 @@ plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cum
 
 	if(pm.type != "n") {
 		## IMPORTANT, first remove 'pm.' before calling plot method
-		ind <- d$Type>0 & d$Time>0 #& d$Time >= from & d$Time <= to
+		ind <- d$Type>0 & d$Time>0 & mask
 		if(!is.null(args.pm))  {
 			names(args.pm) <- substring(names(args.pm),4)
 			pm.types <- d$Type[ind]
