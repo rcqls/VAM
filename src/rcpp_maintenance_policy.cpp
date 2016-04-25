@@ -87,7 +87,7 @@ List AtIntensityMaintenancePolicy::update(VamModel* model) {
     VamModel* mod=update_external_model(model);
 
 		double next_time=mod->virtual_age_inverse(mod->family->inverse_hazardRate(level[0]));
-		//printf("at=%d\n",model->idMod);
+        //printf("at=%d\n",model->idMod);
     res["time"] = next_time ;//mod->virtual_age_inverse(mod->family->inverse_hazardRate(level[0]));
 
     res["type"]= 1+get_from_type(); //sample_int(NumericVector::create(prob.size()),1,true,prob);
