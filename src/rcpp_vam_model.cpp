@@ -262,10 +262,10 @@ List VamModel::get_virtual_age_infos(double by,double from, double to) {
 	int n=time.size() - 1;
 	List res(n);
 	while(k < n) {
-		//printf("k=%d/n=%d\n",k,n);
+		//printf("k=%d/n=%d,(%lf,%lf)\n",k,n,time[k],time[k+1]);
 		update_Vleft(false,false);
 		if(from > time[k] || time[k+1] > to ) res[k] = R_NilValue;
-		else res[k]=get_virtual_age_info(time[k],time[k+1],by); 
+		else res[k]=get_virtual_age_info(time[k],time[k+1],by);
 		S1 += family->cumulative_hazardRate(Vleft) - family->cumulative_hazardRate(Vright);
 		//gradient_update_for_current_system();
 		int type2=type[k + 1];

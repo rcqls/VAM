@@ -1,9 +1,4 @@
-# Simulation: sim.vam or vam.sim or vam.gen???
-
-## TODO FAST!
-# plot fast!
-# sim.vam => responses => 3) "system.name" + "response.names" used in simulate
-# model.vam
+# Simulation: sim.vam
 
 sim.vam <- function(formula) {
 
@@ -11,6 +6,19 @@ sim.vam <- function(formula) {
 
 	PersistentRcppObject(self,new = {
 		model <- parse.vam.formula(self$formula)
+		## specify names of variables inside data.frame
+		if(is.null(model$response)) {
+			self$response.names <- c("Time","Type")
+			self$system.name <- "System"
+		} else {
+			if(length(model$response)==3)  {
+				self$system.name <- model$response[1]
+				self$response.names <- tail(model$response,2)
+			} else if(length(model$response)==2)  {
+				self$system.name <- "System"
+				self$response.names <- model$response
+			}
+		}
 		self$formula <- substitute.vam.formula(model=model)
 		rcpp <- new(SimVam,model)
 		rcpp
@@ -53,16 +61,21 @@ simulate.sim.vam <- function(sim, stop.policy = 10, nb.system=1, cache.size=500,
 		if(as.list) df<-list()
 		for(i in 1:nb.system) {
 			df2 <- rcpp$simulate(stop.policy$cache.size)[-1,]
+			names(df2) <- sim$response.names
 			if(as.list) {
 				df[[i]] <- df2 #rbind(data.frame(Time=0,Type=1),df2)
 			} else {
-				df2$System <- i
+				df2[[sim$system.name]] <- i
 				df2<-df2[c(3,1:2)]
 				df <- if(i==1) df2 else rbind(df,df2)
 			}
 		}
-	} else df <- rcpp$simulate(stop.policy$cache.size)[-1,]
+	} else {
+		df <- rcpp$simulate(stop.policy$cache.size)[-1,]
+		names(df) <- sim$response.names
+	}
 	if(!as.list) rownames(df) <- 1:nrow(df)
+	else names(df) <- paste0(sim$system.name,1:length(df))
 	df
 }
 

@@ -41,6 +41,7 @@ DataFrame SimVam::simulate(int nbsim) {
 
             NumericVector tmp=timeAndTypePM["time"];
             timePM=tmp[0];
+            //DEBUG: printf("sim: timePM:%lf, timeCM=%lf\n",timePM,timeCM);
             if(timePM<timeCM && timePM<model->time[model->k]) {
           		printf("Warning: PM ignored since next_time(=%lf)<current_time(=%lf) at rank %d.\n",timePM,model->time[model->k],model->k);
             }
@@ -77,7 +78,7 @@ void SimVam::init(int cache_size_) {
     // Almost everything in the 5 following lines are defined in model->init_computation_values() (but this last one initializes more than this 5 lines)
     model->Vright=0;
     model->A=1;
-    model->C=1;
+    model->C=0;
     model->k=0;
     for(int i=0;i<model->nbPM + 1;i++) model->models->at(i)->init();
 
