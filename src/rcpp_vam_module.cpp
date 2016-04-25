@@ -19,7 +19,7 @@ RCPP_MODULE(vam_module) {
 	.method("get_params",&VamModel::get_params,"get params")
     .method("set_params",&VamModel::set_params,"set params")
     .method("get_virtual_age_infos",&VamModel::get_virtual_age_infos,"get infos related to virtual ages")
-	.method("set_data",&VamModel::set_data,"set data")
+		.method("set_data",&VamModel::set_data,"set data")
     .method("get_data",&VamModel::get_selected_data,"get (selected) data")
     ;
 
@@ -30,7 +30,8 @@ RCPP_MODULE(vam_module) {
     .method("simulate",&SimVam::simulate,"simulate")
     .method("get_params",&SimVam::get_params,"get params")
     .method("set_params",&SimVam::set_params,"set params")
-    .method("get_data",&SimVam::get_data,"get data")
+    .method("get_data",&SimVam::get_selected_data,"get (selected) data")
+		.method("set_data",&SimVam::set_data,"set data")
     .method("get_virtual_age_infos",&SimVam::get_virtual_age_infos,"get infos related to virtual ages")
     .method("add_stop_policy",&SimVam::add_stop_policy,"add stop policy")
     ;

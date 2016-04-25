@@ -2,7 +2,9 @@
 ## cm.type or pm.type to NA means default value depending on type value.
 plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cumulative","F","conditional.cdf","S","conditional.survival","f","conditional.pdf"),from,to,length.out=101,by,system.index=1,cm.type=NA,pm.type=NA,add=FALSE,...) {
 	rcpp <- rcpp(obj)
-	d <- if(inherits(obj,"sim.vam")) rcpp$get_data() else rcpp$get_data(system.index-1) #0 since one-system first!
+	## IMPORTANT: sim.vam is now
+	# d <- if(inherits(obj,"sim.vam")) rcpp$get_data() else
+	d <- rcpp$get_data(system.index-1) #0 since one-system first!
 	if(nrow(d)==0) stop("plot failed since data are required!")
 	#print("d");print(d)
 

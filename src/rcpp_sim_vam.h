@@ -20,7 +20,18 @@ public:
         delete model;
     };
 
-    DataFrame get_data();
+    //This is used inside simulate to fetch last generated data
+    DataFrame get_last_data();
+
+    //The 2 following functions are now similarly used in plot.R than mle.vam and model.vam
+    //This is just a delagation to model 
+    void set_data(List data_) {
+        model->set_data(data_);
+    }
+
+    DataFrame get_selected_data(int i) {
+        return model->get_selected_data(i);
+    }
 
     DataFrame simulate(int nbsim);
 

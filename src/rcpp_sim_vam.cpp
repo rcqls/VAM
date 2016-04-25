@@ -2,7 +2,7 @@
 #include "rcpp_stop_policy.h"
 
 
-DataFrame SimVam::get_data() {
+DataFrame SimVam::get_last_data() {
     //printf("size:%d,%d\n",(model->time).size(),model->k+1);
     if((model->time).size() > model->k+1) {
         size = model->k+1;
@@ -67,7 +67,7 @@ DataFrame SimVam::simulate(int nbsim) {
 
     }
 
-    return get_data();
+    return get_last_data();
 }
 
 void SimVam::add_stop_policy(List policy) {

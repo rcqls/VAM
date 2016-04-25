@@ -76,6 +76,7 @@ simulate.sim.vam <- function(sim, stop.policy = 10, nb.system=1, cache.size=500,
 	}
 	if(!as.list) rownames(df) <- 1:nrow(df)
 	else names(df) <- paste0(sim$system.name,1:length(df))
+	df <- data.frame.to.list.multi.vam(df,names(df)) #if already list, response not used inside data.frame.to.list.multi.vam
 	df
 }
 
@@ -113,9 +114,9 @@ update.model.vam <- function(model,data) {
 }
 
 data.frame.to.list.multi.vam <- function(data,response) {
-	if(NCOL(data) > length(response) && ("System" %in% names(data)) ) warning(paste0("WARNING: data has variable 'System' when response in formula does not contain this variable!"))
 	# return data if it is already only a list!
 	if(is.list(data) && !is.data.frame(data)) return(lapply(data,function(df) rbind(data.frame(Time=0,Type=1),df)))
+	if(NCOL(data) > length(response) && ("System" %in% names(data)) ) warning(paste0("WARNING: data has variable 'System' when response in formula does not contain this variable!"))
 	# otherwise
 	if(length(response)==2) {
 		if(length(intersect(response,names(data))) != 2) stop(paste0("Bad response:",response))
