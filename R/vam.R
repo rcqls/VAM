@@ -76,7 +76,9 @@ simulate.sim.vam <- function(sim, stop.policy = 10, nb.system=1, cache.size=500,
 	}
 	if(!as.list) rownames(df) <- 1:nrow(df)
 	else names(df) <- paste0(sim$system.name,1:length(df))
-	df <- data.frame.to.list.multi.vam(df,names(df)) #if already list, response not used inside data.frame.to.list.multi.vam
+	## put the final result transformed as in mle.vam and model.vam to the model
+	rcpp$set_data(data.frame.to.list.multi.vam(df,names(df))) #if already list, response not used inside data.frame.to.list.multi.vam
+	## return the result as a data.frame
 	df
 }
 
