@@ -86,7 +86,6 @@ simulate.sim.vam <- function(sim, stop.policy = 10, nb.system=1, cache.size=500,
 		rcpp$set_data(unname(df))
 	}
 	## put the final result transformed as in mle.vam and model.vam to the model
-	print(names(df))
 		## return the result as a data.frame
 	df
 }
