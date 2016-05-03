@@ -30,6 +30,7 @@ DataFrame SimVam::simulate(int nbsim) {
         //# Here, obj$model$k means k-1
         //#print(c(obj$model$Vleft,obj$model$Vright))
 
+        RNGScope rngScope;
 
         double timePM= 0.0, timeCM = model->virtual_age_inverse(model->family->inverse_cumulative_hazardRate(model->family->cumulative_hazardRate(model->virtual_age(model->time[model->k]))-log(runif(1))[0]));
         //TODO: submodels
