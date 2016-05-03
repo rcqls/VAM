@@ -63,6 +63,7 @@ simulate.sim.vam <- function(sim, stop.policy = 10, nb.system=1, cache.size=500,
 			df2 <- rcpp$simulate(stop.policy$cache.size)[-1,]
 			names(df2) <- sim$response.names
 			if(as.list) {
+				rownames(df2)<-1:nrow(df2)
 				df[[i]] <- df2 #rbind(data.frame(Time=0,Type=1),df2)
 			} else {
 				df2[[sim$system.name]] <- i
@@ -73,6 +74,7 @@ simulate.sim.vam <- function(sim, stop.policy = 10, nb.system=1, cache.size=500,
 	} else {
 		df <- rcpp$simulate(stop.policy$cache.size)[-1,]
 		names(df) <- sim$response.names
+		if(as.list) {rownames(df)<-1:nrow(df);df<-list(df)}
 	}
 	if(!as.list) rownames(df) <- 1:nrow(df)
 	else names(df) <- paste0(sim$system.name,1:length(df))
