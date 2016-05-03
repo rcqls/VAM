@@ -129,7 +129,7 @@ void VamModel::select_data(int i) {
 	//In particular, if no data the following is skipped!
 	if(data.size() > i) {
 		List data2=data[i];
-		time = data2["Time"]; type = data2["Type"];
+		time = data2[0]; type = data2[1];//0 stand for Time and 1 for Type
 	}
 }
 
