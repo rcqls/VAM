@@ -82,11 +82,9 @@ simulate.sim.vam <- function(sim, stop.policy = 10, nb.system=1, cache.size=500,
 	}
 	else {
 		names(df) <- paste0(sim$system.name,1:length(df))
-		print(unname(df))
 		rcpp$set_data(unname(df))
 	}
 	## put the final result transformed as in mle.vam and model.vam to the model
-	print(names(df))
 		## return the result as a data.frame
 	df
 }
@@ -126,7 +124,11 @@ update.model.vam <- function(model,data) {
 
 data.frame.to.list.multi.vam <- function(data,response) {
 	# return data if it is already only a list!
-	if(is.list(data) && !is.data.frame(data)) return(lapply(data,function(df) rbind(data.frame(Time=0,Type=1),df)))
+	if(is.list(data) && !is.data.frame(data)) {
+		data.frame(Time=0,Type=1)->tmp
+		names(tmp) <- names(data[[1]])
+		return(lapply(data,function(df) rbind(tmp,df)))
+	}
 	if(NCOL(data) > length(response) && ("System" %in% names(data)) ) warning(paste0("WARNING: data has variable 'System' when response in formula does not contain this variable!"))
 	# otherwise
 	if(length(response)==2) {

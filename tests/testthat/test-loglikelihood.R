@@ -1191,3 +1191,137 @@ test_that("Weibull + CM GQR_ARAm-m=1-fun=log vs GQR_ARA1 + PM ARA1 + mutlisystem
 	expect_that(contrast(mle,theta,FALSE,FALSE,TRUE),equals(d2C,tolerance=0.00000000000001))
 }
 )
+
+test_that("DataList + Weibull + MC ARAInf",{
+	simData<-data.frame(Time=c(3.36,4.04,4.97,5.16),Type=c(-1,-1,-1,-1),row.names=1:4)
+	simData<-list(simData)
+	names(simData)<-"System1"
+	mle <- mle.vam(Time & Type ~ (ARAInf(0.4) | Weibull(0.001,2.5)),data=simData)
+	theta<-c(0.3,0.8,0.6)
+	lnL<- -7.37830963135462
+	dlnL<- c(9.33348796771948,5.77076155284033,1.19923836457015)
+	d2lnL<- matrix(c(-44.4444444444444,-5.26230480903023,-0.723044448779292,-5.26230480903023,-7.7471885008781,-6.30726171420585,-0.723044448779292,-6.30726171420585,0.435684125802398),nrow=3,byrow=TRUE)
+	C<- -5.36231016699152
+	dC<-c(2.08694474533596,0.693079297460398)
+	d2C<-matrix(c(-4.31732300351524,-3.55104259186756,-3.55104259186756,-0.351517905180765),nrow=2,byrow=TRUE)
+	expect_that(logLikelihood(mle,theta,TRUE,FALSE,FALSE),equals(lnL,tolerance=0.00000000000001))
+	expect_that(logLikelihood(mle,theta,FALSE,TRUE,FALSE),equals(dlnL,tolerance=0.00000000000001))
+	expect_that(logLikelihood(mle,theta,FALSE,FALSE,TRUE),equals(d2lnL,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,TRUE,FALSE,FALSE),equals(C,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,FALSE,TRUE,FALSE),equals(dC,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,FALSE,FALSE,TRUE),equals(d2C,tolerance=0.00000000000001))
+}
+)
+
+test_that("OthersNames + Weibull + MC ARAInf",{
+	simData<-data.frame(T=c(3.36,4.04,4.97,5.16),C=c(-1,-1,-1,-1),row.names=1:4)
+	#simData<-list(simData)
+	#names(simData)<-"System1"
+	mle <- mle.vam(T & C ~ (ARAInf(0.4) | Weibull(0.001,2.5)),data=simData)
+	theta<-c(0.3,0.8,0.6)
+	lnL<- -7.37830963135462
+	dlnL<- c(9.33348796771948,5.77076155284033,1.19923836457015)
+	d2lnL<- matrix(c(-44.4444444444444,-5.26230480903023,-0.723044448779292,-5.26230480903023,-7.7471885008781,-6.30726171420585,-0.723044448779292,-6.30726171420585,0.435684125802398),nrow=3,byrow=TRUE)
+	C<- -5.36231016699152
+	dC<-c(2.08694474533596,0.693079297460398)
+	d2C<-matrix(c(-4.31732300351524,-3.55104259186756,-3.55104259186756,-0.351517905180765),nrow=2,byrow=TRUE)
+	expect_that(logLikelihood(mle,theta,TRUE,FALSE,FALSE),equals(lnL,tolerance=0.00000000000001))
+	expect_that(logLikelihood(mle,theta,FALSE,TRUE,FALSE),equals(dlnL,tolerance=0.00000000000001))
+	expect_that(logLikelihood(mle,theta,FALSE,FALSE,TRUE),equals(d2lnL,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,TRUE,FALSE,FALSE),equals(C,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,FALSE,TRUE,FALSE),equals(dC,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,FALSE,FALSE,TRUE),equals(d2C,tolerance=0.00000000000001))
+}
+)
+
+test_that("OthersNames2 + Weibull + MC ARAInf",{
+	simData<-data.frame(C=c(-1,-1,-1,-1),T=c(3.36,4.04,4.97,5.16),row.names=1:4)
+	#simData<-list(simData)
+	#names(simData)<-"System1"
+	mle <- mle.vam(T & C ~ (ARAInf(0.4) | Weibull(0.001,2.5)),data=simData)
+	theta<-c(0.3,0.8,0.6)
+	lnL<- -7.37830963135462
+	dlnL<- c(9.33348796771948,5.77076155284033,1.19923836457015)
+	d2lnL<- matrix(c(-44.4444444444444,-5.26230480903023,-0.723044448779292,-5.26230480903023,-7.7471885008781,-6.30726171420585,-0.723044448779292,-6.30726171420585,0.435684125802398),nrow=3,byrow=TRUE)
+	C<- -5.36231016699152
+	dC<-c(2.08694474533596,0.693079297460398)
+	d2C<-matrix(c(-4.31732300351524,-3.55104259186756,-3.55104259186756,-0.351517905180765),nrow=2,byrow=TRUE)
+	expect_that(logLikelihood(mle,theta,TRUE,FALSE,FALSE),equals(lnL,tolerance=0.00000000000001))
+	expect_that(logLikelihood(mle,theta,FALSE,TRUE,FALSE),equals(dlnL,tolerance=0.00000000000001))
+	expect_that(logLikelihood(mle,theta,FALSE,FALSE,TRUE),equals(d2lnL,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,TRUE,FALSE,FALSE),equals(C,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,FALSE,TRUE,FALSE),equals(dC,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,FALSE,FALSE,TRUE),equals(d2C,tolerance=0.00000000000001))
+}
+)
+
+test_that("OthersNames + DataList + Weibull + MC ARAInf",{
+	simData<-data.frame(T=c(3.36,4.04,4.97,5.16),C=c(-1,-1,-1,-1),row.names=1:4)
+	simData<-list(simData)
+	names(simData)<-"System1"
+	mle <- mle.vam(T & C ~ (ARAInf(0.4) | Weibull(0.001,2.5)),data=simData)
+	theta<-c(0.3,0.8,0.6)
+	lnL<- -7.37830963135462
+	dlnL<- c(9.33348796771948,5.77076155284033,1.19923836457015)
+	d2lnL<- matrix(c(-44.4444444444444,-5.26230480903023,-0.723044448779292,-5.26230480903023,-7.7471885008781,-6.30726171420585,-0.723044448779292,-6.30726171420585,0.435684125802398),nrow=3,byrow=TRUE)
+	C<- -5.36231016699152
+	dC<-c(2.08694474533596,0.693079297460398)
+	d2C<-matrix(c(-4.31732300351524,-3.55104259186756,-3.55104259186756,-0.351517905180765),nrow=2,byrow=TRUE)
+	expect_that(logLikelihood(mle,theta,TRUE,FALSE,FALSE),equals(lnL,tolerance=0.00000000000001))
+	expect_that(logLikelihood(mle,theta,FALSE,TRUE,FALSE),equals(dlnL,tolerance=0.00000000000001))
+	expect_that(logLikelihood(mle,theta,FALSE,FALSE,TRUE),equals(d2lnL,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,TRUE,FALSE,FALSE),equals(C,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,FALSE,TRUE,FALSE),equals(dC,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,FALSE,FALSE,TRUE),equals(d2C,tolerance=0.00000000000001))
+}
+)
+
+test_that("DataList + Weibull + CM GQR_ARAm-m=1-fun=log vs GQR_ARA1 + PM ARA1 + mutlisystems",{
+	simData1<-data.frame(Time=c(3.36,4.04,4.97,5.16),Type=c(1,1,-1,1),row.names=1:4)
+	simData2<-data.frame(Time=c(0.78,2.36,4.05,4.97),Type=c(-1,1,1,0),row.names=1:4)
+	simData3<-data.frame(Time=c(2.45,2.78,3.56,4.23,5.32,6.43,6.98,7.51,8.02,9.43,10.2,11.5,12,13.78),Type=c(1,-1,1,-1,-1,1,1,1,-1,1,-1,1,-1,0),row.names=1:14)
+	simData<-list(simData1,simData2,simData3)
+	names(simData)<-c("System1","System2","System3")
+    mle <- mle.vam(System &Time & Type ~ (GQR_ARAm(0.7,1.3|1,log) | Weibull(0.001,2.5)) & (ARA1(0.6)),data=simData)
+    mle2 <- mle.vam(System & Time & Type ~ (GQR_ARA1(0.7,1.3|log) | Weibull(0.001,2.5)) & (ARAm(0.6|1)),data=simData)
+    theta<-c(0.03,2.4,0.7,1.3,0.8)
+    theta2<-c(0.03,2.4,0.7,1.3,0.8)
+	lnL<- logLikelihood(mle2,theta2,TRUE,FALSE,FALSE)
+	dlnL<- logLikelihood(mle2,theta2,FALSE,TRUE,FALSE)
+	d2lnL<- logLikelihood(mle2,theta2,FALSE,FALSE,TRUE)
+	C<-contrast(mle2,theta2,TRUE,FALSE,FALSE)
+	dC<-contrast(mle2,theta2,FALSE,TRUE,FALSE)
+	d2C<-contrast(mle2,theta2,FALSE,FALSE,TRUE)
+	expect_that(logLikelihood(mle,theta,TRUE,FALSE,FALSE),equals(lnL,tolerance=0.00000000000001))
+	expect_that(logLikelihood(mle,theta,FALSE,TRUE,FALSE),equals(dlnL,tolerance=0.00000000000001))
+	expect_that(logLikelihood(mle,theta,FALSE,FALSE,TRUE),equals(d2lnL,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,TRUE,FALSE,FALSE),equals(C,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,FALSE,TRUE,FALSE),equals(dC,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,FALSE,FALSE,TRUE),equals(d2C,tolerance=0.00000000000001))
+}
+)
+
+test_that("DataList2 + Weibull + CM GQR_ARAm-m=1-fun=log vs GQR_ARA1 + PM ARA1 + mutlisystems",{
+	simData1<-data.frame(Time=c(3.36,4.04,4.97,5.16),Type=c(1,1,-1,1),row.names=1:4)
+	simData2<-data.frame(Time=c(0.78,2.36,4.05,4.97),Type=c(-1,1,1,0),row.names=1:4)
+	simData3<-data.frame(Time=c(2.45,2.78,3.56,4.23,5.32,6.43,6.98,7.51,8.02,9.43,10.2,11.5,12,13.78),Type=c(1,-1,1,-1,-1,1,1,1,-1,1,-1,1,-1,0),row.names=1:14)
+	simData<-list(simData1,simData2,simData3)
+	names(simData)<-c("System1","System2","System3")
+    mle <- mle.vam(Time & Type ~ (GQR_ARAm(0.7,1.3|1,log) | Weibull(0.001,2.5)) & (ARA1(0.6)),data=simData)
+    mle2 <- mle.vam( Time & Type ~ (GQR_ARA1(0.7,1.3|log) | Weibull(0.001,2.5)) & (ARAm(0.6|1)),data=simData)
+    theta<-c(0.03,2.4,0.7,1.3,0.8)
+    theta2<-c(0.03,2.4,0.7,1.3,0.8)
+	lnL<- logLikelihood(mle2,theta2,TRUE,FALSE,FALSE)
+	dlnL<- logLikelihood(mle2,theta2,FALSE,TRUE,FALSE)
+	d2lnL<- logLikelihood(mle2,theta2,FALSE,FALSE,TRUE)
+	C<-contrast(mle2,theta2,TRUE,FALSE,FALSE)
+	dC<-contrast(mle2,theta2,FALSE,TRUE,FALSE)
+	d2C<-contrast(mle2,theta2,FALSE,FALSE,TRUE)
+	expect_that(logLikelihood(mle,theta,TRUE,FALSE,FALSE),equals(lnL,tolerance=0.00000000000001))
+	expect_that(logLikelihood(mle,theta,FALSE,TRUE,FALSE),equals(dlnL,tolerance=0.00000000000001))
+	expect_that(logLikelihood(mle,theta,FALSE,FALSE,TRUE),equals(d2lnL,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,TRUE,FALSE,FALSE),equals(C,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,FALSE,TRUE,FALSE),equals(dC,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,FALSE,FALSE,TRUE),equals(d2C,tolerance=0.00000000000001))
+}
+)
