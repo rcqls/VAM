@@ -8,7 +8,7 @@ using namespace Rcpp ;
 
 class StopPolicy;
 
-class SimVam { 
+class SimVam {
 
 public:
 
@@ -20,8 +20,19 @@ public:
         delete model;
     };
 
-    DataFrame get_data();
-    
+    //This is used inside simulate to fetch last generated data
+    DataFrame get_last_data();
+
+    //The 2 following functions are now similarly used in plot.R than mle.vam and model.vam
+    //This is just a delagation to model 
+    void set_data(List data_) {
+        model->set_data(data_);
+    }
+
+    DataFrame get_selected_data(int i) {
+        return model->get_selected_data(i);
+    }
+
     DataFrame simulate(int nbsim);
 
     VamModel* get_model() {
@@ -37,8 +48,8 @@ public:
     }
 
     //delegate from model cache!
-    List get_virtual_age_infos(double by) {
-        return model->get_virtual_age_infos(by);
+    List get_virtual_age_infos(double by,double from, double to) {
+        return model->get_virtual_age_infos(by,from,to);
     }
 
     void add_stop_policy(List policy);

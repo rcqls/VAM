@@ -271,8 +271,8 @@ public:
 
 
     //delegate from model cache!
-    List get_virtual_age_infos(double by) {
-        return model->get_virtual_age_infos(by);
+    List get_virtual_age_infos(double by,double from, double to) {
+        return model->get_virtual_age_infos(by,from,to);
     }
 
     DataFrame get_selected_data(int i) {

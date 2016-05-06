@@ -129,7 +129,7 @@ void VamModel::select_data(int i) {
 	//In particular, if no data the following is skipped!
 	if(data.size() > i) {
 		List data2=data[i];
-		time = data2["Time"]; type = data2["Type"];
+		time = data2[0]; type = data2[1];//0 stand for Time and 1 for Type
 	}
 }
 
@@ -219,11 +219,18 @@ DataFrame VamModel::get_virtual_age_info(double from,double to, double by) {
 	std::vector<double> v(n+1);
 	std::vector<double> h(n+1); //i as intensity
 	std::vector<double> H(n+1); //I for cumulative intensity
+	std::vector<double> F(n+1); //F for conditional cumulative distribution function
+	std::vector<double> S(n+1); //S for conditional survival function
+	std::vector<double> f(n+1); //S for conditional survival function
+
 
 	t[0]=from;t[n]=to;
 	v[0]=virtual_age(from);v[n]=virtual_age(to);
 	h[0]=family->hazardRate(v[0]);h[n]=family->hazardRate(v[n]);
 	H[0]=S1;H[n]=S1+family->cumulative_hazardRate(v[n])-family->cumulative_hazardRate(v[0]);
+	F[0]=0;F[n]=1-exp(-(family->cumulative_hazardRate(v[n])-family->cumulative_hazardRate(v[0])));
+	S[0]=1;S[n]=exp(-(family->cumulative_hazardRate(v[n])-family->cumulative_hazardRate(v[0])));
+	f[0]=family->hazardRate(v[0]);f[n]=family->hazardRate(v[n])*exp(-(family->cumulative_hazardRate(v[n])-family->cumulative_hazardRate(v[0])));
 	double by_t=(t[n]-t[0])/s;
 	double by_v=(v[n]-v[0])/s;
 
@@ -232,26 +239,33 @@ DataFrame VamModel::get_virtual_age_info(double from,double to, double by) {
 		v[i]=v[i-1]+by_v;
 		h[i]=family->hazardRate(v[i]);
 		H[i]=S1+family->cumulative_hazardRate(v[i])-family->cumulative_hazardRate(v[0]);
+		F[i]=1-exp(-(family->cumulative_hazardRate(v[i])-family->cumulative_hazardRate(v[0])));
+		S[i]=exp(-(family->cumulative_hazardRate(v[i])-family->cumulative_hazardRate(v[0])));
+		f[i]=family->hazardRate(v[i])*exp(-(family->cumulative_hazardRate(v[i])-family->cumulative_hazardRate(v[0])));
 	}
 
 	return DataFrame::create(
 		_["t"]=NumericVector(t.begin(),t.end()),
 		_["v"]=NumericVector(v.begin(),v.end()),
 		_["i"]=NumericVector(h.begin(),h.end()),
-		_["I"]=NumericVector(H.begin(),H.end())
+		_["I"]=NumericVector(H.begin(),H.end()),
+		_["F"]=NumericVector(F.begin(),F.end()),
+		_["S"]=NumericVector(S.begin(),S.end()),
+		_["f"]=NumericVector(f.begin(),f.end())
 	);
 };
 
-List VamModel::get_virtual_age_infos(double by) {
+List VamModel::get_virtual_age_infos(double by,double from, double to) {
 
 	// Only one system first!
 	init_virtual_age_infos();
 	int n=time.size() - 1;
 	List res(n);
 	while(k < n) {
-		//printf("k=%d/n=%d\n",k,n);
+		//printf("k=%d/n=%d,(%lf,%lf)\n",k,n,time[k],time[k+1]);
 		update_Vleft(false,false);
-		res[k]=get_virtual_age_info(time[k],time[k+1],by);
+		if(from > time[k] || time[k+1] > to ) res[k] = R_NilValue;
+		else res[k]=get_virtual_age_info(time[k],time[k+1],by);
 		S1 += family->cumulative_hazardRate(Vleft) - family->cumulative_hazardRate(Vright);
 		//gradient_update_for_current_system();
 		int type2=type[k + 1];

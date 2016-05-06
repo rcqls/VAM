@@ -175,7 +175,7 @@ class LogLinearFamilyModel : public FamilyModel {
   }
   
   double hazardRate(double x) {
-    return (x<=0 ? 0 : alpha*exp(beta*x));
+    return (x<0 ? 0 : alpha*exp(beta*x));
   }
 
   double inverse_hazardRate(double x) {
@@ -192,7 +192,7 @@ class LogLinearFamilyModel : public FamilyModel {
   }
   
   double hazardRate_derivative(double x) {
-    return (x<=0 ? 0 : alpha*beta*exp(beta*x));
+    return (x<0 ? 0 : alpha*beta*exp(beta*x));
   }
   
   double* hazardRate_param_derivative(double x,bool R) {
@@ -253,7 +253,7 @@ public:
   }
 
   double hazardRate(double x) {
-    return (x<=0 ? 0 : alpha*beta*pow(x+c,beta-1));
+    return (x<0 ? 0 : alpha*beta*pow(x+c,beta-1));
   }
 
   double inverse_hazardRate(double x) {

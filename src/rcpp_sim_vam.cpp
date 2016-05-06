@@ -2,7 +2,7 @@
 #include "rcpp_stop_policy.h"
 
 
-DataFrame SimVam::get_data() {
+DataFrame SimVam::get_last_data() {
     //printf("size:%d,%d\n",(model->time).size(),model->k+1);
     if((model->time).size() > model->k+1) {
         size = model->k+1;
@@ -30,6 +30,7 @@ DataFrame SimVam::simulate(int nbsim) {
         //# Here, obj$model$k means k-1
         //#print(c(obj$model$Vleft,obj$model$Vright))
 
+        RNGScope rngScope;
 
         double timePM= 0.0, timeCM = model->virtual_age_inverse(model->family->inverse_cumulative_hazardRate(model->family->cumulative_hazardRate(model->virtual_age(model->time[model->k]))-log(runif(1))[0]));
         //TODO: submodels
@@ -41,6 +42,7 @@ DataFrame SimVam::simulate(int nbsim) {
 
             NumericVector tmp=timeAndTypePM["time"];
             timePM=tmp[0];
+            //DEBUG: printf("sim: timePM:%lf, timeCM=%lf\n",timePM,timeCM);
             if(timePM<timeCM && timePM<model->time[model->k]) {
           		printf("Warning: PM ignored since next_time(=%lf)<current_time(=%lf) at rank %d.\n",timePM,model->time[model->k],model->k);
             }
@@ -66,7 +68,7 @@ DataFrame SimVam::simulate(int nbsim) {
 
     }
 
-    return get_data();
+    return get_last_data();
 }
 
 void SimVam::add_stop_policy(List policy) {
@@ -77,7 +79,7 @@ void SimVam::init(int cache_size_) {
     // Almost everything in the 5 following lines are defined in model->init_computation_values() (but this last one initializes more than this 5 lines)
     model->Vright=0;
     model->A=1;
-    model->C=1;
+    model->C=0;
     model->k=0;
     for(int i=0;i<model->nbPM + 1;i++) model->models->at(i)->init();
 

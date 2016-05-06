@@ -18,7 +18,7 @@
 
 If \code{par} is not specified and the optimization algorithm has never been executed on \code{obj} (via \code{\link{coef.mle.vam}} or \code{\link{run.mle.vam}}), the optimization algorithm used the parameter values specified in the \code{obj} formula as initialization point.
 Otherwise, the last parameters values obtained by the optimization algorithm for \code{obj} are used as initialization point. Then, if one execution of \code{run.mle.vam} is not sufficient to make the optimization algorithm converged (\code{$convergence!=1}), the method can be re-executed until convergence. }
-\item{\code{method}}{an optimization method of \code{\link{optim}} function used for optimization. \code{method} can also be equal to the string \code{"fast"} in order to let the function choose the method known as the faster one.}
+\item{\code{method}}{an optimization method of \code{\link{optim}} function used for optimization. \code{method} can also be equal to the string \code{fast} in order to let the function choose the method known as the faster one.}
 \item{\code{verbose}}{if \code{TRUE}, the value returned by \code{\link{optim}} function is printed.}
 }
 
@@ -30,6 +30,9 @@ Otherwise, the last parameters values obtained by the optimization algorithm for
 \code{\link{run.mle.vam}} to compute the MLE.
 \code{\link{contrast.mle.vam}} to compute the contrast associated to the MLE.
 \code{\link{logLikelihood.mle.vam}} to compute the log-likelihood.
+\code{\link{formula.mle.vam}} to extract the original and estimated model.
+\code{\link{plot.mle.vam}} for plotting characteristics of the model.
+\code{\link{update.mle.vam}} to change the associated data set.
 }
 
 \examples{

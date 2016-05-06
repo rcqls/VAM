@@ -12,39 +12,39 @@
 
 \arguments{
   \item{\code{sim}}{an object of class \code{\link{sim.vam}} specifying the virtual age model used for simulation.}
-  \item{\code{stop.policy}}{indicates when to stop the simulation. "\code{stop.policy}" can be a scalar, then the simulation stop as soon as the number of maintenance (CM or PM) times per system (per CM-PM trajectory) reaches "\code{stop.policy}". Otherwise "\code{stop.policy}" can be a symbolic formula, details of formula specifications are given under `Details'.}
+  \item{\code{stop.policy}}{indicates when to stop the simulation. \code{stop.policy} can be a scalar, then the simulation stop as soon as the number of maintenance (CM or PM) times per system (per CM-PM trajectory) reaches \code{stop.policy}. Otherwise \code{stop.policy} can be a symbolic formula, details of formula specifications are given under `Details'.}
   \item{\code{nb.system}}{the number of parallel systems (trajectories of the CM-PM process) to simulate.}
-  \item{\code{cache.size}}{if the number of events to generate can not be directly determined thanks to the "\code{stop.policy}" and need to be dynamically allocated, "\code{cache.size}" specifies the length of each size reallocation of the table of results.}
-  \item{\code{as.list}}{by default the function returns a data frame. But, if \code{nb.system>1} and \code{as.list==TRUE}, the result returned is a list. The inside code of the function use a list, then if \code{as.list==TRUE} a data set class conversion is avoid and the executing time of the function can be faster when "\code{nb.system}" is large.}
-  \item{\code{data}}{NOT YET IMPLEMENTED ! but the idea is to simulate the future of the data set "\code{data}" if this one is specified.}
+  \item{\code{cache.size}}{if the number of events to generate can not be directly determined thanks to the \code{stop.policy} and need to be dynamically allocated, \code{cache.size} specifies the length of each size reallocation of the table of results.}
+  \item{\code{as.list}}{by default the function returns a data frame. But, if \code{nb.system>1} and \code{as.list==TRUE}, the result returned is a list. The inside code of the function use a list, then if \code{as.list==TRUE} a data set class conversion is avoid and the executing time of the function can be faster when \code{nb.system} is large.}
+  \item{\code{data}}{NOT YET IMPLEMENTED ! but the idea is to simulate the future of the data set \code{data} if this one is specified.}
 }
 
 \details{
 Successive maintenance time simulation is done iteratively on each system.
-A symbolic formula can be written in "\code{stop.policy}" in order to describe when to stop the simulation. This criteria is applied to each simulated system. The symbolic formula of "\code{stop.policy}" can combined  as many different stop conditions as required thanks to the operators "\code{|}" and "\code{&}":
+A symbolic formula can be written in \code{stop.policy} in order to describe when to stop the simulation. This criteria is applied to each simulated system. The symbolic formula of \code{stop.policy} can combined  as many different stop conditions as required thanks to the operators \code{|} and \code{&}:
 \describe{
-	\item{\code{cond1 | cond2}}{stops as soon as "\code{cond1}" or "\code{cond2}" is verified.}
-	\item{\code{cond1 & cond2}}{stops as soon as "\code{cond1}" and "\code{cond2}" are verified.}
+	\item{\code{cond1 | cond2}}{stops as soon as \code{cond1} or \code{cond2} is verified.}
+	\item{\code{cond1 & cond2}}{stops as soon as \code{cond1} and \code{cond2} are verified.}
 }
-The stopping conditions available for "\code{cond1}", "\code{cond2}" and so on are of the form:
+The stopping conditions available for \code{cond1}, \code{cond2} and so on are of the form:
 \describe{
-	\item{\code{Time>a}}{stops as soon as the last simulated maintenance time is greater than "\code{a}".}
-	\item{\code{T>a}}{shortcut for "\code{Time>a}".}
-	\item{\code{Size==a}}{stops as soon as the total number of simulated maintenance times is equal to "\code{a}".}
-	\item{\code{S==a} or \code{Size>=a} or \code{S>=a}}{shortcut for "\code{Size==a}".}
-	\item{\code{Size[b]==a}}{stops as soon as the total number of simulated maintenance times of type "\code{b}"
-	is equal to "\code{a}". CM type is denoted -1. And the successive different types of PM effects defined in the formula of "\code{SimModel}" are denoted 1, 2, ...}
-	\item{\code{S[b]==a} or \code{Size[b]>=a} or \code{S[b]>=a} }{shortcut for "\code{Size[b]==a}".}
-	\item{\code{Time>(RightCensorship=a)}}{stops as soon as the last simulated maintenance time is greater than "\code{a}". In addition, all the possible simulated maintenance time greater than "\code{a}" (at least the last maintenance time simulated) are censored at time "\code{a}": their times are equal to "\code{a}" and their types to 0. In this case, "\code{a}" can also be replaced by a random time distribution name, with a capital first letter and followed by its arguments: for example "\code{Unif(20,30)}". Then, the censorship times of each system will be simulated with the corresponding random distribution, in the previous example "\code{runif(nb.system,20,30)}".}
-	\item{\code{T>(RC=a)}}{shortcut for "\code{Time>(RightCensorship=a)}".}
+	\item{\code{Time>a}}{stops as soon as the last simulated maintenance time is greater than \code{a}.}
+	\item{\code{T>a}}{shortcut for \code{Time>a}.}
+	\item{\code{Size==a}}{stops as soon as the total number of simulated maintenance times is equal to \code{a}.}
+	\item{\code{S==a} or \code{Size>=a} or \code{S>=a}}{shortcut for \code{Size==a}.}
+	\item{\code{Size[b]==a}}{stops as soon as the total number of simulated maintenance times of type \code{b}
+	is equal to \code{a}. CM type is denoted -1. And the successive different types of PM effects defined in the formula of \code{SimModel} are denoted 1, 2, ...}
+	\item{\code{S[b]==a} or \code{Size[b]>=a} or \code{S[b]>=a} }{shortcut for \code{Size[b]==a}.}
+	\item{\code{Time>(RightCensorship=a)}}{stops as soon as the last simulated maintenance time is greater than \code{a}. In addition, all the possible simulated maintenance time greater than \code{a} (at least the last maintenance time simulated) are censored at time \code{a}: their times are equal to \code{a} and their types to 0. In this case, \code{a} can also be replaced by a random time distribution name, with a capital first letter and followed by its arguments: for example \code{Unif(20,30)}. Then, the censorship times of each system will be simulated with the corresponding random distribution, in the previous example \code{runif(nb.system,20,30)}.}
+	\item{\code{T>(RC=a)}}{shortcut for \code{Time>(RightCensorship=a)}.}
 }
 }
 
  \value{
  By default, the function produces one data frame containing all the simulated maintenances. Each line
-corresponds to a maintenance. If "\code{nb.system==1}", the generated data frame has two columns. The first one, called "\code{Time}", indicates the successive maintenance times. The second one, called "\code{Type}", indicates the corresponding maintenance types. CM type is denoted -1. The successive different types of PM effects defined in the formula of "\code{SimModel}" are denoted 1, 2, ... Censorship time type is denoted 0. If "\code{nb.system>1}", a column is added at the beginning. Its name is "\code{System}", and it precises for each event to which system it refers to. The different system are denoted 1, 2, ...
+corresponds to a maintenance. If \code{nb.system==1}, the generated data frame has two columns. The first one, called \code{Time}, indicates the successive maintenance times. The second one, called \code{Type}, indicates the corresponding maintenance types. CM type is denoted -1. The successive different types of PM effects defined in the formula of \code{SimModel} are denoted 1, 2, ... Censorship time type is denoted 0. If \code{nb.system>1}, a column is added at the beginning. Its name is \code{System}, and it precises for each event to which system it refers to. The different system are denoted 1, 2, ...
 
-If "\code{as.list=FALSE}" and  "\code{nb.system>1}", the function produces a list. Each element of the list corresponds to a different system and is a data frame with the two columns "\code{Time}" and "\code{Type}".
+If \code{as.list=FALSE} and  \code{nb.system>1}, the function produces a list. Each element of the list corresponds to a different system and is a data frame with the two columns \code{Time} and \code{Type}.
  }
 
 \author{L. Doyen and R. Drouilhet}

@@ -15,13 +15,13 @@ mle.vam(formula, data)
 }
 
 \details{
-The symbolic description of the model done in "\code{formula}" has the form "\code{response ~ model}".
-"\code{response}" is a symbolic description of the data considered. The specifications are the same as those of \code{\link{model.vam}} function.
-"\code{model}" is a symbolic description of the virtual age model considered. The specifications are the same as those of \code{\link{sim.vam}} function. In this case the PM policy is useless, so it has not to be necessarily defined. The parameter values specify in "\code{model}" for the maintenance effect models, and the time to failure distribution of the new unmaintained system, are used as initialization values for the first run of the likelihood maximization method.
+The symbolic description of the model done in \code{formula} has the form \code{response ~ model}.
+\code{response} is a symbolic description of the data considered. The specifications are the same as those of \code{\link{model.vam}} function.
+\code{model} is a symbolic description of the virtual age model considered. The specifications are the same as those of \code{\link{sim.vam}} function. In this case the PM policy is useless, so it has not to be necessarily defined. The parameter values specify in \code{model} for the maintenance effect models, and the time to failure distribution of the new unmaintained system, are used as initialization values for the first run of the likelihood maximization method.
 }
 
 \value{
- The function produces an object of class "\code{mle.vam}" which contains the virtual age model considered and the corresponding observations.
+ The function produces an object of class \code{mle.vam} which contains the virtual age model considered and the corresponding observations.
  }
 
  \author{L. Doyen and R. Drouilhet}
@@ -29,7 +29,9 @@ The symbolic description of the model done in "\code{formula}" has the form "\co
 \seealso{
 \code{\link{run.mle.vam}} to compute the MLE.
 \code{\link{coef.mle.vam}} to extract the parameters value of the MLE.
+\code{\link{formula.mle.vam}} to extract the original and estimated model.
 \code{\link{plot.mle.vam}} for plotting characteristics of the model.
+\code{\link{update.mle.vam}} to change the associated data set.
 \code{\link{contrast.mle.vam}} to compute the contrast associated to the MLE.
 \code{\link{logLikelihood.mle.vam}} to compute the log-likelihood.}
 

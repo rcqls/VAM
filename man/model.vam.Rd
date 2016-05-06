@@ -15,24 +15,25 @@ model.vam(formula, data)
 }
 
 \details{
-The symbolic description of the model done in "\code{formula}" has the form "\code{response ~ model}".
+The symbolic description of the model done in \code{formula} has the form \code{response ~ model}.
 
-If only one system is considered, "\code{response}" has the form "\code{Time & Type}". "\code{Time}" and "\code{Type}" are the column names of "\code{data}" containing respectively the successive maintenance times and the corresponding maintenance types. CM type is denoted -1. The successive different types of PM effects defined in "\code{model}" are denoted 1, 2, ... Censorship time type is denoted 0.
+If only one system is considered, \code{response} has the form \code{Time & Type}. \code{Time} and \code{Type} are the column names of \code{data} containing respectively the successive maintenance times and the corresponding maintenance types. CM type is denoted -1. The successive different types of PM effects defined in \code{model} are denoted 1, 2, ... Censorship time type is denoted 0.
 
-If several systems are considered together and "\code{data}" is a data frame, "\code{response}" has the form "\code{System & Time & Type}". "\code{Time}" and "\code{Type}" have the same specifications as previously. "\code{System}" is the column names of "\code{data}" containing for each maintenance the system to which it refers. The different system are denoted 1, 2, ...
+If several systems are considered together and \code{data} is a data frame, \code{response} has the form \code{System & Time & Type}. \code{Time} and \code{Type} have the same specifications as previously. \code{System} is the column names of \code{data} containing for each maintenance the system to which it refers. The different system are denoted 1, 2, ...
 
-If several systems are considered together and "\code{data}" is a list, "\code{response}"  has the form "\code{Time & Type}". And each term of the list "\code{data}" is a data frame corresponding to the observations of one different system. Each of these data frame has a column "\code{Time}" and "\code{Type}" with the same specification has previously.
+If several systems are considered together and \code{data} is a list, \code{response}  has the form \code{Time & Type}. And each term of the list \code{data} is a data frame corresponding to the observations of one different system. Each of these data frame has a column \code{Time} and \code{Type} with the same specification has previously.
 
-"\code{model}" is a symbolic description of the virtual age model considered. The specifications are the same as those of \code{\link{sim.vam}} function. In this case the PM policy is useless, so it has not to be necessarily defined.
+\code{model} is a symbolic description of the virtual age model considered. The specifications are the same as those of \code{\link{sim.vam}} function. In this case the PM policy is useless, so it has not to be necessarily defined.
 }
 
 \value{
- The function produces an object of class "\code{model.vam}" which contains the virtual age model considered and the corresponding observations.
+ The function produces an object of class \code{model.vam} which contains the virtual age model considered and the corresponding observations.
  }
 
  \author{L. Doyen and R. Drouilhet}
 
-\seealso{\code{\link{plot.model.vam}} for plotting characteristics of the model.}
+\seealso{\code{\link{plot.model.vam}} for plotting characteristics of the model.
+\code{\link{update.model.vam}} to change the associated data set.}
 
 \examples{
 simARAInf<-sim.vam(  ~ (ARAInf(.4) | Weibull(.001,2.5)))

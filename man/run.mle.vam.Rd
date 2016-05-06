@@ -24,7 +24,7 @@ Otherwise, the last parameters values obtained by the optimization algorithm for
 \item{\code{...}}{further arguments passed to the \code{\link{optim}} function.}
 }
 
-\value{The method produces a vector of parameter values obtained by the maximization algorithm applied to the likelihood. The successive values respectively refer to the parameters of time to failure distribution of the new unmaintained system (except the scale parameter), of the CM effect model and finally of the PM effect models (if defined and in the same order as they appear in the \code{obj} formula).}
+\value{The method returns the results of the \code{optim} function called inside the \code{run} function.}
 
  \author{L. Doyen and R. Drouilhet}
 
@@ -38,10 +38,10 @@ Otherwise, the last parameters values obtained by the optimization algorithm for
 simARAInf<-sim.vam(  ~ (ARAInf(.4) | Weibull(.001,2.5)))
 simData<-simulate(simARAInf,30)
 mleARAInf <- mle.vam(Time & Type ~ (ARAInf(0.5) | Weibull(1,3)),data=simData)
-run.mle.vam(mleARAInf)
+run(mleARAInf)
 
 mleARAInf2 <- mle.vam(Time & Type ~ (ARAInf(0.5) | Weibull(1,3)),data=simData)
-run.mle.vam(mleARAInf2,fixed=c(FALSE,TRUE,FALSE))
+run(mleARAInf2,fixed=c(FALSE,TRUE,FALSE))
 }
 
 \keyword{virtual age}
