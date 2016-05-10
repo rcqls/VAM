@@ -1,5 +1,10 @@
 LISTE d'évolutions le package VAM
 
+### Pour Bayesian
+
+Si utilisateur rentre loi a priori, peut-être régler sigma de la loi Normale de beta^* au sigma de la loi a priori pour chaque paramètre.
+En revanche, peut-être penser à des stratégies de faire descendre le sigma une fois que l'on est censé avoir suffisamment explorer.  
+
 #########
 plot muli-system l'option nb.system ne fonctionne pas!!!!
 
