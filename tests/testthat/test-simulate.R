@@ -244,8 +244,127 @@ test_that("Weibull+GQR_ARA1",{
 	}
 	T2<-c(T,Cens)
 	Data<-data.frame(System=c(rep(1,length(T1)),rep(2,length(T2))),Time=c(T1,T2),Type=c(rep(-1,length(T1)-1),0,rep(-1,length(T2)-1),0))
+	T<-c()
+	Vr<-0
+	A<-1
+	Tprec<-0
+	i<-0
+	while(1){
+		U<-runif(1)
+		Tcour<-Tprec+((Vr^2.4-(0.3)^(-1)*log(U[1]))^(1/2.4)-Vr)/A
+		if(Tcour>Cens) break
+		T<-c(T,Tcour)
+		i<-i+1
+		Vr<-Vr+(1-rho2)*A*(Tcour-Tprec)
+		A<-rho1^(sqrt(i))
+		Tprec<-Tcour
+	}
+	T1<-c(T,Cens)
+	T<-c()
+	Vr<-0
+	A<-1
+	Tprec<-0
+	i<-0
+	while(1){
+		U<-runif(1)
+		Tcour<-Tprec+((Vr^2.4-(0.3)^(-1)*log(U[1]))^(1/2.4)-Vr)/A
+		if(Tcour>Cens) break
+		T<-c(T,Tcour)
+		i<-i+1
+		Vr<-Vr+(1-rho2)*A*(Tcour-Tprec)
+		A<-rho1^(sqrt(i))
+		Tprec<-Tcour
+	}
+	T2<-c(T,Cens)
+	Data2<-data.frame(System=c(rep(1,length(T1)),rep(2,length(T2))),Time=c(T1,T2),Type=c(rep(-1,length(T1)-1),0,rep(-1,length(T2)-1),0))
 	set.seed(0.5)
 	expect_that(simulate(sim,T>(RC=4.5),nb.system=2),equals(Data,tolerance=0.00000000000001))
+	expect_that(simulate(sim,T>(RC=4.5),nb.system=2),equals(Data2,tolerance=0.00000000000001))
 }
 )
 
+test_that("Weibull+GQR_ARAm",{
+	sim <- sim.vam( ~ (GQR_ARAm(1.2,0.6|sqrt,2) | Weibull(0.3,2.4)))
+	rho1<-1.2
+	rho2<-0.6
+	set.seed(0.5)
+	Cens<-4.5
+	T<-c()
+	Vr<-0
+	A<-1;A1<-1
+	Tprec<-0;Tprec1<-0
+	i<-0
+	while(1){
+		U<-runif(1)
+		Tcour<-Tprec+((Vr^2.4-(0.3)^(-1)*log(U[1]))^(1/2.4)-Vr)/A
+		if(Tcour>Cens) break
+		T<-c(T,Tcour)
+		i<-i+1
+		Vr<-Vr+(1-rho2)*A*(Tcour-Tprec)-rho2*(1-rho2)*A1*(Tprec-Tprec1)
+		A1<-A
+		A<-rho1^(sqrt(i))
+		Tprec1<-Tprec
+		Tprec<-Tcour
+	}
+	T1<-c(T,Cens)
+	T<-c()
+	Vr<-0
+	A<-1;A1<-1
+	Tprec<-0;Tprec1<-0
+	i<-0
+	while(1){
+		U<-runif(1)
+		Tcour<-Tprec+((Vr^2.4-(0.3)^(-1)*log(U[1]))^(1/2.4)-Vr)/A
+		if(Tcour>Cens) break
+		T<-c(T,Tcour)
+		i<-i+1
+		Vr<-Vr+(1-rho2)*A*(Tcour-Tprec)-rho2*(1-rho2)*A1*(Tprec-Tprec1)
+		A1<-A
+		A<-rho1^(sqrt(i))
+		Tprec1<-Tprec
+		Tprec<-Tcour
+	}
+	T2<-c(T,Cens)
+	Data<-data.frame(System=c(rep(1,length(T1)),rep(2,length(T2))),Time=c(T1,T2),Type=c(rep(-1,length(T1)-1),0,rep(-1,length(T2)-1),0))
+	T<-c()
+	Vr<-0
+	A<-1;A1<-1
+	Tprec<-0;Tprec1<-0
+	i<-0
+	while(1){
+		U<-runif(1)
+		Tcour<-Tprec+((Vr^2.4-(0.3)^(-1)*log(U[1]))^(1/2.4)-Vr)/A
+		if(Tcour>Cens) break
+		T<-c(T,Tcour)
+		i<-i+1
+		Vr<-Vr+(1-rho2)*A*(Tcour-Tprec)-rho2*(1-rho2)*A1*(Tprec-Tprec1)
+		A1<-A
+		A<-rho1^(sqrt(i))
+		Tprec1<-Tprec
+		Tprec<-Tcour
+	}
+	T1<-c(T,Cens)
+	T<-c()
+	Vr<-0
+	A<-1;A1<-1
+	Tprec<-0;Tprec1<-0
+	i<-0
+	while(1){
+		U<-runif(1)
+		Tcour<-Tprec+((Vr^2.4-(0.3)^(-1)*log(U[1]))^(1/2.4)-Vr)/A
+		if(Tcour>Cens) break
+		T<-c(T,Tcour)
+		i<-i+1
+		Vr<-Vr+(1-rho2)*A*(Tcour-Tprec)-rho2*(1-rho2)*A1*(Tprec-Tprec1)
+		A1<-A
+		A<-rho1^(sqrt(i))
+		Tprec1<-Tprec
+		Tprec<-Tcour
+	}
+	T2<-c(T,Cens)
+	Data2<-data.frame(System=c(rep(1,length(T1)),rep(2,length(T2))),Time=c(T1,T2),Type=c(rep(-1,length(T1)-1),0,rep(-1,length(T2)-1),0))
+	set.seed(0.5)
+	expect_that(simulate(sim,T>(RC=4.5),nb.system=2),equals(Data,tolerance=0.00000000000001))
+	expect_that(simulate(sim,T>(RC=4.5),nb.system=2),equals(Data2,tolerance=0.00000000000001))
+}
+)
