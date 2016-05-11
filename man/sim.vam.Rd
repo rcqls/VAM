@@ -90,6 +90,8 @@ In order to be able to simulate the CM-PM process, one has also to specify how P
 	\code{PMpol} or \code{PMpol_1}, ...., \code{PMpol_k} characterize the PM policy. Some of the PM policies available can manage simultaneously several PM effect types. That is why the number of PM effect arguments (\code{PMeff_1}, ...., \code{PMeff_n}) in \code{formula} is not necessary the same as the number of PM policy arguments (\code{PMpol_1}, ...., \code{PMpol_k}). Whatever the first PM policy argument refers to the corresponding first PM effect arguments and so on. The different PM policies available are:
 	\describe{
 	\item{\code{Periodic(by,from=0,prob=1)}}{a PM is done every \code{by} units of times from time \code{from}. This PM policy can manage \eqn{k>1} different PM effect types if \code{prob} is a vector of length \eqn{k}. In this case, each PM time as a probability \code{prob[j]} to be of \eqn{j} th type (for the different PM effect considered) for every \eqn{j} between 1 and \eqn{k}.}
+	\item{\code{AtTimes(times,cycle=TRUE)}}{
+	a PM is done every at every successive times of vector \code{times}. If \code{cycle==TRUE}, possible PM times are extended after the last times of vector \code{times} by recycling, that is to say by reusing the times between events of vector \code{times}.}
 	\item{\code{AtIntensity(level,model=NULL)}}{a PM is done as soon as the failure intensity reaches \code{level}. By default \code{level} refers to the failure intensity computed with the model defined by \code{formula}. But, it can also refer to another model denoted \code{model}. \code{model} is a \code{sim.vam} object depending of another formula denoted \code{formula_bis}. The number of different PM effects has to be the same in \code{formula} and \code{formula_bis}. The grammar used to write \code{formula_bis} is the same as this of \code{formula}. But in \code{formula_bis} the PM policy is useless, so it has not to be necessarily defined. For example in the case where only one type of PM effect is considered in \code{formula}, then \code{formula_bis} can equivalently follows the form : \code{~(CMeff_bis|InitDist_bis)&(PMeff_bis|PMpolicy_bis)} or \code{~(CMeff_bis|InitDist_bis)&(PMeff_bis)}.}
 	\item{\code{AtVirtualAge(level,model=NULL)}}{a PM is done as soon as the virtual age reaches \code{level}. By default \code{level} refers to the virtual age computed with the model defined by \code{formula}. But, it can also refers to another model similarly to \code{AtIntensity} PM policy.}
 	\item{\code{AtFailureProbability(level,model=NULL)}}{a PM is done as soon as the conditional probability of failure reaches \code{level}. By default \code{level} refers to the conditional failure probability computed with the model defined by \code{formula}. But, it can also refers to another model similarly to \code{AtIntensity} PM policy.}
@@ -145,7 +147,7 @@ plot(simCMPM,'i')
 # PM ARA Infinite (rhoMP=-0.2) with probability 0.4
 simCMPM<-sim.vam(  ~ (ARAInf(.3) | Weibull(.001,2.5)) & (ARAInf(.6)+ARAInf(-.2) | Periodic(12,prob=c(0.6,0.4))))
 (simulate(simCMPM,20,nb.system=3))
-plot(simCMPM_Multi,'i',system.index=3)
+plot(simCMPM,'i',system.index=3)
 
 ##########
 # Combined PM policies:
