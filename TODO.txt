@@ -1,5 +1,5 @@
 LISTE d'évolutions le package VAM
-vive Rémy
+
 ### Pour Bayesian
 
 Si utilisateur rentre loi a priori, peut-être régler sigma de la loi Normale de beta^* au sigma de la loi a priori pour chaque paramètre.
