@@ -11,6 +11,10 @@ MaintenancePolicy* newMaintenancePolicy(List policy) {
 		//DEBUG:printf("Params:alpha=%lf,beta=%lf\n",alpha,beta);
 		List pars=policy["params"];
 		mp=new PeriodicMaintenancePolicy(pars);
+    } else if(name.compare("AtTimes.maintenance.policy") == 0) {
+        //DEBUG:printf("Params:alpha=%lf,beta=%lf\n",alpha,beta);
+        List pars=policy["params"];
+        mp=new AtTimesMaintenancePolicy(pars);
 	} else if(name.compare("AtIntensity.maintenance.policy") == 0) {
 		//DEBUG:printf("Params:alpha=%lf,beta=%lf\n",alpha,beta);
 		List pars=policy["params"];
@@ -78,6 +82,38 @@ List PeriodicMaintenancePolicy::update(VamModel* model) {
 	res["type"]=t;
 	return res;
 
+};
+
+void AtTimesMaintenancePolicy::first() {
+    //Needs init for external model for new simulation
+    // printf("mp: %p\n",model->maintenance_policy);
+    // printf("mp: %p\n",(model->maintenance_policy->get_external_model()));
+    k=0;i=0;
+}
+
+List AtTimesMaintenancePolicy::update(VamModel* model) {
+    double current=model->time[model->k];
+    int size=(int)times.size();
+    List res;
+    if (size==0) {
+        res["time"]=0;
+    } else {
+        if(cycle){
+            if (current-k*times[size-1]>=times[size-1]){
+                i=0;
+                k=floor(current/times[size-1]);
+            }
+            current-=k*times[size-1];
+            while(times[i]<=current) {i++;}
+            res["time"]=times[i]+k*times[size-1]; 
+        } else {
+            while((i<size)&&(times[i]<=current)) {i++;}
+            if (i==size) {res["time"]=1.0/0.0;}
+            else {res["time"]=times[i]; }
+        }   
+    }
+    res["type"]= 1+get_from_type();
+    return res;
 };
 
 List AtIntensityMaintenancePolicy::update(VamModel* model) {

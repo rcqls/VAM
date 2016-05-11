@@ -1,5 +1,6 @@
 # Register maintenance policies (but can be located in any other R file)
 Periodic.maintenance.policy <-function(by,from=0,prob=1) {}
+AtTimes.maintenance.policy <-function(times,cycle=TRUE) {}
 AtIntensity.maintenance.policy <- function(level=1,model=NULL) {}
 AtVirtualAge.maintenance.policy <- function(level=1,model=NULL) {} 
 AtFailureProbability.maintenance.policy <- function(level=0.5,model=NULL) {}
