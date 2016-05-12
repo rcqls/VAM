@@ -100,26 +100,19 @@ public:
 
     ~AtTimesMaintenancePolicy() {};
 
-    std::vector<double> times;
+    NumericVector times;
     int i,k;
     bool cycle;
 
     List get_params() {
         List out;
-        int size=(int)times.size();
-        NumericVector timesR(size);
-        for(int j=0;j<size;j++) {timesR[j]=times[j];}
-        out["times"]=timesR;out["cycle"]=cycle;
+        out["times"]=NumericVector(times);out["cycle"]=cycle;
         return out;
     }
 
     void set_params(List params) {
         cycle=params["cycle"];
-        NumericVector timesR=params["times"];
-        int nb=timesR.size();
-        int size=(int)times.size();
-        if(size!=nb){times.resize(nb);}
-        for(size=0;size<nb;size++) {times[size]=timesR[size];}
+        times=params["times"];
     }
 
     int type_size() {
