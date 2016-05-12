@@ -226,22 +226,22 @@ DataFrame VamModel::get_virtual_age_info(double from,double to, double by) {
 
 	t[0]=from;t[n]=to;
 	v[0]=virtual_age(from);v[n]=virtual_age(to);
-	h[0]=family->hazardRate(v[0]);h[n]=family->hazardRate(v[n]);
+	h[0]=A*family->hazardRate(v[0]);h[n]=A*family->hazardRate(v[n]);
 	H[0]=S1;H[n]=S1+family->cumulative_hazardRate(v[n])-family->cumulative_hazardRate(v[0]);
 	F[0]=0;F[n]=1-exp(-(family->cumulative_hazardRate(v[n])-family->cumulative_hazardRate(v[0])));
 	S[0]=1;S[n]=exp(-(family->cumulative_hazardRate(v[n])-family->cumulative_hazardRate(v[0])));
-	f[0]=family->hazardRate(v[0]);f[n]=family->hazardRate(v[n])*exp(-(family->cumulative_hazardRate(v[n])-family->cumulative_hazardRate(v[0])));
+	f[0]=A*family->hazardRate(v[0]);f[n]=A*family->hazardRate(v[n])*exp(-(family->cumulative_hazardRate(v[n])-family->cumulative_hazardRate(v[0])));
 	double by_t=(t[n]-t[0])/s;
 	double by_v=(v[n]-v[0])/s;
 
 	for(int i=1;i<n;i++) {
 		t[i]=t[i-1]+by_t;//printf("t[%d]=%lf\n",i,t[i]);
 		v[i]=v[i-1]+by_v;
-		h[i]=family->hazardRate(v[i]);
+		h[i]=A*family->hazardRate(v[i]);
 		H[i]=S1+family->cumulative_hazardRate(v[i])-family->cumulative_hazardRate(v[0]);
 		F[i]=1-exp(-(family->cumulative_hazardRate(v[i])-family->cumulative_hazardRate(v[0])));
 		S[i]=exp(-(family->cumulative_hazardRate(v[i])-family->cumulative_hazardRate(v[0])));
-		f[i]=family->hazardRate(v[i])*exp(-(family->cumulative_hazardRate(v[i])-family->cumulative_hazardRate(v[0])));
+		f[i]=A*family->hazardRate(v[i])*exp(-(family->cumulative_hazardRate(v[i])-family->cumulative_hazardRate(v[0])));
 	}
 
 	return DataFrame::create(
