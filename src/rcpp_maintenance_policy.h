@@ -91,6 +91,40 @@ public:
 
 };
 
+class AtTimesMaintenancePolicy : public MaintenancePolicy {
+public:
+    AtTimesMaintenancePolicy(List params) {
+        set_params(params);
+        set_from_type(0);
+    }
+
+    ~AtTimesMaintenancePolicy() {};
+
+    NumericVector times;
+    int i,k;
+    bool cycle;
+
+    List get_params() {
+        List out;
+        out["times"]=NumericVector(times);out["cycle"]=cycle;
+        return out;
+    }
+
+    void set_params(List params) {
+        cycle=params["cycle"];
+        times=params["times"];
+    }
+
+    int type_size() {
+        return 1;
+    }
+
+    List update(VamModel* model);
+
+        void first();
+
+};
+
 class AtIntensityMaintenancePolicy : public MaintenancePolicy {
 public:
     AtIntensityMaintenancePolicy(List params) {

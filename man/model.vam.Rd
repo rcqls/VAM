@@ -10,7 +10,7 @@ model.vam(formula, data)
 }
 
 \arguments{
-  \item{\code{formula}}{a symbolic description of the virtual age model and observations. The details of formula specifications are given under `Details'.}
+  \item{\code{formula}}{a symbolic description of the virtual age model and observations, or a \code{\link{mle.vam}} class object for which the estimation method has been launched at least one time. When \code{formula} is \code{mle.vam} object, the model considered corresponds to the plug in estimator, that is to say the output of the \code{\link{formula.mle.vam}} function. Otherwise, the details of formula specifications are given under `Details'.}
   \item{\code{data}}{a data frame or possibly a list (when several system are considered together) containing the observations.}
 }
 
