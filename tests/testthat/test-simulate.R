@@ -615,12 +615,141 @@ test<-function(Data,n){
       A<-1.5^(sqrt(iCM))*1.2^(log(iPM+1))
     } else {
       iPM=iPM+1
-      if(abs(h(A*(Tcour-Tprec)+V)*A-1.6)>0.0000001){PMnotOK<-PMnotOK+1;print(h(A*(Tcour-Tprec)+V)*A)}
+      if(abs(h(A*(Tcour-Tprec)+V)*A-1.6)>0.0000001){PMnotOK<-PMnotOK+1}
       V<-V+(1-0.8)*A*(Tcour-Tprec)-0.8*V2-0.8*V3-0.8*V4
       V4<-(1-0.8)*V3
       V3<-(1-0.8)*V2
       V2<-(1-0.8)*A*(Tcour-Tprec)
       A<-1.5^(sqrt(iCM))*1.2^(log(iPM+1))
+    }
+    Tprec3<-Tprec2
+    Tprec2<-Tprec
+    Tprec<-Tcour
+  }
+  list(PMnotOK,U)
+}
+set.seed(0.5)
+res1<-test(Data1,dim(Data1)[1]);U1<-res1[[2]]
+U1bis<-runif(dim(Data1)[1])[Data1$Type==-1]
+res2<-test(Data2,dim(Data2)[1]);U2<-res2[[2]]
+U2bis<-runif(dim(Data2)[1])[Data2$Type==-1]
+res3<-test(Data3,dim(Data3)[1]);U3<-res3[[2]]
+U3bis<-runif(dim(Data3)[1])[Data3$Type==-1]
+
+expect_that(res1[[1]],equals(0,tolerance=0.00000000000001))
+expect_that(sort(Data1$Time),equals(Data1$Time,tolerance=0.00000000000001))
+expect_that(U1,equals(U1bis,tolerance=0.00000000000001))
+expect_that(res2[[1]],equals(0,tolerance=0.00000000000001))
+expect_that(sort(Data2$Time),equals(Data2$Time,tolerance=0.00000000000001))
+expect_that(U2,equals(U2bis,tolerance=0.00000000000001))
+expect_that(res3[[1]],equals(0,tolerance=0.00000000000001))
+expect_that(sort(Data3$Time),equals(Data3$Time,tolerance=0.00000000000001))
+expect_that(U3,equals(U3bis,tolerance=0.0000000000001))
+}
+)
+
+test_that("LogLinear+CM GQR-sqrt+PM GQR-ARA4-log Periodic",{
+set.seed(0.5)
+simCMPM<-sim.vam(  ~ (GQR(0.9|sqrt) | LogLinear(.005,0.8)) & (GQR_ARAm(1.2,0.8|log,4) | Periodic(15)))
+Data<-simulate(simCMPM,20,nb.system=2)
+Data1<-Data[Data$System==1,c(2,3)]
+Data2<-Data[Data$System==2,c(2,3)]
+Data3<-simulate(simCMPM,40)
+H<-function(t) 0.005/0.8*exp(t*0.8)
+h<-function(t) 0.005*exp(t*0.8)
+
+test<-function(Data,n){
+  PMnotOK<-0
+  U<-c()
+  V<-0; A<-1;V2<-0;V3<-0;V4<-0
+  Tprec<-0;Tprec2<-0;Tprec3<-0;iPM<-0;iCM<-0
+  for(i in 1:n){
+    Tcour<-Data$Time[i]
+    if(Data$Type[i]<0){
+      iCM=iCM+1
+      U<-c(U,exp(-(H(A*(Tcour-Tprec)+V)-H(V))))
+      V<-0
+      V4<-0
+      V3<-0
+      V2<-0
+      A<-0.9^(sqrt(iCM))*1.2^(log(iPM+1))
+    } else {
+      iPM=iPM+1
+      if(abs(15*floor(Tcour/15)-Tcour)){PMnotOK<-PMnotOK+1;print(h(A*(Tcour-Tprec)+V)*A)}
+      V<-V+(1-0.8)*A*(Tcour-Tprec)-0.8*V2-0.8*V3-0.8*V4
+      V4<-(1-0.8)*V3
+      V3<-(1-0.8)*V2
+      V2<-(1-0.8)*A*(Tcour-Tprec)
+      A<-0.9^(sqrt(iCM))*1.2^(log(iPM+1))
+    }
+    Tprec3<-Tprec2
+    Tprec2<-Tprec
+    Tprec<-Tcour
+  }
+  list(PMnotOK,U)
+}
+set.seed(0.5)
+res1<-test(Data1,dim(Data1)[1]);U1<-res1[[2]]
+U1bis<-runif(dim(Data1)[1])[Data1$Type==-1]
+res2<-test(Data2,dim(Data2)[1]);U2<-res2[[2]]
+U2bis<-runif(dim(Data2)[1])[Data2$Type==-1]
+res3<-test(Data3,dim(Data3)[1]);U3<-res3[[2]]
+U3bis<-runif(dim(Data3)[1])[Data3$Type==-1]
+
+expect_that(res1[[1]],equals(0,tolerance=0.00000000000001))
+expect_that(sort(Data1$Time),equals(Data1$Time,tolerance=0.00000000000001))
+expect_that(U1,equals(U1bis,tolerance=0.00000000000001))
+expect_that(res2[[1]],equals(0,tolerance=0.00000000000001))
+expect_that(sort(Data2$Time),equals(Data2$Time,tolerance=0.00000000000001))
+expect_that(U2,equals(U2bis,tolerance=0.00000000000001))
+expect_that(res3[[1]],equals(0,tolerance=0.00000000000001))
+expect_that(sort(Data3$Time),equals(Data3$Time,tolerance=0.00000000000001))
+expect_that(U3,equals(U3bis,tolerance=0.0000000000001))
+}
+)
+
+test_that("LogLinear+CM GQR_ARA2-sqrt+PM GQR-ARA4-log Periodic+PM AGAN AtIntensity",{
+set.seed(0.5)
+simCMPM<-sim.vam(  ~ (GQR_ARAm(1.5,0.4|sqrt,2) | LogLinear(.005,0.8)) & (GQR_ARAm(1.2,0.8|log,4)+AGAN() | Periodic(15)*AtIntensity(1.8)))
+Data<-simulate(simCMPM,20,nb.system=2)
+Data1<-Data[Data$System==1,c(2,3)]
+Data2<-Data[Data$System==2,c(2,3)]
+Data3<-simulate(simCMPM,40)
+H<-function(t) 0.005/0.8*exp(t*0.8)
+h<-function(t) 0.005*exp(t*0.8)
+
+test<-function(Data,n){
+  PMnotOK<-0
+  U<-c()
+  V<-0; A<-1;V2<-0;V3<-0;V4<-0
+  Tprec<-0;Tprec2<-0;Tprec3<-0;iPM<-0;iCM<-0
+  for(i in 1:n){
+    Tcour<-Data$Time[i]
+    if(Data$Type[i]<0){
+      iCM=iCM+1
+      U<-c(U,exp(-(H(A*(Tcour-Tprec)+V)-H(V))))
+      V<-V+(1-(0.4))*A*(Tcour-Tprec)-0.4*V2
+      V4<-V3
+      V3<-(1-0.4)*V2
+      V2<-(1-0.4)*A*(Tcour-Tprec)
+      A<-1.5^(sqrt(iCM))*1.2^(log(iPM+1))
+    } else if(Data$Type[i]==1) {
+      iPM=iPM+1
+      if(abs(15*floor(Tcour/15)-Tcour)){PMnotOK<-PMnotOK+1}
+      V<-V+(1-0.8)*A*(Tcour-Tprec)-0.8*V2-0.8*V3-0.8*V4
+      V4<-(1-0.8)*V3
+      V3<-(1-0.8)*V2
+      V2<-(1-0.8)*A*(Tcour-Tprec)
+      A<-1.5^(sqrt(iCM))*1.2^(log(iPM+1))
+    } else {
+      if(abs(h(A*(Tcour-Tprec)+V)*A-1.8)>0.0000001){PMnotOK<-PMnotOK+1}
+      V<-0
+      V4<-0
+      V3<-0
+      V2<-0
+      A<-1
+      iPM<-0
+      iCM<-0
     }
     Tprec3<-Tprec2
     Tprec2<-Tprec

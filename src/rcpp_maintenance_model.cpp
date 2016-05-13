@@ -277,6 +277,9 @@ void AGAN::update(bool with_gradient,bool with_hessian) {
 
     // save old model
     model->idMod = id;
+
+    //init QR and GQR type models
+    for(i=0;i<model->nbPM + 1;i++) model->models->at(i)->init();
 }
 
 void ABAO::update(bool with_gradient,bool with_hessian) {

@@ -1,9 +1,245 @@
 # R script used to develop the testthat test for log-likelihood.R 
 
 # The number of the test
-nbtest<-"TGQRARAm"
+nbtest<-"TGQRGQR"
 
 switch(nbtest,
+       TGQRGQR={
+         #Weibull + CM GQR-sqrt+PM GQR-ARA4-log
+         simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,15)),Time=c(3.36,4.04,4.97,5.16, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98,7.51,8.02,9.43,10.2,11.5,12,13.78,15.2),Type=c(1,1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,1,1,-1,2,1,-1,1,-1,0),row.names=1:23)
+         #simData<-simData[1:23,]
+         theta<-c(0.3,2.3,0.9,1.3,0.7)
+         
+         mle <- mle.vam(System & Time & Type ~ (GQR(0.8|sqrt) | Weibull(0.001,2.5)) & (GQR_ARAm(1.2,0.9|log,2)+AGAN()),data=simData)
+         
+         #L<-logLikelihood(mle,theta,c(TRUE,FALSE,FALSE))
+         h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
+         H<-function(t) theta[1]*t^(theta[2])
+         rhoMC<-theta[3]
+         rhoMP<-theta[5]
+         AMP<-theta[4]
+         T<-simData$Time[1:4]
+         iPM=0;iCM=0
+         Lcalc<-0
+         C<-1
+         V1=0;V2=0;V3=0;V4=0;V5=0
+         A=1
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[1]))-H(T[1])
+         rho=rhoMP
+         iPM<-iPM+C;iCM<-iCM+0^C
+         C<-1;i<-1
+         V1=A*(1-rho)*(T[i])
+         A=rhoMC^(sqrt(iCM))*AMP^(log(iPM+1))
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         rho=rhoMP
+         iPM<-iPM+C;iCM<-iCM+0^C
+         C<-0;i<-2
+         V2=(1-rho)*(V1)
+         V1=(1-rho)*A*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         A=rhoMC^(sqrt(iCM))*AMP^(log(iPM+1))
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         iPM<-iPM+C;iCM<-iCM+0^C
+         rho=0
+         C<-1;i<-3
+         V3=0
+         V2=0
+         V1=0
+         V=V1+V2+V3+V4+V5
+         A=rhoMC^(sqrt(iCM))*AMP^(log(iPM+1))
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         iPM<-iPM+C;iCM<-iCM+0^C
+         T<-simData$Time[5:8]
+         iCM<-0;iPM<-0
+         C<-0
+         A<-1
+         V1=0;V2=0;V3=0;V4=0;V5=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[1]))-H(T[1])
+         iPM<-iPM+C;iCM<-iCM+0^C
+         rho=0
+         C<-1;i<-1
+         V1=0
+         V=V1+V2+V3+V4+V5
+         A=rhoMC^(sqrt(iCM))*AMP^(log(iPM+1))
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         iPM<-iPM+C;iCM<-iCM+0^C
+         rho=rhoMP
+         C<-1;i<-2
+         V2=(1-rho)*(V1)
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         A=rhoMC^(sqrt(iCM))*AMP^(log(iPM+1))
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         iPM<-iPM+C;iCM<-iCM+0^C
+         rho=rhoMP
+         C<-1;i<-3
+         V3=V2
+         V2=(1-rho)*(V1)
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         A=rhoMC^(sqrt(iCM))*AMP^(log(iPM+1))
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         iPM<-iPM+C;iCM<-iCM+0^C
+         T<-simData$Time[9:23]
+         iCM<-0;iPM<-0
+         C<-1
+         A=1
+         V1=0;V2=0;V3=0;V4=0;V5=0
+         V=V1+V2+V3+V4+V5
+         Lcalc<-Lcalc+(1-C)*log(h(T[1]))-H(T[1])
+         iPM<-iPM+C;iCM<-iCM+0^C
+         rho=rhoMP
+         C<-0;i<-1
+         V1=A*(1-rho)*(T[i])
+         V=V1+V2+V3+V4+V5
+         A=rhoMC^(sqrt(iCM))*AMP^(log(iPM+1))
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         iPM<-iPM+C;iCM<-iCM+0^C
+         rho=0
+         C<-1;i<-2
+         V2=0
+         V1=0
+         V=V1+V2+V3+V4+V5
+         A=rhoMC^(sqrt(iCM))*AMP^(log(iPM+1))
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         iPM<-iPM+C;iCM<-iCM+0^C
+         rho=rhoMP
+         C<-0;i<-3
+         V3=V2
+         V2=(1-rho)*(V1)
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         A=rhoMC^(sqrt(iCM))*AMP^(log(iPM+1))
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         iPM<-iPM+C;iCM<-iCM+0^C
+         rho=0
+         C<-0;i<-4
+         V4=0
+         V3=0
+         V2=0
+         V1=0
+         V=V1+V2+V3+V4+V5
+         A=rhoMC^(sqrt(iCM))*AMP^(log(iPM+1))
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         iPM<-iPM+C;iCM<-iCM+0^C
+         rho=0
+         C<-1;i<-5
+         V5=0
+         V4=0
+         V3=0
+         V2=0
+         V1=0
+         V=V1+V2+V3+V4+V5
+         A=rhoMC^(sqrt(iCM))*AMP^(log(iPM+1))
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         iPM<-iPM+C;iCM<-iCM+0^C
+         rho=rhoMP
+         C<-1;i<-6
+         V5=V4+V5
+         V4=V3
+         V3=(V2)
+         V2=(1-rho)*(V1)
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         A=rhoMC^(sqrt(iCM))*AMP^(log(iPM+1))
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         iPM<-iPM+C;iCM<-iCM+0^C
+         rho=rhoMP
+         C<-1;i<-7
+         V5=V4+V5
+         V4=V3
+         V3=(V2)
+         V2=(1-rho)*(V1)
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         A=rhoMC^(sqrt(iCM))*AMP^(log(iPM+1))
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         iPM<-iPM+C;iCM<-iCM+0^C
+         rho=rhoMP
+         C<-0;i<-8
+         V5=V4+V5
+         V4=V3
+         V3=(V2)
+         V2=(1-rho)*(V1)
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         A=rhoMC^(sqrt(iCM))*AMP^(log(iPM+1))
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         iPM<-iPM+C;iCM<-iCM+0^C
+         rho=0
+         C<-1;i<-9
+         V5=0
+         V4=0
+         V3=0
+         V2=0
+         V1=0
+         V=V1+V2+V3+V4+V5
+         A=rhoMC^(sqrt(iCM))*AMP^(log(iPM+1))
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         i<-10
+         iPM<-0;iCM<-0
+         V5=0
+         V4=0
+         V3=0
+         V2=0
+         V1=0
+         A<-1
+         V=V1+V2+V3+V4+V5
+         C<-1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         iPM<-iPM+C;iCM<-iCM+0^C
+         rho=rhoMP
+         C<-0;i<-11
+         V5=V4+V5
+         V4=V3
+         V3=(V2)
+         V2=(1-rho)*(V1)
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         A=rhoMC^(sqrt(iCM))*AMP^(log(iPM+1))
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         iPM<-iPM+C;iCM<-iCM+0^C
+         rho=0
+         C<-1;i<-12
+         V5=0
+         V4=0
+         V3=0
+         V2=0
+         V1=0
+         V=V1+V2+V3+V4+V5
+         A=rhoMC^(sqrt(iCM))*AMP^(log(iPM+1))
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         iPM<-iPM+C;iCM<-iCM+0^C
+         rho=rhoMP
+         C<-0;i<-13
+         V5=V4+V5
+         V4=V3
+         V3=(1-rho)*(V2)
+         V2=(1-rho)*(V1)
+         V1=A*(1-rho)*(T[i]-T[i-1])
+         V=V1+V2+V3+V4+V5
+         A=rhoMC^(sqrt(iCM))*AMP^(log(iPM+1))
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         iPM<-iPM+C;iCM<-iCM+0^C
+         rho=0
+         C<-1;i<-14
+         V5=0
+         V4=0
+         V3=0
+         V2=0
+         V1=0
+         V=V1+V2+V3+V4+V5
+         A=rhoMC^(sqrt(iCM))*AMP^(log(iPM+1))
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         iPM<-iPM+C;iCM<-iCM+0^C
+         fix<-rep(TRUE,length(theta))
+         fix[1]=FALSE
+         run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
+         Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
+       },
        TGQRARAm={
          #Weibull + GQR_ARAm-m=3
          simData<-data.frame(Time=c(18.09,52.07,95.71,145.75,198.7,220.9,230),Type=c(-1,-1,-1,-1,-1,-1,0),row.names=1:7)
@@ -64,7 +300,7 @@ switch(nbtest,
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
          fix<-rep(TRUE,length(theta))
          fix[1]=FALSE
-         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
        },
        TARAm_6={
@@ -221,7 +457,7 @@ switch(nbtest,
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
          fix<-rep(TRUE,length(theta))
          fix[1]=FALSE
-         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
        },
        TARAm_5={
@@ -409,7 +645,7 @@ switch(nbtest,
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
          fix<-rep(TRUE,length(theta))
          fix[1]=FALSE
-         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
        },
        TARAm_4={
@@ -582,7 +818,7 @@ switch(nbtest,
          Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
          fix<-rep(TRUE,length(theta))
          fix[1]=FALSE
-         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
        },
        TARAm_3={
@@ -755,7 +991,7 @@ switch(nbtest,
          Lcalc<-Lcalc+(1-C)*log(h(T[i+1]-T[i]+V))-(H(T[i+1]-T[i]+V)-H(V))
          fix<-rep(TRUE,length(theta))
          fix[1]=FALSE
-         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
        },
        TARAm_2={
@@ -784,7 +1020,7 @@ switch(nbtest,
          Lcalc<-Lcalc+log(h(T[i+1]-A))-(H(T[i+1]-A)-H(T[i]-A))
          fix<-rep(TRUE,length(theta))
          fix[1]=FALSE
-         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
        },
        TARAm={
@@ -813,7 +1049,7 @@ switch(nbtest,
           Lcalc<-Lcalc+log(h(T[i+1]-A))-(H(T[i+1]-A)-H(T[i]-A))
          fix<-rep(TRUE,length(theta))
          fix[1]=FALSE
-         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
        },
        
@@ -886,16 +1122,16 @@ switch(nbtest,
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
          fix<-rep(TRUE,length(theta))
          fix[1]=FALSE
-         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
        },
        TGQRARA_4={
          #Weibull + MC AGAN + MP GQ_RARA1-log + MultiSystems + Censorship
-         simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,4),rep(4,4),rep(5,7)),Time=c(3.36,4.04,4.97,5.16, 2.34,3.46,5.02,5.45, 1.18,2.22,3.14,4.83, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98),Type=c(1,1,1,1, -1,-1,-1,0, 1,-1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,0),row.names=1:23)
-         #simData<-simData[1:12,]
+         simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,4),rep(4,4),rep(5,8)),Time=c(3.36,4.04,4.97,5.16, 2.34,3.46,5.02,5.45, 1.18,2.22,3.14,4.83, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98,7.52),Type=c(1,1,1,1, -1,-1,-1,0, 1,-1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,1,0),row.names=1:24)
+         #simData<-simData[1:24,]
          mle <- mle.vam(System & Time & Type ~ (AGAN() | Weibull(0.001,2.5)) & (GQR_ARA1(0.7,-1.3|log)),data=simData)
          theta<-c(0.3,2.2,0.4,-0.9)
-         #L<-logLikelihood(mle,theta,c(TRUE,FALSE,FALSE))
+         #L<-logLikelihood(mle,theta,TRUE,FALSE,FALSE)
          
          h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
          H<-function(t) theta[1]*t^(theta[2])
@@ -947,17 +1183,20 @@ switch(nbtest,
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
          V<-0; A<-1; C<-1;  i<-i+1
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
-         V<-(1-rhoMP2)*(A*(T[i+1]-T[i]))+V; A<-rhoMP^(log(3)); C<-0;  i<-i+1
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i]))+V; A<-rhoMP^(log(2)); C<-0;  i<-i+1
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
          V<-0; A<-1; C<-0;  i<-i+1
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
          V<-0; A<-1; C<-1;  i<-i+1
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
-         V<-(1-rhoMP2)*(A*(T[i+1]-T[i]))+V; A<-rhoMP^(log(4)); C<-1;  i<-i+1
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i]))+V; A<-rhoMP^(log(2)); C<-1;  i<-i+1
+         Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
+         V<-(1-rhoMP2)*(A*(T[i+1]-T[i]))+V; A<-rhoMP^(log(3)); C<-1;  i<-i+1
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
          fix<-rep(TRUE,length(theta))
          fix[1]=FALSE
-         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         run(mle,fixed=fix,verbose=FALSE)
+         alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
        },
        TGQRARA_3={
@@ -1029,7 +1268,7 @@ switch(nbtest,
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
          fix<-rep(TRUE,length(theta))
          fix[1]=FALSE
-         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
        },
        TGQRARA_2={
@@ -1051,7 +1290,7 @@ switch(nbtest,
          Lcalc<-Lcalc+log(rho^(3)*h(rho^(3)*(T[4]-T[3])+V))-(H(rho^(3)*(T[4]-T[3])+V)-H(V))
          fix<-rep(TRUE,length(theta))
          fix[1]=FALSE
-         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
        },
        TGQRARA_1={
@@ -1073,7 +1312,7 @@ switch(nbtest,
          Lcalc<-Lcalc+log(rho^(log(4))*h(rho^(log(4))*(T[4]-T[3])+V))-(H(rho^(log(4))*(T[4]-T[3])+V)-H(V))
          fix<-rep(TRUE,length(theta))
          fix[1]=FALSE
-         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
        },
        TGQR3={
@@ -1144,7 +1383,7 @@ switch(nbtest,
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
          fix<-rep(TRUE,length(theta))
          fix[1]=FALSE
-         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
        },
        TGQR2={
@@ -1163,7 +1402,7 @@ switch(nbtest,
          Lcalc<-Lcalc+log(rho^(sqrt(3))*h(rho^(sqrt(3))*(T[4]-T[3])))-(H(rho^(sqrt(3))*(T[4]-T[3]))-H(rho^(sqrt(3))*(T[3]-T[3])))
          fix<-rep(TRUE,length(theta))
          fix[1]=FALSE
-         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
        },
        TGQR1={
@@ -1182,7 +1421,7 @@ switch(nbtest,
          Lcalc<-Lcalc+log(rho^(log(4))*h(rho^(log(4))*(T[4]-T[3])))-(H(rho^(log(4))*(T[4]-T[3]))-H(rho^(log(4))*(T[3]-T[3])))
          fix<-rep(TRUE,length(theta))
          fix[1]=FALSE
-         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
        },
        TQR10={
@@ -1247,7 +1486,7 @@ switch(nbtest,
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
          fix<-rep(TRUE,length(theta))
          fix[1]=FALSE
-         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
        },
        TQR9={
@@ -1312,7 +1551,7 @@ switch(nbtest,
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
          fix<-rep(TRUE,length(theta))
          fix[1]=FALSE
-         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
        },
        TQR8={
@@ -1377,7 +1616,7 @@ switch(nbtest,
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
          fix<-rep(TRUE,length(theta))
          fix[1]=FALSE
-         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
        },
        TQR7={
@@ -1442,7 +1681,7 @@ switch(nbtest,
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
          fix<-rep(TRUE,length(theta))
          fix[1]=FALSE
-         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
        },
        TQR6={
@@ -1513,7 +1752,7 @@ switch(nbtest,
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
          fix<-rep(TRUE,length(theta))
          fix[1]=FALSE
-         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
        },
        TQR5={
@@ -1584,7 +1823,7 @@ switch(nbtest,
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
          fix<-rep(TRUE,length(theta))
          fix[1]=FALSE
-         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
        }, 
       TQR4={
@@ -1655,7 +1894,7 @@ switch(nbtest,
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
          fix<-rep(TRUE,length(theta))
          fix[1]=FALSE
-         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
        }, 
     TQR3={
@@ -1709,7 +1948,7 @@ switch(nbtest,
          Lcalc<-Lcalc-H(rhoMP^3*(T[7]-T[6]))
          fix<-rep(TRUE,length(theta))
          fix[1]=FALSE
-         alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+         run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
        },     
   TQR2={
@@ -1734,7 +1973,7 @@ switch(nbtest,
     Lcalc<-Lcalc+log(h(T[1]))-H(T[1])
     fix<-rep(TRUE,length(theta))
     fix[1]=FALSE
-    alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+    run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
     Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
   },
   TQR={
@@ -1753,7 +1992,7 @@ switch(nbtest,
     Lcalc<-Lcalc+log(rho^3*h(rho^3*(T[4]-T[3])))-(H(rho^3*(T[4]-T[3]))-H(rho^3*(T[3]-T[3])))
     fix<-rep(TRUE,length(theta))
     fix[1]=FALSE
-    alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+    run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
     Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
   },
   T01={
@@ -1772,7 +2011,7 @@ switch(nbtest,
     Lcalc<-Lcalc+log(h(T[4]-rho*T[3]-rho*(1-rho)*T[2]-rho*(1-rho)^2*T[1]))-(H(T[4]-rho*T[3]-rho*(1-rho)*T[2]-rho*(1-rho)^2*T[1])-H(T[3]-rho*T[3]-rho*(1-rho)*T[2]-rho*(1-rho)^2*T[1]))
     fix<-rep(TRUE,length(theta))
     fix[1]=FALSE
-    alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+    run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
     Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
   },
   T02={
@@ -1791,7 +2030,7 @@ switch(nbtest,
     Lcalc<-Lcalc+log(h(T[4]-rho*T[3]-rho*(1-rho)*T[2]-rho*(1-rho)^2*T[1]))-(H(T[4]-rho*T[3]-rho*(1-rho)*T[2]-rho*(1-rho)^2*T[1])-H(T[3]-rho*T[3]-rho*(1-rho)*T[2]-rho*(1-rho)^2*T[1]))
     fix<-rep(TRUE,length(theta))
     fix[1]=FALSE
-    alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+    run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
     Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
   },
   T03={
@@ -1808,7 +2047,7 @@ switch(nbtest,
     Lcalc<-log(h(T[1]))-H(T[1])
     fix<-rep(TRUE,length(theta))
     fix[1]=FALSE
-    alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+    run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
     Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
   },
   T1={
@@ -1824,7 +2063,7 @@ switch(nbtest,
     Lcalc<-log(h(T[1]))-H(T[1])
     fix<-rep(TRUE,length(theta))
     fix[1]=FALSE
-    alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+    run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
     Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
   },
   T2={
@@ -1840,7 +2079,7 @@ switch(nbtest,
     Lcalc<-log(h(T[1]))-H(T[1])
     fix<-rep(TRUE,length(theta))
     fix[1]=FALSE
-    alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+    run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
     Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
   },
   T3={
@@ -1859,7 +2098,7 @@ switch(nbtest,
     Lcalc<-Lcalc+log(h(T[4]-rho*T[3]-rho*(1-rho)*T[2]-rho*(1-rho)^2*T[1]))-(H(T[4]-rho*T[3]-rho*(1-rho)*T[2]-rho*(1-rho)^2*T[1])-H(T[3]-rho*T[3]-rho*(1-rho)*T[2]-rho*(1-rho)^2*T[1]))
     fix<-rep(TRUE,length(theta))
     fix[1]=FALSE
-    alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+    run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
     Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
   },
   T4={
@@ -1878,7 +2117,7 @@ switch(nbtest,
     Lcalc<-Lcalc+log(h(T[4]-rho*T[3]))-(H(T[4]-rho*T[3])-H(T[3]-rho*T[3]))
     fix<-rep(TRUE,length(theta))
     fix[1]=FALSE
-    alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+    run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
     Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
   },
   T5={
@@ -1897,7 +2136,7 @@ switch(nbtest,
     Lcalc<-Lcalc+log(h(T[4]-rho*T[3]-rho*(1-rho)*T[2]-rho*(1-rho)^2*T[1]))-(H(T[4]-rho*T[3]-rho*(1-rho)*T[2]-rho*(1-rho)^2*T[1])-H(T[3]-rho*T[3]-rho*(1-rho)*T[2]-rho*(1-rho)^2*T[1]))
     fix<-rep(TRUE,length(theta))
     fix[1]=FALSE
-    alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+    run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
     Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
   },
   T6={
@@ -1916,7 +2155,7 @@ switch(nbtest,
     Lcalc<-Lcalc-(H(T[4]-rho*T[3])-H(T[3]-rho*T[3]))
     fix<-rep(TRUE,length(theta))
     fix[1]=FALSE
-    alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+    run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
     Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
   },
   T7={
@@ -1934,7 +2173,7 @@ switch(nbtest,
     Lcalc<-Lcalc+log(h(T[1]))-H(T[1])
     fix<-rep(TRUE,length(theta))
     fix[1]=FALSE
-    alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+    run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
     Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
   },
   T8={
@@ -1959,7 +2198,7 @@ switch(nbtest,
     Lcalc<-Lcalc-H(T[1])
     fix<-rep(TRUE,length(theta))
     fix[1]=FALSE
-    alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+    run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
     Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
   },
   T9={
@@ -2013,7 +2252,7 @@ switch(nbtest,
     Lcalc<-Lcalc-(H(T[7]-T[6]+V)-H(V))
     fix<-rep(TRUE,length(theta))
     fix[1]=FALSE
-    alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+    run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
     Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
   },
   T91={
@@ -2067,7 +2306,7 @@ switch(nbtest,
     Lcalc<-Lcalc-(H(T[7]-T[6]+V)-H(V))
     fix<-rep(TRUE,length(theta))
     fix[1]=FALSE
-    alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+    run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
     Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
   },
   T92={
@@ -2121,7 +2360,7 @@ switch(nbtest,
     Lcalc<-Lcalc-(H(T[7]-T[6]+V)-H(V))
     fix<-rep(TRUE,length(theta))
     fix[1]=FALSE
-    alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+    run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
     Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
   },
   T93={
@@ -2175,7 +2414,7 @@ switch(nbtest,
     Lcalc<-Lcalc-(H(T[7]-T[6]+V)-H(V))
     fix<-rep(TRUE,length(theta))
     fix[1]=FALSE
-    alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+    run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
     Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
   },
   T94={
@@ -2229,7 +2468,7 @@ switch(nbtest,
     Lcalc<-Lcalc-(H(T[7]-T[6]+V)-H(V))
     fix<-rep(TRUE,length(theta))
     fix[1]=FALSE
-    alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+    run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
     Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
   },
   T10={
@@ -2283,7 +2522,7 @@ switch(nbtest,
     Lcalc<-Lcalc-(H(T[7]-T[6]+V)-H(V))
     fix<-rep(TRUE,length(theta))
     fix[1]=FALSE
-    alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+    run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
     Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
   },
   T11={
@@ -2340,7 +2579,7 @@ switch(nbtest,
     Lcalc<-Lcalc-(H(T[7]-T[6]+V)-H(V))
     fix<-rep(TRUE,length(theta))
     fix[1]=FALSE
-    alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+    run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
     Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
   },
   T12={
@@ -2394,7 +2633,7 @@ switch(nbtest,
     Lcalc<-Lcalc-(H(T[7]-T[6]+V)-H(V))
     fix<-rep(TRUE,length(theta))
     fix[1]=FALSE
-    alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+    run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
     Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
   },
   T13={
@@ -2456,7 +2695,7 @@ switch(nbtest,
     Lcalc<-Lcalc-(H(T[10]-T[9]+V)-H(V))
     fix<-rep(TRUE,length(theta))
     fix[1]=FALSE
-    alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+    run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
     Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
   },
   T14={
@@ -2518,7 +2757,7 @@ switch(nbtest,
     Lcalc<-Lcalc-(H(T[10]-T[9]+V)-H(V))
     fix<-rep(TRUE,length(theta))
     fix[1]=FALSE
-    alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+    run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
     Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
   },
   T15={
@@ -2581,7 +2820,7 @@ switch(nbtest,
     Lcalc<-Lcalc-(H(T[10]-T[9]+V)-H(V))
     fix<-rep(TRUE,length(theta))
     fix[1]=FALSE
-    alpha_Est<-(run(mle,fixed=fix,verbose=FALSE))[1]
+    run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
     Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
   },
 )
