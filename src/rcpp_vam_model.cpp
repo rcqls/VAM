@@ -19,11 +19,11 @@ VamModel::~VamModel() {
 	delete[] d2Vleft;
 	delete[] dA;
 	delete[] d2A;
-	delete[] B;
-	delete[] dB;
-	delete[] d2B;
-	delete[] dC;
-	delete[] d2C;
+	if(mu>0){
+		delete[] VR_prec;
+		delete[] dVR_prec;
+		delete[] d2VR_prec;
+	}
 	delete models;
 	delete family;
 	delete maintenance_policy;
@@ -153,16 +153,16 @@ void VamModel::set_maintenance_policy(List maintenance_policy_) {
 };
 
 void VamModel::init_computation_values() {
+	int i;
 	S1=0;S2=0;S0=0;S3=0;
 	Vleft=0;Vright=0;
 	hVleft=0;
 	A=1;
-	C=0;
-	for(int i=0;i<nbPM + 1;i++) models->at(i)->init();
+	for(i=0;i<nbPM + 1;i++) models->at(i)->init();
 }
 
 void VamModel::init(List model_) {
-	max_mem=model_["max_memory"];
+	mu=model_["max_memory"];mu--;
 	List models_=model_["models"];
 	List family_=model_["family"];
 	List maintenance_policy_=model_["pm.policy"];
@@ -193,22 +193,21 @@ void VamModel::init(List model_) {
 	d2Vleft=new double[(nb_paramsMaintenance)*(nb_paramsMaintenance+1)/2];//inferior diagonal part of the hessian matrice by lines
 	dA=new double[nb_paramsMaintenance];
 	d2A=new double[(nb_paramsMaintenance)*(nb_paramsMaintenance+1)/2];//inferior diagonal part of the hessian matrice by lines
-	dC=new double[nb_paramsMaintenance];
-	d2C=new double[(nb_paramsMaintenance)*(nb_paramsMaintenance+1)/2];//inferior diagonal part of the hessian matrice by lines
-	B=new double[max_mem];
-	dB=new double[max_mem*nb_paramsMaintenance];//dB[i*nb_paramsMaintenance+j] for 0<=i<max_mem and 0<=j<nb_paramsMaintenance, corresponds to the j th partial derivative corresponding to the i th last inter-maintenance time effect
-	d2B=new double[max_mem*(nb_paramsMaintenance)*(nb_paramsMaintenance+1)/2];//d2B[i*(nb_paramsMaintenance)*(nb_paramsMaintenance+1)/2+j] for 0<=i<max_mem and 0<=j<(nb_paramsMaintenance)*(nb_paramsMaintenance+1)/2, inferior diagonal part of the hessian matrice by lines
-	//DEBUG: printf("dVright:%p,dVleft:%p\n",dVright,dVleft);
+	if(mu>0){
+		VR_prec=new double[mu];
+		dVR_prec=new double[mu*nb_paramsMaintenance];//dVR_prec[i*nb_paramsMaintenance+j] for 0<=i<mu and 0<=j<nb_paramsMaintenance, corresponds to the j th partial derivative corresponding to the i th last inter-maintenance time effect
+		d2VR_prec=new double[mu*(nb_paramsMaintenance)*(nb_paramsMaintenance+1)/2];//d2VR_prec[i*(nb_paramsMaintenance)*(nb_paramsMaintenance+1)/2+j] for 0<=i<mu and 0<=j<(nb_paramsMaintenance)*(nb_paramsMaintenance+1)/2, inferior diagonal part of the hessian matrice by lines
+	}
 };
 
 void VamModel::init_virtual_age_infos() {
+		int i;
     	k=0;
     	idMod=0; //id of current model
     	S1 = 0;
     	Vright=0;
     	A=1;
-    	C=0;
-    	for(int i=0;i<nbPM + 1;i++) models->at(i)->init();
+    	for(i=0;i<nbPM + 1;i++) models->at(i)->init();
 };
 
 DataFrame VamModel::get_virtual_age_info(double from,double to, double by) {
