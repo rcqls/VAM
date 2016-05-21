@@ -146,7 +146,6 @@ public:
                 res[i+1] = -dS1[i]*alpha + dS2[i]+dS3[i-(model->nb_paramsFamily-1)];
             }
         }
-
         return res;
     }
 
@@ -324,7 +323,6 @@ private:
 
     	model->Vright = 0; //100000.;
         model->A=1;
-        model->C=0;
     	model->k=0;
     	model->idMod=0; //id of current model
     	model->S1 = 0;
@@ -338,7 +336,7 @@ private:
                 model->dS3[i]=0;
                 model->dVright[i]=0;
                 model->dA[i]=0;
-                model->dC[i]=0;
+                //for(k=0;k<model->mu;k++) model->dVR_prec[k*model->nb_paramsMaintenance+i]=0;
                 for(j=0;j<=i;j++) {
                     //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
                     model->d2S1[i*(i+1)/2+j]=0;
@@ -346,7 +344,7 @@ private:
                     model->d2S3[i*(i+1)/2+j]=0;
                     model->d2Vright[i*(i+1)/2+j]=0;
                     model->d2A[i*(i+1)/2+j]=0;
-                    model->d2C[i*(i+1)/2+j]=0;
+                    //for(k=0;k<model->mu;k++) model->d2VR_prec[k*(model->nb_paramsMaintenance)*(model->nb_paramsMaintenance+1)/2+i*(i+1)/2+j]=0;
                 }
             }
             for(i=(model->nb_paramsMaintenance);i<(model->nb_paramsMaintenance+model->nb_paramsFamily-1);i++) {
@@ -366,7 +364,6 @@ private:
                 model->dS3[i]=0;
                 model->dVright[i]=0;
                 model->dA[i]=0;
-                model->dC[i]=0;
             }
             for(i=(model->nb_paramsMaintenance);i<(model->nb_paramsMaintenance+model->nb_paramsFamily-1);i++) {
                 model->dS1[i]=0;

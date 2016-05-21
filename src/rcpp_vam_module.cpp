@@ -14,7 +14,7 @@ RCPP_MODULE(vam_module) {
 	.constructor<List,List>()
 	.field( "time", &VamModel::time, "time" )
 	.field( "type", &VamModel::type, "type" )
-	.method( "get", &VamModel::get, "get many informations" )
+	//.method( "get", &VamModel::get, "get many informations" )
 	.method( "family", &VamModel::get_family, "get family" )
 	.method("get_params",&VamModel::get_params,"get params")
     .method("set_params",&VamModel::set_params,"set params")

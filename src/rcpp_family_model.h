@@ -119,19 +119,19 @@ public:
   double* hazardRate_param_derivative(double x,bool R) {
     double *dh;
     if(R) dh=dhR; else dh=dhL;
-  	dh[0]=(x==0 ? 0 : alpha*(1+beta*log(x))*pow(x,beta-1));
+  	dh[0]=(x<=0 ? 0 : alpha*(1+beta*log(x))*pow(x,beta-1));
     return dh;
   }
 
   double* cumulative_hazardRate_param_derivative(double x,bool R) {
     double *dH;
     if(R) dH=dHR; else dH=dHL;
-    dH[0]= (x==0 ? 0 : alpha*log(x)*pow(x,beta));
+    dH[0]= (x<=0 ? 0 : alpha*log(x)*pow(x,beta));
     return dH;
   }
 
   double* hazardRate_derivative_param_derivative(double x) {
-    dhd[0]= (x==0 ? 0 : alpha*(2*beta-1+beta*(beta-1)*log(x))*pow(x,beta-2));
+    dhd[0]= (x<=0 ? 0 : alpha*(2*beta-1+beta*(beta-1)*log(x))*pow(x,beta-2));
     return dhd;
   }
 
@@ -140,14 +140,14 @@ public:
   }
 
   double* hazardRate_param_2derivative(double x) {
-    d2h[0]= (x==0 ? 0 : alpha*(2+beta*log(x))*log(x)*pow(x,beta-1));
+    d2h[0]= (x<=0 ? 0 : alpha*(2+beta*log(x))*log(x)*pow(x,beta-1));
     return d2h;
   }
 
   double* cumulative_hazardRate_param_2derivative(double x,bool R) {
     double *d2H;
     if(R) d2H=d2HR; else d2H=d2HL;
-    d2H[0]= (x==0 ? 0 : alpha*pow(log(x),2)*pow(x,beta));
+    d2H[0]= (x<=0 ? 0 : alpha*pow(log(x),2)*pow(x,beta));
     return d2H;
   }
  
