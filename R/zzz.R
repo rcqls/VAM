@@ -1,3 +1,4 @@
 .onLoad <- function(libname, pkgname) {
-	loadRcppModules()
+	loadModule("vam_module",TRUE)
+	loadModule("tools_module",TRUE)
 }
