@@ -53,7 +53,7 @@ RCPP_MODULE(vam_module) {
     ;
 
 		class_<BayesianVam>( "BayesianVam" )
-    .constructor<List,List>()
+    .constructor<List,List,List>()
     //.finalizer( &finalizer_of_bayesian_vam)
     ;
 

@@ -42,7 +42,6 @@ public:
         model->set_params(pars);
     }
 
-
     void contrast_for_current_system() {
     	init_mle_vam_for_current_system(false,false);
 		int n=(model->time).size() - 1;
