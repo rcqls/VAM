@@ -38,6 +38,8 @@ public:
 
     virtual double get() = 0;
 
+    virtual double density(double x) = 0;
+
 };
 
 class UnifPrior : public BayesianPrior {
@@ -50,6 +52,10 @@ public:
 
     double get() {
       return R::runif(a,b);
+    };
+
+    double density(double x) {
+      return R::dunif(x,a,b,0);
     };
 
 private:
@@ -67,6 +73,10 @@ public:
 
     double get() {
       return R::beta(a,b);
+    };
+
+    double density(double x) {
+      return R::dbeta(x,a,b,0);
     };
 
 private:

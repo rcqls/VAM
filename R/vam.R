@@ -416,9 +416,11 @@ bayesian.vam <- function(formula,data) {
 
 	PersistentRcppObject(self,new = {
 		model <- parse.vam.formula(NULL,self$formula)
+		self$formula <- substitute.vam.formula(model=model)
 		response <- model$response
 		data <- data.frame.to.list.multi.vam(self$data,response)
-		rcpp <- new(BayesianVam,model,data)
+		priors <- priors.from.vam.formula(model)
+		rcpp <- new(BayesianVam,model,data,priors)
 		rcpp
 	})
 
@@ -737,4 +739,24 @@ substitute.vam.formula <- function(formula,coef,model) {
 	}
 	form <- eval(parse(text=form),envir=globalenv())
 	form
+}
+
+priors.from.vam.formula <- function(model) {
+	prior.families <- c("B","Beta","U","Unif")
+	flatten.params <- c(model$family$params,unlist(sapply(model$models,function(e) e$params)))
+	if(all(sapply(flatten.params,class) == "formula") ) {
+		## clear "|" expression
+		flatten.params <- lapply(flatten.params,function(e) if(!as.character(e[[2]][[1]]) %in% prior.families) e[[2]][[2]] else e[[2]])
+		## transform to list
+		parse.prior <- function(prior) {
+				Beta <- B <- Be <- function(a,b) list(name="Beta.prior",params=c(a,b))
+				Unif <- U <- function(a=0,b=1) list(name="Unif.prior",params=c(a,b))
+				eval(prior)
+		}
+		flatten.params <- lapply(flatten.params,parse.prior)
+		return(flatten.params)
+	} else {
+		warning("Not a formula for bayesian.vam object!")
+		NULL
+	}
 }
