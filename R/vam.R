@@ -174,7 +174,7 @@ mle.vam <- function(formula,data) {
 
 
 
-params.model.vam <- params.sim.vam <- params.mle.vam <- function(self,param) {
+params.model.vam <- params.sim.vam <- params.mle.vam <- params.bayesian.vam <- function(self,param) {
 	if(missing(param)) {
 		 self$rcpp()$get_params()
 	} else {
@@ -401,6 +401,7 @@ run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
 ## Rmk: run.mle.vam is supposed to run many times to get the best estimate!
 ## Here, par=NULL forces initialisation update but does not ensure that it is the best estimate.
 ## TODO: try to find a best strategy or many strategies...
+
 coef.mle.vam <- function(obj,par=NULL,method=NULL,verbose=FALSE) {
 	if(is.null(obj$mle.coef) || !is.null(par)) {
 		res <-run.mle.vam(obj,par,verbose=verbose,method=method)
@@ -415,16 +416,36 @@ bayesian.vam <- function(formula,data) {
 	self <- newEnv(bayesian.vam,formula=formula,data=data)
 
 	PersistentRcppObject(self,new = {
-		model <- parse.vam.formula(NULL,self$formula)
+		model <- parse.vam.formula(self$formula)
 		self$formula <- substitute.vam.formula(model=model)
 		response <- model$response
 		data <- data.frame.to.list.multi.vam(self$data,response)
 		priors <- priors.from.vam.formula(model)
+		##DEBUG: print("priors");print(priors)
+		##DEBUG: print("modelAV");print(model)
+		self$prior.params <- sapply(priors,update)
+	 	self$formula.mle <- substitute.vam.formula(self$formula,self$prior.params)
+		## THIS IS LESS CLEVER THAN THE NEXT LINE: print(model<-bayesian.model.to.mle.model(model,priors))
+		model<-parse.vam.formula(self$formula.mle)
+		##DEBUG: print("modelAP");print(model)
 		rcpp <- new(BayesianVam,model,data,priors)
 		rcpp
 	})
 
 	self
+}
+
+run.bayesian.vam <- function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
+	rcpp <- obj$rcpp()
+	## init via mle: par0 is supposed first to be initialized by mle
+	mle <- mle.vam(obj$formula.mle,obj$data)
+	first <- coef(mle)
+
+
+}
+
+coef.bayesian.vam <- function(obj,...) {
+	run.bayesian.vam(obj,...)
 }
 
 
@@ -742,21 +763,47 @@ substitute.vam.formula <- function(formula,coef,model) {
 }
 
 priors.from.vam.formula <- function(model) {
-	prior.families <- c("B","Beta","U","Unif")
 	flatten.params <- c(model$family$params,unlist(sapply(model$models,function(e) e$params)))
 	if(all(sapply(flatten.params,class) == "formula") ) {
+		prior.families <- c("B","Beta","U","Unif")
 		## clear "|" expression
 		flatten.params <- lapply(flatten.params,function(e) if(!as.character(e[[2]][[1]]) %in% prior.families) e[[2]][[2]] else e[[2]])
 		## transform to list
 		parse.prior <- function(prior) {
+				## declare here all the priors
 				Beta <- B <- Be <- function(a,b) list(name="Beta.prior",params=c(a,b))
 				Unif <- U <- function(a=0,b=1) list(name="Unif.prior",params=c(a,b))
-				eval(prior)
+				res <- eval(prior)
+				class(res) <- res$name #to be accessible as a class in R
+				res
 		}
 		flatten.params <- lapply(flatten.params,parse.prior)
 		return(flatten.params)
 	} else {
 		warning("Not a formula for bayesian.vam object!")
-		NULL
+		NULL # means not ok!
 	}
 }
+
+### FOUND A BETTER WAY: see bayesian.vam
+## substitute prior with mean prior to be used inside mle.vam as initialization of run.bayesian.vam
+# bayesian.model.to.mle.model <- function(model,priors) {
+# 	print(priors)
+# 	if(!is.null(priors)) {
+# 		k<-0
+# 		for(i in 1:length(model$family$params)) {
+# 			##DEBUG: print("prior");print(k+1);print(priors[[k+1]]);print(update(priors[[k+1]]))
+# 			model$family$params[[i]] <-  update(priors[[k<-k+1]])
+# 		 }
+# 		model$family$params <- unlist(model$family$params)
+# 		for(j in 1:length(model$models)) {
+# 			for(i in 1:length(model$models[[j]]$params)) {
+# 				##DEBUG: print("prior");print(k+1);print(priors[[k+1]]);print(update(priors[[k+1]]))
+# 				model$models[[j]]$params[[i]] <- update(priors[[k<-k+1]])
+# 			}
+# 			model$models[[j]]$params <- unlist(model$models[[j]]$params)
+# 		}
+# 		return(model)
+# 	}
+# 	return(NULL)
+# }

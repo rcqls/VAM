@@ -55,6 +55,8 @@ RCPP_MODULE(vam_module) {
 		class_<BayesianVam>( "BayesianVam" )
     .constructor<List,List,List>()
     //.finalizer( &finalizer_of_bayesian_vam)
+		.method("get_params",&BayesianVam::get_params,"get params")
+    .method("set_params",&BayesianVam::set_params,"set params")
     ;
 
     class_<FamilyModel>("FamilyModel")

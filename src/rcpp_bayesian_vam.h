@@ -31,15 +31,23 @@ public:
         model->set_data(data_);
     }
 
-    //NumericVector get_params() {
-        //return model->get_params();
-    //}
-
-    void set_params(NumericVector pars) {
-        //model->set_params(pars);
+    NumericVector get_params() {
+        return model->get_params();
     }
 
-    List mcmc(int nb, int burn) {
+    void set_params(NumericVector pars) {
+        model->set_params(pars);
+    }
+
+    void step(int j) {
+    }
+
+    List mcmc(NumericVector pars,int nb, int burn) {
+      int nbParams = pars.size();
+      int i,j;
+      for(i=0;i<burn;i++) {
+
+      }
       return List::create();
     }
 
