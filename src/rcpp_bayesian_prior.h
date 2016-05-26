@@ -40,6 +40,23 @@ public:
 
     virtual double density(double x) = 0;
 
+    double new_proposal(double par) {
+      return R::rnorm(par,sigma);
+    }
+
+
+    void set_sigma(double sigma_) {sigma=sigma_;}; //initialization could be managed directly in R
+
+    void push_back(double res) {result.push_back(res);};
+
+    std::vector<double> get_result() {return result;};
+
+private:
+
+    double sigma;
+
+    std::vector<double> result;
+
 };
 
 class UnifPrior : public BayesianPrior {

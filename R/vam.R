@@ -330,7 +330,7 @@ run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
 		fixedInd<-fixed
 		fixed<-rep(FALSE,length(param))
 		fixed[fixedInd-1]<-TRUE #LD2: ajout du -1
-		alpha_fixed<-sum(fixed==1)
+		alpha_fixed<-sum(fixed==1) #OR ( 1 %in% fixed which is more expressive)
 	} else {#LD2
 		alpha_fixed<-fixed[1] #LD2
 		fixed<-fixed[-1] #LD2
@@ -401,10 +401,11 @@ run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
 ## Rmk: run.mle.vam is supposed to run many times to get the best estimate!
 ## Here, par=NULL forces initialisation update but does not ensure that it is the best estimate.
 ## TODO: try to find a best strategy or many strategies...
+## ... added to deal with fixed by example!
 
-coef.mle.vam <- function(obj,par=NULL,method=NULL,verbose=FALSE) {
+coef.mle.vam <- function(obj,par=NULL,method=NULL,verbose=FALSE,...) {
 	if(is.null(obj$mle.coef) || !is.null(par)) {
-		res <-run.mle.vam(obj,par,verbose=verbose,method=method)
+		res <-run.mle.vam(obj,par,verbose=verbose,method=method,...)
 		if(verbose && obj$optim$convergence>0) cat("convergence=",obj$optim$convergence,"\n",sep="")
 	}
 	obj$mle.coef
@@ -439,8 +440,8 @@ run.bayesian.vam <- function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
 	rcpp <- obj$rcpp()
 	## init via mle: par0 is supposed first to be initialized by mle
 	mle <- mle.vam(obj$formula.mle,obj$data)
-	first <- coef(mle)
-
+	first <- coef(mle,fixed=fixed)
+	
 
 }
 
