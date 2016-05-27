@@ -425,9 +425,9 @@ bayesian.vam <- function(formula,data) {
 		##DEBUG: print("priors");print(priors)
 		##DEBUG: print("modelAV");print(model)
 		self$prior.params <- sapply(priors,update)
-	 	self$formula.mle <- substitute.vam.formula(self$formula,self$prior.params)
+	 	self$mle.formula <- substitute.vam.formula(self$formula,self$prior.params)
 		## THIS IS LESS CLEVER THAN THE NEXT LINE: print(model<-bayesian.model.to.mle.model(model,priors))
-		model<-parse.vam.formula(self$formula.mle)
+		model<-parse.vam.formula(self$mle.formula)
 		##DEBUG: print("modelAP");print(model)
 		rcpp <- new(BayesianVam,model,data,priors)
 		rcpp
@@ -439,10 +439,10 @@ bayesian.vam <- function(formula,data) {
 run.bayesian.vam <- function(obj,par0,fixed,nb=1000000,burn=10000,method=NULL,verbose=TRUE,...) {
 	rcpp <- obj$rcpp()
 	## init via mle: par0 is supposed first to be initialized by mle
-	mle <- mle.vam(obj$formula.mle,obj$data)
-	obj$first <- coef(mle,fixed=fixed)
-	print(obj$first)
-	rcpp$mcmc(obj$first,nb,burn,FALSE) #TRUE IS TO FIX ALPHA
+	mle <- mle.vam(obj$mle.formula,obj$data)
+	obj$mle.init <- coef(mle,fixed=fixed)
+	print(obj$mle.init)
+	rcpp$mcmc(obj$mle.init,nb,burn,FALSE) #TRUE IS TO FIX ALPHA
 }
 
 coef.bayesian.vam <- function(obj,...) {

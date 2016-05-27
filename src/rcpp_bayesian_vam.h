@@ -61,11 +61,11 @@ public:
     //Is it make sense to consider multisystem for Bayesian framework? I guess so since you can compute
     // the contrast with these data.
 
-    List mcmc(NumericVector pars,int nb, int burn,bool alpha_fixed=false) {
+    List mcmc(NumericVector pars,int nb, int burn, bool alpha_fixed=false) {
       int nbParams = pars.size();
       BayesianPrior* curPrior;
       NumericVector curPars=clone(pars),oldPars=clone(pars);
-      int i,j,jStart=1;
+      int i,j,jStart=1;//jStart=1 here because alpha is not considered yet!
       double oldL,L,r,r0,paramCurVal;
       oldL=mle->contrast(oldPars,alpha_fixed)[0];
       //if(alpha_fixed) jStart++;
