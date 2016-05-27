@@ -38,7 +38,7 @@ The symbolic description of the model done in \code{formula} has the form \code{
 \examples{
 simARAInf<-sim.vam(  ~ (ARAInf(.4) | Weibull(.001,2.5)))
 simData<-simulate(simARAInf,30)
-bayesARAInf <- bayesian.vam(Time & Type ~ (ARAInf(~U(0,1)) | Weibull(~U(-1,1.5),~U(2,4))),data=simData)
+bayesARAInf <- bayesian.vam(Time & Type ~ (ARAInf(~Unif(0,1)) | Weibull(~Unif(1,1.5),~Unif(2,4))),data=simData)
 #coef(bayesARAInf)
 
 }

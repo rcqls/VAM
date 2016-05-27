@@ -43,7 +43,8 @@ BayesianPrior* newBayesianPrior(List prior) {
     bp=new UnifPrior(params);
 	} else if(name.compare("Beta.prior") == 0) {
     bp=new BetaPrior(params);
+  } else if(name.compare("Gamma.prior") == 0) {
+    bp=new GammaPrior(params);
   }
-
   return bp;
 }

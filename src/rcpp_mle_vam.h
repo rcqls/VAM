@@ -78,11 +78,13 @@ public:
             contrast_for_current_system();
         }
 
+        //DEBUG: printf("alpha=%lf,S0=%lf,S1=%lf,S2=%lf,S3=%lf\n",alpha,S0,S1,S2,S3);
         // log-likelihood (with constant +S0*(log(S0)-1))
-        if(!alpha_fixed)
-            {res[0]=-log(S1) * S0 + S2 +S0*(log(S0)-1)+S3;}
-        else
-            {res[0]=log(alpha)*S0+S2-alpha*S1+S3;}
+        if(!alpha_fixed) {
+          res[0]=-log(S1) * S0 + S2 +S0*(log(S0)-1)+S3;
+        } else {
+          res[0]=log(alpha)*S0+S2-alpha*S1+S3;
+        }
 
         return res;
         //return res[0]==R_NaN ? R_NegInf : res;

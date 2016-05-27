@@ -436,13 +436,13 @@ bayesian.vam <- function(formula,data) {
 	self
 }
 
-run.bayesian.vam <- function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
+run.bayesian.vam <- function(obj,par0,fixed,nb=1000000,burn=10000,method=NULL,verbose=TRUE,...) {
 	rcpp <- obj$rcpp()
 	## init via mle: par0 is supposed first to be initialized by mle
 	mle <- mle.vam(obj$formula.mle,obj$data)
-	first <- coef(mle,fixed=fixed)
-	
-
+	obj$first <- coef(mle,fixed=fixed)
+	print(obj$first)
+	rcpp$mcmc(obj$first,nb,burn,FALSE) #TRUE IS TO FIX ALPHA
 }
 
 coef.bayesian.vam <- function(obj,...) {
@@ -773,6 +773,7 @@ priors.from.vam.formula <- function(model) {
 		parse.prior <- function(prior) {
 				## declare here all the priors
 				Beta <- B <- Be <- function(a,b) list(name="Beta.prior",params=c(a,b))
+				Gamma <- G <- function(a,s) list(name="Gamma.prior",params=c(a,s))
 				Unif <- U <- function(a=0,b=1) list(name="Unif.prior",params=c(a,b))
 				res <- eval(prior)
 				class(res) <- res$name #to be accessible as a class in R

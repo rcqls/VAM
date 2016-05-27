@@ -8,3 +8,7 @@ update.Beta.prior <- function(obj) {
 update.Unif.prior <- function(obj) {
   (obj$params[1]+obj$params[2])/2
 }
+
+update.Gamma.prior <- function(obj) {
+  obj$params[1]*obj$params[2]
+}

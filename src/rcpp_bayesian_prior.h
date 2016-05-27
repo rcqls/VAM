@@ -40,12 +40,18 @@ public:
 
     virtual double density(double x) = 0;
 
+    virtual NumericVector get_params() = 0;
+
     double new_proposal(double par) {
       return R::rnorm(par,sigma);
     }
 
 
     void set_sigma(double sigma_) {sigma=sigma_;}; //initialization could be managed directly in R
+
+    double get_sigma() {return sigma;}; //initialization could be managed directly in R
+
+    void clear() {result.clear();};
 
     void push_back(double res) {result.push_back(res);};
 
@@ -67,11 +73,17 @@ public:
     	a = params_[0];b=params_[1];
     }
 
+    NumericVector get_params() {
+      //printf("Unif:a,b=%lf,%lf\n",a,b);
+      return NumericVector::create(a,b);
+    }
+
     double get() {
       return R::runif(a,b);
     };
 
     double density(double x) {
+      //printf("Unif:a,b=%lf,%lf\n",a,b);
       return R::dunif(x,a,b,0);
     };
 
@@ -85,7 +97,12 @@ class BetaPrior : public BayesianPrior {
 public:
 
     BetaPrior(NumericVector params_) : BayesianPrior() {
-    	a = params_[0];b=params_[1];
+    	a = params_[0];b = params_[1];
+    }
+
+    NumericVector get_params() {
+      //printf("Beta:a,b=%lf,%lf\n",a,b);
+      return NumericVector::create(a,b);
     }
 
     double get() {
@@ -98,6 +115,32 @@ public:
 
 private:
     double a,b;
+
+};
+
+class GammaPrior : public BayesianPrior {
+
+public:
+
+    GammaPrior(NumericVector params_) : BayesianPrior() {
+    	a = params_[0];s=params_[1];
+    }
+
+    NumericVector get_params() {
+      //printf("Gamma:a,s=%lf,%lf\n",a,s);
+      return NumericVector::create(a,s);
+    }
+
+    double get() {
+      return R::rgamma(a,s);
+    };
+
+    double density(double x) {
+      return R::dgamma(x,a,s,0);
+    };
+
+private:
+    double a,s;
 
 };
 
