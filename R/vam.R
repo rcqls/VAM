@@ -255,7 +255,7 @@ contrast.mle.vam <-function(obj,par0,with_value=TRUE,with_gradient=FALSE,with_he
 }
 
 #fonction de LD2
-logLikelihood.mle.vam <-function(obj,par0,with_value=TRUE,with_gradient=FALSE,with_hessian=FALSE){
+logLik.mle.vam <-function(obj,par0,with_value=TRUE,with_gradient=FALSE,with_hessian=FALSE){
 	type=c(with_value,with_gradient,with_hessian)
 	rcpp <- obj$rcpp()
 	## save the initial param
