@@ -33,7 +33,7 @@ The symbolic description of the model done in \code{formula} has the form \code{
 \code{\link{plot.mle.vam}} for plotting characteristics of the model.
 \code{\link{update.mle.vam}} to change the associated data set.
 \code{\link{contrast.mle.vam}} to compute the contrast associated to the MLE.
-\code{\link{logLikelihood.mle.vam}} to compute the log-likelihood.}
+\code{\link{logLik.mle.vam}} to compute the log-likelihood.}
 
 \examples{
 simARAInf<-sim.vam(  ~ (ARAInf(.4) | Weibull(.001,2.5)))

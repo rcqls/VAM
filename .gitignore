@@ -10,3 +10,4 @@ src-*
 *.Rhistory
 *.tar.gz
 *.tgz
+..RCheck

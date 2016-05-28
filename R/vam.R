@@ -304,38 +304,34 @@ logLik.mle.vam <-function(obj,par0,with_value=TRUE,with_gradient=FALSE,with_hess
 # alpha is not considered in the estimation!
 run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
 	rcpp <- obj$rcpp()
-	## save the initial param
-	if(is.null(obj$par0)) obj$par0 <- params(obj)
-	## parameters stuff!
-	if(missing(par0))  {
-		if("par" %in% names(obj)) {
-			param <- obj$par[-1]
-			alpha <- obj$par[1] #LD2
-		} else {#not the first run
-			param<-params(obj)[-1] #first run
-			alpha<-params(obj)[1] #LD2
-		}
-	} else if(is.null(par0)) {
-		param<-obj$par0[-1]
-		alpha<-obj$par0[1] #LD2
-	} else {
-		param<-par0[-1]
-		alpha<-par0[1] #LD2
-	}
-	## fixed and functions stuff!
-	if(missing(fixed)) {
-		fixed<-rep(FALSE,length(param))
-		alpha_fixed<-FALSE #LD2
-	} else if(is.numeric(fixed)) {
-		fixedInd<-fixed
-		fixed<-rep(FALSE,length(param))
-		fixed[fixedInd-1]<-TRUE #LD2: ajout du -1
-		alpha_fixed<-sum(fixed==1) #OR ( 1 %in% fixed which is more expressive)
-	} else {#LD2
-		alpha_fixed<-fixed[1] #LD2
-		fixed<-fixed[-1] #LD2
-	}#LD2
 
+	par0.tmp <- init.par0(obj,par0)
+	param <- par0.tmp$param
+	alpha <- par0.tmp$alpha
+
+	# ## save the initial param
+	# if(is.null(obj$par0)) obj$par0 <- params(obj)
+	# ## parameters stuff!
+	# if(missing(par0))  {
+	# 	if("par" %in% names(obj)) {
+	# 		param <- obj$par[-1]
+	# 		alpha <- obj$par[1] #LD2
+	# 	} else {#not the first run
+	# 		param<-params(obj)[-1] #first run
+	# 		alpha<-params(obj)[1] #LD2
+	# 	}
+	# } else if(is.null(par0)) {
+	# 	param<-obj$par0[-1]
+	# 	alpha<-obj$par0[1] #LD2
+	# } else {
+	# 	param<-par0[-1]
+	# 	alpha<-par0[1] #LD2
+	# }
+
+	## fixed and functions stuff!
+	fixed.tmp <- init.fixed.param(param,fixed)
+	fixed <- fixed.tmp$fixed
+	alpha_fixed <- fixed.tmp$alpha_fixed
 
 	fn<-function(par) {
 		##cat("param->");print(par);print(param[!fixed])
@@ -421,32 +417,54 @@ bayesian.vam <- function(formula,data) {
 		self$formula <- substitute.vam.formula(model=model)
 		response <- model$response
 		data <- data.frame.to.list.multi.vam(self$data,response)
-		priors <- priors.from.vam.formula(model)
+		self$priors <- priors.from.vam.formula(model)
 		##DEBUG: print("priors");print(priors)
 		##DEBUG: print("modelAV");print(model)
-		self$prior.params <- sapply(priors,update)
+		self$prior.params <- sapply(self$priors,mean)
 	 	self$mle.formula <- substitute.vam.formula(self$formula,self$prior.params)
 		## THIS IS LESS CLEVER THAN THE NEXT LINE: print(model<-bayesian.model.to.mle.model(model,priors))
 		model<-parse.vam.formula(self$mle.formula)
 		##DEBUG: print("modelAP");print(model)
-		rcpp <- new(BayesianVam,model,data,priors)
+		rcpp <- new(BayesianVam,model,data,self$priors)
 		rcpp
 	})
 
 	self
 }
 
-run.bayesian.vam <- function(obj,par0,fixed,nb=1000000,burn=10000,method=NULL,verbose=TRUE,...) {
+run.bayesian.vam <- function(obj,par0,fixed,sigma,nb=100000,burn=10000,method=NULL,verbose=TRUE,...) {
 	rcpp <- obj$rcpp()
+
 	## init via mle: par0 is supposed first to be initialized by mle
-	mle <- mle.vam(obj$mle.formula,obj$data)
-	obj$mle.init <- coef(mle,fixed=fixed)
-	print(obj$mle.init)
-	rcpp$mcmc(obj$mle.init,nb,burn,FALSE) #TRUE IS TO FIX ALPHA
+	if(missing(par0)) {
+		obj$mle <- mle.vam(obj$mle.formula,obj$data)
+		par0 <- coef(obj$mle,fixed=fixed)
+	}
+	fixed.tmp <- init.fixed.param(par0,fixed)
+	fixed <- fixed.tmp$fixed
+	obj$alpha_fixed <- fixed.tmp$alpha_fixed
+	##print(obj$mle.init)
+	if(missing(sigma)) {
+
+	}
+	obj$par <- rcpp$mcmc(par0,nb,burn,obj$alpha_fixed)
+	obj$par
 }
 
 coef.bayesian.vam <- function(obj,...) {
-	run.bayesian.vam(obj,...)
+	run(obj,...)
+	param <- sapply(obj$par,mean)
+	if(!obj$alpha_fixed){
+		## complete the scale parameter
+		param <- c(rcpp(obj$mle)$alpha_est(c(1,param)),param)
+	}
+	param
+}
+
+plot.bayesian.vam <- function(obj,i=1,...) {
+	if(is.null(obj$par)) run(obj)
+	hist(obj$par[[i]],prob=TRUE)
+	abline(v=mean(obj$par[[i]]),col="blue",lwd=2)
 }
 
 
@@ -809,3 +827,43 @@ priors.from.vam.formula <- function(model) {
 # 	}
 # 	return(NULL)
 # }
+
+## RMK: these 2 init following functions were only used for mle but are useful now for Bayesian too!
+init.par0 <- function(obj,par0) {
+	## save the initial param
+	if(is.null(obj$par0)) obj$par0 <- params(obj)
+	## parameters stuff!
+	if(missing(par0))  {
+		if("par" %in% names(obj)) {
+			param <- obj$par[-1]
+			alpha <- obj$par[1] #LD2
+		} else {#not the first run
+			param<-params(obj)[-1] #first run
+			alpha<-params(obj)[1] #LD2
+		}
+	} else if(is.null(par0)) {
+		param<-obj$par0[-1]
+		alpha<-obj$par0[1] #LD2
+	} else {
+		param<-par0[-1]
+		alpha<-par0[1] #LD2
+	}
+	list(param=param,alpha=alpha)
+}
+
+init.fixed.param <- function(param,fixed) {
+	## fixed and functions stuff!
+	if(missing(fixed)) {
+		fixed<-rep(FALSE,length(param))
+		alpha_fixed<-FALSE #LD2
+	} else if(is.numeric(fixed)) {
+		fixedInd<-fixed
+		fixed<-rep(FALSE,length(param))
+		fixed[fixedInd-1]<-TRUE #LD2: ajout du -1
+		alpha_fixed<-sum(fixed==1) #OR ( 1 %in% fixed which is more expressive)
+	} else {#LD2
+		alpha_fixed<-fixed[1] #LD2
+		fixed<-fixed[-1] #LD2
+	}#LD2
+	list(fixed=fixed,alpha_fixed=alpha_fixed)
+}

@@ -4,8 +4,8 @@
 
 \title{Compute the contrast corresponding to the maximum likelihood estimation method for a virtual age model}
 
-\description{\code{contrast.mle.vam} computes the contrast corresponding to the maximum likelihood estimation method for a virtual age model with Corrective Maintenance (CM) and planned Preventive Maintenance (PM). 
-The difference between the log-likelihood \code{\link{logLikelihood.mle.vam}} and the contrast is due to the parameter
+\description{\code{contrast.mle.vam} computes the contrast corresponding to the maximum likelihood estimation method for a virtual age model with Corrective Maintenance (CM) and planned Preventive Maintenance (PM).
+The difference between the log-likelihood \code{\link{logLik.mle.vam}} and the contrast is due to the parameter
 \eqn{\alpha} which represents the scale parameter of the time to failure distribution of the new unmaintained system, \eqn{h(t)} (see \code{\link{sim.vam}} for more details). In fact, the value of \eqn{\alpha} that maximizes the log-likelihood has a closed-form solution, function of the others parameters values. The contrast corresponds to the value of the log-likelihood evaluated at this particular value of \eqn{\alpha}. Consequently, the contrast does not depend on \eqn{\alpha}, that is to say of \code{par0[1]}.}
 
 \usage{
@@ -36,7 +36,7 @@ Otherwise, the contrast is computed on the last parameters values obtained by th
 \seealso{
 \code{\link{run.mle.vam}} to compute the MLE.
 \code{\link{coef.mle.vam}} to extract the parameters value of the MLE.
-\code{\link{logLikelihood.mle.vam}} to compute the log-likelihood.
+\code{\link{logLik.mle.vam}} to compute the log-likelihood.
 \code{\link{formula.mle.vam}} to extract the original and estimated model.
 \code{\link{plot.mle.vam}} for plotting characteristics of the model.
 \code{\link{update.mle.vam}} to change the associated data set.
@@ -49,7 +49,7 @@ mleARAInf <- mle.vam(Time & Type ~ (ARAInf(0.5) | Weibull(1,3)),data=simData)
 Est<-coef(mleARAInf)
 contrast(mleARAInf)
 contrast(mleARAInf,Est,c(TRUE,TRUE,TRUE))
-logLikelihood(mleARAInf,Est,c(TRUE,TRUE,TRUE))
+logLik(mleARAInf,Est,c(TRUE,TRUE,TRUE))
 
 require(rgl)
 rhos<-seq(0,1,0.1)
@@ -61,14 +61,15 @@ for (rho in rhos){
     lnL<-c(lnL,contrast(mleARAInf,c(1,beta,rho)))
   }
 }
-lnL<-matrix(data=lnL,nrow=length(rhos),ncol=length(betas),byrow=TRUE)
-persp3d(rhos, betas, lnL, col = 'skyblue',zlim=c(-100,max(lnL)))
+if(require(rgl)) {
+  lnL<-matrix(data=lnL,nrow=length(rhos),ncol=length(betas),byrow=TRUE)
+  persp3d(rhos, betas, lnL, col = 'skyblue',zlim=c(-100,max(lnL)))
 
-grid3d(c("rho", "b", "lnL"))
-spheres3d(Est[3],Est[2],contrast(mleARAInf,c(Est[1],Est[2],Est[3])),r=0.4,alpha=0.5,color="red",add=TRUE)
-indMax<-which(lnL==max(lnL), arr.ind = TRUE)
-spheres3d(rhos[indMax[1]],betas[indMax[2]],contrast(mleARAInf,c(1,betas[indMax[2]],rhos[indMax[1]])),r=0.3,color="black",add=TRUE)
-
+  grid3d(c("rho", "b", "lnL"))
+  spheres3d(Est[3],Est[2],contrast(mleARAInf,c(Est[1],Est[2],Est[3])),r=0.4,alpha=0.5,color="red",add=TRUE)
+  indMax<-which(lnL==max(lnL), arr.ind = TRUE)
+  spheres3d(rhos[indMax[1]],betas[indMax[2]],contrast(mleARAInf,c(1,betas[indMax[2]],rhos[indMax[1]])),r=0.3,color="black",add=TRUE)
+}
 }
 
 \keyword{virtual age}
