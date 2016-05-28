@@ -1,5 +1,5 @@
-#ifndef RCPP_VAM_MODEL_H
-#define RCPP_VAM_MODEL_H
+#ifndef RCPP_MAINTENANCE_MODEL_H
+#define RCPP_MAINTENANCE_MODEL_H
 #include <Rcpp.h>
 #include "rcpp_vam_model.h"
 
@@ -9,7 +9,7 @@ using namespace Rcpp ;
 class MaintenanceModel;
 
 //Effective declarations
-class MaintenanceModelList {//List of ModelBase (heterogeneous terms) 
+class MaintenanceModelList {//List of MaintenanceModel (heterogeneous terms)
 public:
     MaintenanceModelList(List models_,VamModel* model);
 
@@ -27,7 +27,7 @@ public:
 protected:
 
     std::vector<MaintenanceModel*> model_list; //model list
-     
+
 };
 
 
@@ -46,7 +46,7 @@ public:
     virtual  void init() = 0;
 
     virtual int nb_params() = 0;
- 
+
     virtual void update(bool with_gradient,bool with_hessian) = 0;
 
     VamModel* model;
@@ -65,7 +65,7 @@ public:
 
 };
 
-class ARA1 : public MaintenanceModel { 
+class ARA1 : public MaintenanceModel {
 
 public:
 
@@ -97,7 +97,7 @@ private:
 
 };
 
-class ARAInf : public MaintenanceModel { 
+class ARAInf : public MaintenanceModel {
 
 public:
 
@@ -156,7 +156,7 @@ public:
 
 };
 
-class ABAO : public MaintenanceModel { 
+class ABAO : public MaintenanceModel {
 
 public:
 
@@ -182,7 +182,7 @@ public:
 
 };
 
-class AGAP : public MaintenanceModel { 
+class AGAP : public MaintenanceModel {
 
 public:
 
@@ -208,7 +208,7 @@ public:
 
 };
 
-class QAGAN : public MaintenanceModel { 
+class QAGAN : public MaintenanceModel {
 
 public:
 
@@ -234,7 +234,7 @@ public:
 
 };
 
-class QR : public MaintenanceModel { 
+class QR : public MaintenanceModel {
 
 public:
 
@@ -294,7 +294,7 @@ public:
 
 };
 
-class GQR : public MaintenanceModel { 
+class GQR : public MaintenanceModel {
 
 public:
 
@@ -340,7 +340,7 @@ private:
     f_GQR *f;
 };
 
-class GQR_ARA1 : public MaintenanceModel { 
+class GQR_ARA1 : public MaintenanceModel {
 
 public:
 
@@ -390,7 +390,7 @@ private:
     f_GQR *f;
 };
 
-class GQR_ARAInf : public MaintenanceModel { 
+class GQR_ARAInf : public MaintenanceModel {
 
 public:
 
@@ -440,7 +440,7 @@ private:
     f_GQR *f;
 };
 
-class ARAm : public MaintenanceModel { 
+class ARAm : public MaintenanceModel {
 
 public:
 
@@ -476,7 +476,7 @@ private:
 };
 
 
-class GQR_ARAm : public MaintenanceModel { 
+class GQR_ARAm : public MaintenanceModel {
 
 public:
 
@@ -530,4 +530,4 @@ private:
 
 MaintenanceModel* newMaintenanceModel(List maintenance,VamModel* model);
 
-#endif //RCPP_VAM_MODEL_H
+#endif //RCPP_MAINTENANCE_MODEL_H

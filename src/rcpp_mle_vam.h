@@ -42,7 +42,6 @@ public:
         model->set_params(pars);
     }
 
-
     void contrast_for_current_system() {
     	init_mle_vam_for_current_system(false,false);
 		int n=(model->time).size() - 1;
@@ -65,7 +64,7 @@ public:
         NumericVector res(1);
         double alpha=param[0];//save current value of alpha
 
-        param[0]=1;
+        param[0]=1; //Rmk: alpha replaces param[0] => a bit weird!
 
         init_mle_vam(false,false);
         model->set_params(param);
@@ -79,11 +78,13 @@ public:
             contrast_for_current_system();
         }
 
+        //DEBUG: printf("alpha=%lf,S0=%lf,S1=%lf,S2=%lf,S3=%lf\n",alpha,S0,S1,S2,S3);
         // log-likelihood (with constant +S0*(log(S0)-1))
-        if(!alpha_fixed)
-            {res[0]=-log(S1) * S0 + S2 +S0*(log(S0)-1)+S3;}
-        else
-            {res[0]=log(alpha)*S0+S2-alpha*S1+S3;}
+        if(!alpha_fixed) {
+          res[0]=-log(S1) * S0 + S2 +S0*(log(S0)-1)+S3;
+        } else {
+          res[0]=log(alpha)*S0+S2-alpha*S1+S3;
+        }
 
         return res;
         //return res[0]==R_NaN ? R_NegInf : res;
@@ -322,12 +323,12 @@ private:
         for(i=0;i<model->nbPM + 1;i++) model->models->at(i)->init();
 
     	model->Vright = 0; //100000.;
-        model->A=1;
+      model->A=1;
     	model->k=0;
     	model->idMod=0; //id of current model
     	model->S1 = 0;
     	model->S2 = 0;
-        model->S3 = 0;
+      model->S3 = 0;
     	model->S0 = 0;for(i=0;i<model->type.size();i++) if(model->type[i] < 0) (model->S0) += 1; //TO COMPUTE from model->type
         if(with_hessian) {
             for(i=0;i<(model->nb_paramsMaintenance);i++) {
@@ -460,4 +461,4 @@ private:
 
 };
 
-#endif //RCPP_SIM_VAM_H
+#endif //RCPP_MLE_VAM_H

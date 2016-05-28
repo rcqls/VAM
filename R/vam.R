@@ -174,7 +174,7 @@ mle.vam <- function(formula,data) {
 
 
 
-params.model.vam <- params.sim.vam <- params.mle.vam <- function(self,param) {
+params.model.vam <- params.sim.vam <- params.mle.vam <- params.bayesian.vam <- function(self,param) {
 	if(missing(param)) {
 		 self$rcpp()$get_params()
 	} else {
@@ -209,7 +209,7 @@ update.mle.vam <- function(mle,data) {
 
 #fonction de LD2
 contrast.mle.vam <-function(obj,par0,with_value=TRUE,with_gradient=FALSE,with_hessian=FALSE){
-	type=c(with_value,with_gradient,with_hessian)
+	type <- c(with_value,with_gradient,with_hessian)
 	rcpp <- obj$rcpp()
 	## save the initial param
 	if(is.null(obj$par0)) obj$par0 <- params(obj)
@@ -310,31 +310,30 @@ run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
 	if(missing(par0))  {
 		if("par" %in% names(obj)) {
 			param <- obj$par[-1]
-			alpha <- obj$par[1]#LD2
-		} #not the first run
-		else {
+			alpha <- obj$par[1] #LD2
+		} else {#not the first run
 			param<-params(obj)[-1] #first run
-			alpha<-params(obj)[1]#LD2
+			alpha<-params(obj)[1] #LD2
 		}
 	} else if(is.null(par0)) {
 		param<-obj$par0[-1]
-		alpha<-obj$par0[1]#LD2
+		alpha<-obj$par0[1] #LD2
 	} else {
 		param<-par0[-1]
-		alpha<-par0[1]#LD2
+		alpha<-par0[1] #LD2
 	}
 	## fixed and functions stuff!
 	if(missing(fixed)) {
 		fixed<-rep(FALSE,length(param))
-		alpha_fixed<-FALSE#LD2
+		alpha_fixed<-FALSE #LD2
 	} else if(is.numeric(fixed)) {
 		fixedInd<-fixed
 		fixed<-rep(FALSE,length(param))
-		fixed[fixedInd-1]<-TRUE#LD2: ajout du -1
-		alpha_fixed<-sum(fixed==1)
+		fixed[fixedInd-1]<-TRUE #LD2: ajout du -1
+		alpha_fixed<-sum(fixed==1) #OR ( 1 %in% fixed which is more expressive)
 	} else {#LD2
-		alpha_fixed<-fixed[1]#LD2
-		fixed<-fixed[-1]#LD2
+		alpha_fixed<-fixed[1] #LD2
+		fixed<-fixed[-1] #LD2
 	}#LD2
 
 
@@ -344,7 +343,7 @@ run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
 		#cat("param->");print(param)
 		## All the commented part allows us to save the param when value is NaN
 		#res<-
-		-rcpp$contrast(c(alpha,param),alpha_fixed)#LD2
+		-rcpp$contrast(c(alpha,param),alpha_fixed) #LD2
 		# if(is.nan(res)) {
 		# 	mode_param<-"contrast"
 		# 	data_param<- rcpp$get_data(0)
@@ -355,12 +354,12 @@ run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
 	}
 
 	gr <- function(par) {
-	    param[!fixed]<-par
+	  param[!fixed]<-par
 		#cat("param2->");print(param)
 		## All the commented part allows us to save the param when value is NaN
 		#res <-
 
-	   	(-rcpp$gradient(c(alpha,param),alpha_fixed)[-1])[!fixed]#LD2
+	  (-rcpp$gradient(c(alpha,param),alpha_fixed)[-1])[!fixed] #LD2
 		# if(any(is.nan(res))) {
 		# 	mode_param<-"gradient"
 		# 	save(param,mode_param,file="/Users/remy/tmp/VAM/res.RData")
@@ -368,33 +367,29 @@ run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
 		# res
 	}
 
-  	## optim stuff!
-  	if(is.null(method) || method=="fast") {
-    	if(length(param[!fixed])>1) param[!fixed]<-(res <- optim(param[!fixed],fn,gr,method="Ne",...))$par
-    	if(is.null(method)) res<-optim(param[!fixed],fn,gr,method="CG",...)
-  	} else {
-  		res<-optim(param[!fixed],fn,gr,method=method,...)
-  	}
+	## optim stuff!
+	if(is.null(method) || method=="fast") {
+  	if(length(param[!fixed])>1) param[!fixed]<-(res <- optim(param[!fixed],fn,gr,method="Ne",...))$par
+  	if(is.null(method)) res<-optim(param[!fixed],fn,gr,method="CG",...)
+	} else {
+		res<-optim(param[!fixed],fn,gr,method=method,...)
+	}
 
-  	#fixed tips
+  #fixed tips
   param[!fixed]<-res$par
 
   if(!alpha_fixed){#LD2
 	## complete the scale parameter
-	alpha <- rcpp$alpha_est(c(1,param))#LD2
-  }#LD2
-  res$par<-c(alpha,param)#LD2
+	alpha <- rcpp$alpha_est(c(1,param)) #LD2
+  } #LD2
+  res$par<-c(alpha,param) #LD2
 
   if(verbose) print(res)
 
   ## save stuff
-  obj$fixed <- c(alpha_fixed,fixed)#LD2
+  obj$fixed <- c(alpha_fixed,fixed) #LD2
   obj$optim<-res
   obj$par<-res$par
-
-
-
-
 
   obj$mle.coef <- res$par
   params(obj,obj$mle.coef) #put the result in the c++ part
@@ -406,13 +401,54 @@ run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
 ## Rmk: run.mle.vam is supposed to run many times to get the best estimate!
 ## Here, par=NULL forces initialisation update but does not ensure that it is the best estimate.
 ## TODO: try to find a best strategy or many strategies...
-coef.mle.vam <- function(obj,par=NULL,method=NULL,verbose=FALSE) {
+## ... added to deal with fixed by example!
+
+coef.mle.vam <- function(obj,par=NULL,method=NULL,verbose=FALSE,...) {
 	if(is.null(obj$mle.coef) || !is.null(par)) {
-		res <-run.mle.vam(obj,par,verbose=verbose,method=method)
+		res <-run.mle.vam(obj,par,verbose=verbose,method=method,...)
 		if(verbose && obj$optim$convergence>0) cat("convergence=",obj$optim$convergence,"\n",sep="")
 	}
 	obj$mle.coef
 }
+
+# bayesian.vam class
+
+bayesian.vam <- function(formula,data) {
+	self <- newEnv(bayesian.vam,formula=formula,data=data)
+
+	PersistentRcppObject(self,new = {
+		model <- parse.vam.formula(self$formula)
+		self$formula <- substitute.vam.formula(model=model)
+		response <- model$response
+		data <- data.frame.to.list.multi.vam(self$data,response)
+		priors <- priors.from.vam.formula(model)
+		##DEBUG: print("priors");print(priors)
+		##DEBUG: print("modelAV");print(model)
+		self$prior.params <- sapply(priors,update)
+	 	self$mle.formula <- substitute.vam.formula(self$formula,self$prior.params)
+		## THIS IS LESS CLEVER THAN THE NEXT LINE: print(model<-bayesian.model.to.mle.model(model,priors))
+		model<-parse.vam.formula(self$mle.formula)
+		##DEBUG: print("modelAP");print(model)
+		rcpp <- new(BayesianVam,model,data,priors)
+		rcpp
+	})
+
+	self
+}
+
+run.bayesian.vam <- function(obj,par0,fixed,nb=1000000,burn=10000,method=NULL,verbose=TRUE,...) {
+	rcpp <- obj$rcpp()
+	## init via mle: par0 is supposed first to be initialized by mle
+	mle <- mle.vam(obj$mle.formula,obj$data)
+	obj$mle.init <- coef(mle,fixed=fixed)
+	print(obj$mle.init)
+	rcpp$mcmc(obj$mle.init,nb,burn,FALSE) #TRUE IS TO FIX ALPHA
+}
+
+coef.bayesian.vam <- function(obj,...) {
+	run.bayesian.vam(obj,...)
+}
+
 
 # for both sim and mle
 
@@ -726,3 +762,50 @@ substitute.vam.formula <- function(formula,coef,model) {
 	form <- eval(parse(text=form),envir=globalenv())
 	form
 }
+
+priors.from.vam.formula <- function(model) {
+	flatten.params <- c(model$family$params,unlist(sapply(model$models,function(e) e$params)))
+	if(all(sapply(flatten.params,class) == "formula") ) {
+		prior.families <- c("B","Beta","U","Unif")
+		## clear "|" expression
+		flatten.params <- lapply(flatten.params,function(e) if(!as.character(e[[2]][[1]]) %in% prior.families) e[[2]][[2]] else e[[2]])
+		## transform to list
+		parse.prior <- function(prior) {
+				## declare here all the priors
+				Beta <- B <- Be <- function(a,b) list(name="Beta.prior",params=c(a,b))
+				Gamma <- G <- function(a,s) list(name="Gamma.prior",params=c(a,s))
+				Unif <- U <- function(a=0,b=1) list(name="Unif.prior",params=c(a,b))
+				res <- eval(prior)
+				class(res) <- res$name #to be accessible as a class in R
+				res
+		}
+		flatten.params <- lapply(flatten.params,parse.prior)
+		return(flatten.params)
+	} else {
+		warning("Not a formula for bayesian.vam object!")
+		NULL # means not ok!
+	}
+}
+
+### FOUND A BETTER WAY: see bayesian.vam
+## substitute prior with mean prior to be used inside mle.vam as initialization of run.bayesian.vam
+# bayesian.model.to.mle.model <- function(model,priors) {
+# 	print(priors)
+# 	if(!is.null(priors)) {
+# 		k<-0
+# 		for(i in 1:length(model$family$params)) {
+# 			##DEBUG: print("prior");print(k+1);print(priors[[k+1]]);print(update(priors[[k+1]]))
+# 			model$family$params[[i]] <-  update(priors[[k<-k+1]])
+# 		 }
+# 		model$family$params <- unlist(model$family$params)
+# 		for(j in 1:length(model$models)) {
+# 			for(i in 1:length(model$models[[j]]$params)) {
+# 				##DEBUG: print("prior");print(k+1);print(priors[[k+1]]);print(update(priors[[k+1]]))
+# 				model$models[[j]]$params[[i]] <- update(priors[[k<-k+1]])
+# 			}
+# 			model$models[[j]]$params <- unlist(model$models[[j]]$params)
+# 		}
+# 		return(model)
+# 	}
+# 	return(NULL)
+# }

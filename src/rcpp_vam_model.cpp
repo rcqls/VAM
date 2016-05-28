@@ -57,9 +57,9 @@ void VamModel::set_params(NumericVector pars) {
 	if (pars.size()!=nb_paramsFamily+nb_paramsMaintenance){
 		if (pars.size()>nb_paramsFamily+nb_paramsMaintenance){
 			toto=time[1];
-			printf("The length of the parameter vector is to big, some values are not considered !%f \n",toto);
+			printf("The length of the parameter vector is too big, some values are not considered !%f \n",toto);
 		} else {
-			printf("The length of the parameter vector is to small, the missing values are fixed to 0.5 !\n");
+			printf("The length of the parameter vector is too small, the missing values are fixed to 0.5 !\n");
 		}
 		NumericVector pars2(nb_paramsMaintenance+nb_paramsFamily);
 		for(i=0;i<std::min(pars.size(),pars2.size());i++){
