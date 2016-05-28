@@ -31,11 +31,11 @@ public:
 
     //facility method to initialize directly in R sigma of the proposal
     void set_sigma_at( int j, double sigma_) {
-      priors->at(j)->set_sigma(sigma_);
+      if(j>=0 && j<priors->size()) priors->at(j)->set_sigma(sigma_);
     }
 
     double get_sigma(int j) {
-      return priors->at(j)->get_sigma();
+      return ( (j>=0 && j<priors->size())  ? priors->at(j)->get_sigma() : -1 );
     }
 
     void set_data(List data_) {

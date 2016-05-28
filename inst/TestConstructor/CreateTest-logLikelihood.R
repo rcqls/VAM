@@ -1,4 +1,4 @@
-# R script used to develop the testthat test for log-likelihood.R 
+# R script used to develop the testthat test for log-likelihood.R
 
 # The number of the test
 nbtest<-"TGQRGQR"
@@ -9,10 +9,10 @@ switch(nbtest,
          simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,15)),Time=c(3.36,4.04,4.97,5.16, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98,7.51,8.02,9.43,10.2,11.5,12,13.78,15.2),Type=c(1,1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,1,1,-1,2,1,-1,1,-1,0),row.names=1:23)
          #simData<-simData[1:23,]
          theta<-c(0.3,2.3,0.9,1.3,0.7)
-         
+
          mle <- mle.vam(System & Time & Type ~ (GQR(0.8|sqrt) | Weibull(0.001,2.5)) & (GQR_ARAm(1.2,0.9|log,2)+AGAN()),data=simData)
-         
-         #L<-logLikelihood(mle,theta,c(TRUE,FALSE,FALSE))
+
+         #L<-logLik(mle,theta,c(TRUE,FALSE,FALSE))
          h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
          H<-function(t) theta[1]*t^(theta[2])
          rhoMC<-theta[3]
@@ -308,9 +308,9 @@ switch(nbtest,
          simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,14)),Time=c(3.36,4.04,4.97,5.16, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98,7.51,8.02,9.43,10.2,11.5,12,13.78),Type=c(1,1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,1,1,-1,1,-1,1,-1,0),row.names=1:22)
          #simData<-simData[1:4,]
          theta<-c(0.3,1.8,0.3,0.7)
-         #L<-logLikelihood(mle,theta,c(TRUE,FALSE,FALSE))
-         
-         
+         #L<-logLik(mle,theta,c(TRUE,FALSE,FALSE))
+
+
          mle <- mle.vam(System & Time & Type ~ (ARAm(0.3|2) | Weibull(0.001,2.5)) & (QR(0.6)),data=simData)
          h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
          H<-function(t) theta[1]*t^(theta[2])
@@ -465,8 +465,8 @@ switch(nbtest,
          simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,14)),Time=c(3.36,4.04,4.97,5.16, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98,7.51,8.02,9.43,10.2,11.5,12,13.78),Type=c(1,1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,1,1,-1,1,-1,1,-1,0),row.names=1:22)
          #simData<-simData[1:4,]
          theta<-c(0.3,1.8,1.3,0.7)
-         #L<-logLikelihood(mle,theta,c(TRUE,FALSE,FALSE))
-         
+         #L<-logLik(mle,theta,c(TRUE,FALSE,FALSE))
+
 
          mle <- mle.vam(System & Time & Type ~ (QR(0.3) | Weibull(0.001,2.5)) & (ARAm(0.6|2)),data=simData)
          h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
@@ -1052,15 +1052,15 @@ switch(nbtest,
          run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
        },
-       
+
        TGQRARA_5={
          #Weibull + MC ARA1 + MP GQ_RARAInf-log + MultiSystems + Censorship
          simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,4),rep(4,4),rep(5,7)),Time=c(3.36,4.04,4.97,5.16, 2.34,3.46,5.02,5.45, 1.18,2.22,3.14,4.83, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98),Type=c(1,1,1,1, -1,-1,-1,0, 1,-1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,0),row.names=1:23)
          #simData<-simData[1:12,]
          mle <- mle.vam(System & Time & Type ~ (ARA1(0.2) | Weibull(0.001,2.5)) & (GQR_ARAInf(0.7,-1.3|log)),data=simData)
          theta<-c(0.3,2.2,0.7,0.4,-0.9)
-         #L<-logLikelihood(mle,theta,c(TRUE,FALSE,FALSE))
-         
+         #L<-logLik(mle,theta,c(TRUE,FALSE,FALSE))
+
          h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
          H<-function(t) theta[1]*t^(theta[2])
          rhoMC<-theta[3]
@@ -1131,8 +1131,8 @@ switch(nbtest,
          #simData<-simData[1:24,]
          mle <- mle.vam(System & Time & Type ~ (AGAN() | Weibull(0.001,2.5)) & (GQR_ARA1(0.7,-1.3|log)),data=simData)
          theta<-c(0.3,2.2,0.4,-0.9)
-         #L<-logLikelihood(mle,theta,TRUE,FALSE,FALSE)
-         
+         #L<-logLik(mle,theta,TRUE,FALSE,FALSE)
+
          h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
          H<-function(t) theta[1]*t^(theta[2])
          rhoMP<-theta[3]
@@ -1205,8 +1205,8 @@ switch(nbtest,
          #simData<-simData[1:12,]
          mle <- mle.vam(System & Time & Type ~ (ARA1(0.2) | Weibull(0.001,2.5)) & (GQR_ARA1(0.7,-1.3|log)),data=simData)
          theta<-c(0.3,2.2,0.7,0.4,-0.9)
-         #L<-logLikelihood(mle,theta,c(TRUE,FALSE,FALSE))
-         
+         #L<-logLik(mle,theta,c(TRUE,FALSE,FALSE))
+
          h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
          H<-function(t) theta[1]*t^(theta[2])
          rhoMC<-theta[3]
@@ -1321,8 +1321,8 @@ switch(nbtest,
          #simData<-simData[1:12,]
          mle <- mle.vam(System & Time & Type ~ (ARA1(0.2) | Weibull(0.001,2.5)) & (GQR(0.7|log)),data=simData)
          theta<-c(0.3,2.2,0.7,0.4)
-         #L<-logLikelihood(mle,theta,c(TRUE,FALSE,FALSE))
-         
+         #L<-logLik(mle,theta,c(TRUE,FALSE,FALSE))
+
          h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
          H<-function(t) theta[1]*t^(theta[2])
          rhoMC<-theta[3]
@@ -1391,7 +1391,7 @@ switch(nbtest,
          simData<-data.frame(Time=c(18.09,52.07,95.71,145.75),Type=c(-1,-1,-1,-1),row.names=1:4)
          mle <- mle.vam(Time & Type ~ (GQR(0.7|sqrt) | Weibull(0.001,2.5)),data=simData)
          theta<-c(0.03,2.4,0.7)
-         
+
          rho<-theta[3]
          h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
          H<-function(t) theta[1]*t^(theta[2])
@@ -1410,7 +1410,7 @@ switch(nbtest,
          simData<-data.frame(Time=c(18.09,52.07,95.71,145.75),Type=c(-1,-1,-1,-1),row.names=1:4)
          mle <- mle.vam(Time & Type ~ (GQR(0.7|log) | Weibull(0.001,2.5)),data=simData)
          theta<-c(0.03,2.4,0.7)
-         
+
          rho<-theta[3]
          h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
          H<-function(t) theta[1]*t^(theta[2])
@@ -1475,7 +1475,7 @@ switch(nbtest,
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
          V<-(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i])+V)); A<-rhoMP^(C)*A; C<-1;  i<-i+1
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
-         
+
          V<-0; A<-A; C<-1;  i<-i+1
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
          V<-(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i])+V)); A<-rhoMP^(C)*A; C<-1;  i<-i+1
@@ -1540,7 +1540,7 @@ switch(nbtest,
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
          V<-(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i])+V)); A<-rhoMP^(C)*A; C<-1;  i<-i+1
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
-         
+
          V<-V; A<-A; C<-1;  i<-i+1
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
          V<-(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i])+V)); A<-rhoMP^(C)*A; C<-1;  i<-i+1
@@ -1605,7 +1605,7 @@ switch(nbtest,
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
          V<-(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i])+V)); A<-rhoMP^(C)*A; C<-1;  i<-i+1
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
-         
+
          V<-A*(T[i+1]-T[i])+V; A<-A; C<-1;  i<-i+1
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
          V<-(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i])+V)); A<-rhoMP^(C)*A; C<-1;  i<-i+1
@@ -1670,7 +1670,7 @@ switch(nbtest,
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
          V<-(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i])+V)); A<-rhoMP^(C)*A; C<-1;  i<-i+1
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
-         
+
          V<-0*(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i])+V)); A<-1+0*rhoMP^(C)*A; C<-1;  i<-i+1
          Lcalc<-Lcalc+(1-C)*log(A*h(A*(T[i+1]-T[i])+V))-(H(A*(T[i+1]-T[i])+V)-H(V))
          V<-(1-C)*((1-rhoMC)*(A*(T[i+1]-T[i])+V)); A<-rhoMP^(C)*A; C<-1;  i<-i+1
@@ -1690,8 +1690,8 @@ switch(nbtest,
          #simData<-simData[1:12,]
          mle <- mle.vam(System & Time & Type ~ (ARA1(0.2) | Weibull(0.001,2.5)) & (QR(0.7)),data=simData)
          theta<-c(0.3,2.2,0.7,0.4)
-         #L<-logLikelihood(mle,theta,c(TRUE,FALSE,FALSE))
-         
+         #L<-logLik(mle,theta,c(TRUE,FALSE,FALSE))
+
          h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
          H<-function(t) theta[1]*t^(theta[2])
          rhoMC<-theta[3]
@@ -1761,8 +1761,8 @@ switch(nbtest,
          #simData<-simData[1:12,]
          mle <- mle.vam(System & Time & Type ~ (QR(0.2) | Weibull(0.001,2.5)) & (ARA1(0.7)),data=simData)
          theta<-c(0.3,2.2,0.7,0.4)
-         #L<-logLikelihood(mle,theta,c(TRUE,FALSE,FALSE))
-         
+         #L<-logLik(mle,theta,c(TRUE,FALSE,FALSE))
+
          h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
          H<-function(t) theta[1]*t^(theta[2])
          rhoMC<-theta[3]
@@ -1825,15 +1825,15 @@ switch(nbtest,
          fix[1]=FALSE
          run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
-       }, 
+       },
       TQR4={
          #Weibull + MC QR + MP ARAinf + MultiSystems + Censorship
          simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,4),rep(4,4),rep(5,7)),Time=c(3.36,4.04,4.97,5.16, 2.34,3.46,5.02,5.45, 1.18,2.22,3.14,4.83, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98),Type=c(1,1,1,1, -1,-1,-1,0, 1,-1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,0),row.names=1:23)
          #simData<-simData[1:12,]
          mle <- mle.vam(System & Time & Type ~ (QR(0.2) | Weibull(0.001,2.5)) & (ARAInf(0.7)),data=simData)
          theta<-c(0.3,2.2,0.7,0.4)
-         #L<-logLikelihood(mle,theta,c(TRUE,FALSE,FALSE))
-         
+         #L<-logLik(mle,theta,c(TRUE,FALSE,FALSE))
+
          h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
          H<-function(t) theta[1]*t^(theta[2])
          rhoMC<-theta[3]
@@ -1896,15 +1896,15 @@ switch(nbtest,
          fix[1]=FALSE
          run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
-       }, 
+       },
     TQR3={
          #Weibull + MC ARAInf + MP QR + MultiSystems + Censorship
       simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,4),rep(4,4),rep(5,7)),Time=c(3.36,4.04,4.97,5.16, 2.34,3.46,5.02,5.45, 1.18,2.22,3.14,4.83, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98),Type=c(1,1,1,1, -1,-1,-1,0, 1,-1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,0),row.names=1:23)
       #simData<-simData[1:12,]
       mle <- mle.vam(System & Time & Type ~ (ARAInf(0.2) | Weibull(0.001,2.5)) & (QR(0.7)),data=simData)
       theta<-c(0.3,2.2,0.3,0.4)
-      #L<-logLikelihood(mle,theta,c(TRUE,FALSE,FALSE))
-      
+      #L<-logLik(mle,theta,c(TRUE,FALSE,FALSE))
+
          h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
          H<-function(t) theta[1]*t^(theta[2])
          rhoMC<-theta[3]
@@ -1950,13 +1950,13 @@ switch(nbtest,
          fix[1]=FALSE
          run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
          Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
-       },     
+       },
   TQR2={
     #Weibull + QR + MultiSystems + Censorship
     simData<-data.frame(System=c(1,1,1,1,2,2,2,3),Time=c(18.09,52.07,95.71,145.75,15.02,45.1,82,20.1),Type=c(-1,-1,-1,0,-1,-1,-1,-1),row.names=1:8)
     mle <- mle.vam(System & Time & Type ~ (QR(0.7) | Weibull(0.001,2.5)),data=simData)
     theta<-c(0.03,2.4,0.7)
-    
+
     rho<-theta[3]
     h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
     H<-function(t) theta[1]*t^(theta[2])
@@ -1981,7 +1981,7 @@ switch(nbtest,
     simData<-data.frame(Time=c(18.09,52.07,95.71,145.75),Type=c(-1,-1,-1,-1),row.names=1:4)
     mle <- mle.vam(Time & Type ~ (QR(0.7) | Weibull(0.001,2.5)),data=simData)
     theta<-c(0.03,2.4,0.7)
-    
+
     rho<-theta[3]
     h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
     H<-function(t) theta[1]*t^(theta[2])
@@ -2000,7 +2000,7 @@ switch(nbtest,
     simData<-data.frame(Time=c(3.36,4.04,4.97,5.16),Type=c(-1,-1,-1,-1),row.names=1:4)
     mle <- mle.vam(Time & Type ~ (AGAN() | Weibull(0.001,2.5)),data=simData)
     theta<-c(0.3,0.8,1)
-         
+
     rho<-1
     h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
     H<-function(t) theta[1]*t^(theta[2])
@@ -2019,7 +2019,7 @@ switch(nbtest,
     simData<-data.frame(Time=c(3.36,4.04,4.97,5.16),Type=c(-1,-1,-1,-1),row.names=1:4)
     mle <- mle.vam(Time & Type ~ (ABAO() | LogLinear(0.001,2.5)),data=simData)
     theta<-c(0.3,0.8,1)
-    
+
     rho<-0
     h<-function(t) theta[1]*exp(theta[2]*t)
     H<-function(t) theta[1]/theta[2]*(exp(theta[2]*t)-1)
@@ -2038,7 +2038,7 @@ switch(nbtest,
     simData<-data.frame(Time=c(3.36),Type=c(-1),row.names=1:1)
     mle <- mle.vam(Time & Type ~ (ARAInf(0.4) | Weibull3(0.001,2.5,5)),data=simData)
     theta<-c(0.3,1.8,4,0.6)
-    
+
     c<-theta[3]
     rho<-theta[4]
     h<-function(t) theta[1]*theta[2]*(t+c)^(theta[2]-1)
@@ -2055,7 +2055,7 @@ switch(nbtest,
     simData<-data.frame(Time=c(3.36),Type=c(-1),row.names=1:1)
     mle <- mle.vam(Time & Type ~ (ARAInf(0.4) | Weibull(0.001,2.5)),data=simData)
     theta<-c(0.3,1.8,0.6)
-    
+
     rho<-theta[3]
     h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
     H<-function(t) theta[1]*t^(theta[2])
@@ -2071,7 +2071,7 @@ switch(nbtest,
     simData<-data.frame(Time=c(3.36),Type=c(-1),row.names=1:1)
     mle <- mle.vam(Time & Type ~ (ARAInf(0.4) | LogLinear(0.001,2.5)),data=simData)
     theta<-c(0.3,0.8,0.6)
-    
+
     rho<-theta[3]
     h<-function(t) theta[1]*exp(theta[2]*t)
     H<-function(t) theta[1]/theta[2]*(exp(theta[2]*t)-1)
@@ -2087,7 +2087,7 @@ switch(nbtest,
     simData<-data.frame(Time=c(3.36,4.04,4.97,5.16),Type=c(-1,-1,-1,-1),row.names=1:4)
     mle <- mle.vam(Time & Type ~ (ARAInf(0.4) | Weibull(0.001,2.5)),data=simData)
     theta<-c(0.3,0.8,0.6)
-    
+
     rho<-theta[3]
     h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
     H<-function(t) theta[1]*t^(theta[2])
@@ -2106,7 +2106,7 @@ switch(nbtest,
     simData<-data.frame(Time=c(3.36,4.04,4.97,5.16),Type=c(-1,-1,-1,-1),row.names=1:4)
     mle <- mle.vam(Time & Type ~ (ARA1(0.4) | Weibull(0.001,2.5)),data=simData)
     theta<-c(0.3,0.8,0.6)
-    
+
     rho<-theta[3]
     h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
     H<-function(t) theta[1]*t^(theta[2])
@@ -2125,7 +2125,7 @@ switch(nbtest,
     simData<-data.frame(Time=c(3.36,4.04,4.97,5.16),Type=c(-1,-1,-1,-1),row.names=1:4)
     mle <- mle.vam(Time & Type ~ (ARAInf(0.4) | LogLinear(0.001,2.5)),data=simData)
     theta<-c(0.3,0.8,0.6)
-    
+
     rho<-theta[3]
     h<-function(t) theta[1]*exp(theta[2]*t)
     H<-function(t) theta[1]/theta[2]*(exp(theta[2]*t)-1)
@@ -2144,7 +2144,7 @@ switch(nbtest,
     simData<-data.frame(Time=c(3.36,4.04,4.97,5.16),Type=c(-1,-1,-1,0),row.names=1:4)
     mle <- mle.vam(Time & Type ~ (ARA1(0.4) | Weibull(0.001,2.5)),data=simData)
     theta<-c(0.3,0.8,0.6)
-    
+
     rho<-theta[3]
     h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
     H<-function(t) theta[1]*t^(theta[2])
@@ -2163,7 +2163,7 @@ switch(nbtest,
     simData<-data.frame(System=c(1,2),Time=c(3.36,2.34),Type=c(-1,-1),row.names=1:2)
     mle <- mle.vam(System & Time & Type ~ (ARAInf(0.4) | Weibull(0.001,2.5)),data=simData)
     theta<-c(0.3,1.8,0.6)
-    
+
     rho<-theta[3]
     h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
     H<-function(t) theta[1]*t^(theta[2])
@@ -2181,7 +2181,7 @@ switch(nbtest,
     simData<-data.frame(System=c(1,1,1,1,2,2,2,3),Time=c(3.36,4.04,4.97,5.16,2.34,3.46,5.02,4),Type=c(-1,-1,-1,0,-1,-1,-1,0),row.names=1:8)
     mle <- mle.vam(System & Time & Type ~ (ARAInf(0.4) | Weibull(0.001,2.5)),data=simData)
     theta<-c(0.3,1.8,0.6)
-    
+
     rho<-theta[3]
     h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
     H<-function(t) theta[1]*t^(theta[2])
@@ -2206,7 +2206,7 @@ switch(nbtest,
     simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,4),rep(4,4),rep(5,7)),Time=c(3.36,4.04,4.97,5.16, 2.34,3.46,5.02,5.45, 1.18,2.22,3.14,4.83, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98),Type=c(1,1,1,1, -1,-1,-1,0, 1,-1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,0),row.names=1:23)
     mle <- mle.vam(System & Time & Type ~ (ARAInf(0.4) | Weibull(0.001,2.5)) & (ARAInf(0.5)),data=simData)
     theta<-c(0.3,1.8,0.3,0.8)
-    
+
     rhoMC<-theta[3]
     rhoMP<-theta[4]
     h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
@@ -2260,7 +2260,7 @@ switch(nbtest,
     simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,4),rep(4,4),rep(5,7)),Time=c(3.36,4.04,4.97,5.16, 2.34,3.46,5.02,5.45, 1.18,2.22,3.14,4.83, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98),Type=c(1,1,1,1, -1,-1,-1,0, 1,-1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,0),row.names=1:23)
     mle <- mle.vam(System & Time & Type ~ (ARAInf(0.4) | Weibull(0.001,2.5)) & (AGAN()),data=simData)
     theta<-c(0.3,1.8,0.3)
-    
+
     rhoMC<-theta[3]
     rhoMP<-1
     h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
@@ -2314,7 +2314,7 @@ switch(nbtest,
     simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,4),rep(4,4),rep(5,7)),Time=c(3.36,4.04,4.97,5.16, 2.34,3.46,5.02,5.45, 1.18,2.22,3.14,4.83, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98),Type=c(1,1,1,1, -1,-1,-1,0, 1,-1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,0),row.names=1:23)
     mle <- mle.vam(System & Time & Type ~ (ARAInf(0.4) | Weibull(0.001,2.5)) & (ABAO()),data=simData)
     theta<-c(0.3,1.8,0.3)
-    
+
     rhoMC<-theta[3]
     rhoMP<-0
     h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
@@ -2368,7 +2368,7 @@ switch(nbtest,
     simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,4),rep(4,4),rep(5,7)),Time=c(3.36,4.04,4.97,5.16, 2.34,3.46,5.02,5.45, 1.18,2.22,3.14,4.83, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98),Type=c(1,1,1,1, -1,-1,-1,0, 1,-1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,0),row.names=1:23)
     mle <- mle.vam(System & Time & Type ~ (AGAN() | Weibull(0.001,2.5)) & (ARAInf(0.5)),data=simData)
     theta<-c(0.3,1.8,0.6)
-    
+
     rhoMC<-1
     rhoMP<-theta[3]
     h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
@@ -2422,7 +2422,7 @@ switch(nbtest,
     simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,4),rep(4,4),rep(5,7)),Time=c(3.36,4.04,4.97,5.16, 2.34,3.46,5.02,5.45, 1.18,2.22,3.14,4.83, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98),Type=c(1,1,1,1, -1,-1,-1,0, 1,-1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,0),row.names=1:23)
     mle <- mle.vam(System & Time & Type ~ (ABAO() | Weibull(0.001,2.5)) & (ARAInf(0.5)),data=simData)
     theta<-c(0.3,1.8,0.6)
-    
+
     rhoMC<-0
     rhoMP<-theta[3]
     h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
@@ -2476,7 +2476,7 @@ switch(nbtest,
     simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,4),rep(4,4),rep(5,7)),Time=c(3.36,4.04,4.97,5.16, 2.34,3.46,5.02,5.45, 1.18,2.22,3.14,4.83, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98),Type=c(1,1,1,1, -1,-1,-1,0, 1,-1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,0),row.names=1:23)
     mle <- mle.vam(System & Time & Type ~ (ARA1(0.4) | Weibull(0.001,2.5)) & (ARA1(0.5)),data=simData)
     theta<-c(0.3,1.8,0.3,0.8)
-    
+
     rhoMC<-theta[3]
     rhoMP<-theta[4]
     h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
@@ -2533,7 +2533,7 @@ switch(nbtest,
     #n<-11
     #Data<-data.frame(System=simData$System[1:n],Time=simData$Time[1:n],Type=simData$Type[1:n])
     #mle2 <- mle.vam(System & Time & Type ~ (ARA1(0.4) | Weibull(0.001,2.5)) & (ARAInf(0.5)),data=Data)
-    #L2<-logLikelihood(mle2,theta,c(TRUE,FALSE,FALSE))
+    #L2<-logLik(mle2,theta,c(TRUE,FALSE,FALSE))
     rhoMC<-theta[3]
     rhoMP<-theta[4]
     h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
@@ -2587,7 +2587,7 @@ switch(nbtest,
     simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,4),rep(4,4),rep(5,7)),Time=c(3.36,4.04,4.97,5.16, 2.34,3.46,5.02,5.45, 1.18,2.22,3.14,4.83, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98),Type=c(1,1,1,1, -1,-1,-1,0, 1,-1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,0),row.names=1:23)
     mle <- mle.vam(System & Time & Type ~ (ARAInf(0.4) | Weibull(0.001,2.5)) & (ARA1(0.5)),data=simData)
     theta<-c(0.3,1.8,0.3,0.8)
-    
+
     rhoMC<-theta[3]
     rhoMP<-theta[4]
     h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
@@ -2641,7 +2641,7 @@ switch(nbtest,
     simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,4),rep(4,4),rep(5,10)),Time=c(3.36,4.04,4.97,5.16, 2.34,3.46,5.02,5.45, 1.18,2.22,3.14,4.83, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98,7.51,8.02,9.43),Type=c(1,2,2,1, -1,-1,-1,0, 1,-1,-1,2, -1,2,2,0, 1,-1,1,-1,-1,2,1,2,-1,0),row.names=1:26)
     mle <- mle.vam(System & Time & Type ~ (ARAInf(0.4) | Weibull(0.001,2.5)) & (ARAInf(0.5)+ARA1(-1)),data=simData)
     theta<-c(0.3,1.8,0.3,0.8,-1)
-    
+
     rhoMC<-theta[3]
     rhoMP1<-theta[4]
     rhoMP2<-theta[5]
@@ -2703,7 +2703,7 @@ switch(nbtest,
     simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,4),rep(4,4),rep(5,10)),Time=c(3.36,4.04,4.97,5.16, 2.34,3.46,5.02,5.45, 1.18,2.22,3.14,4.83, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98,7.51,8.02,9.43),Type=c(1,2,2,1, -1,-1,-1,0, 1,-1,-1,2, -1,2,2,0, 1,-1,1,-1,-1,2,1,2,-1,0),row.names=1:26)
     mle <- mle.vam(System & Time & Type ~ (ARAInf(0.4) | Weibull(0.001,2.5)) & (AGAN()+ARA1(-1)),data=simData)
     theta<-c(0.3,1.8,0.3,-1)
-    
+
     rhoMC<-theta[3]
     rhoMP1<-1
     rhoMP2<-theta[4]
@@ -2765,7 +2765,7 @@ switch(nbtest,
     simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,4),rep(4,4),rep(5,10)),Time=c(3.36,4.04,4.97,5.16, 2.34,3.46,5.02,5.45, 1.18,2.22,3.14,4.83, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98,7.51,8.02,9.43),Type=c(1,2,2,1, -1,-1,-1,0, 1,-1,-1,2, -1,2,2,0, 1,-1,1,-1,-1,2,1,2,-1,0),row.names=1:26)
     mle <- mle.vam(System & Time & Type ~ (ARAInf(0.4) | Weibull3(0.001,2.5,3)) & (AGAN()+ARA1(-1)),data=simData)
     theta<-c(0.3,1.8,4,0.3,-1)
-    
+
     c<-theta[3]
     rhoMC<-theta[4]
     rhoMP1<-1
@@ -2825,9 +2825,9 @@ switch(nbtest,
   },
 )
 
-L<-logLikelihood(mle,theta,c(TRUE,FALSE,FALSE))
-dL<-logLikelihood(mle,theta,c(FALSE,TRUE,FALSE))
-d2L<-logLikelihood(mle,theta,c(FALSE,FALSE,TRUE))
+L<-logLik(mle,theta,c(TRUE,FALSE,FALSE))
+dL<-logLik(mle,theta,c(FALSE,TRUE,FALSE))
+d2L<-logLik(mle,theta,c(FALSE,FALSE,TRUE))
 C<-contrast(mle,theta,c(TRUE,FALSE,FALSE))
 dC<-contrast(mle,theta,c(FALSE,TRUE,FALSE))
 d2C<-contrast(mle,theta,c(FALSE,FALSE,TRUE))
@@ -2838,7 +2838,7 @@ EstdC<-dC
 for(i in (1:length(dL))){
   theta1<-theta
   theta1[i]<-theta1[i]+epsilon
-  EstdL[i]<-(logLikelihood(mle,theta1,c(TRUE,FALSE,FALSE))-logLikelihood(mle,theta,c(TRUE,FALSE,FALSE)))/epsilon
+  EstdL[i]<-(logLik(mle,theta1,c(TRUE,FALSE,FALSE))-logLik(mle,theta,c(TRUE,FALSE,FALSE)))/epsilon
 }
 for(i in (1:length(dC))){
   theta1<-theta
@@ -2850,7 +2850,7 @@ Estd2C<-d2C
 for(i in (1:(dim(d2L)[1]))){
   theta1<-theta
   theta1[i]<-theta1[i]+epsilon
-  Estd2L[i,]<-(logLikelihood(mle,theta1,c(FALSE,TRUE,FALSE))-logLikelihood(mle,theta,c(FALSE,TRUE,FALSE)))/epsilon
+  Estd2L[i,]<-(logLik(mle,theta1,c(FALSE,TRUE,FALSE))-logLik(mle,theta,c(FALSE,TRUE,FALSE)))/epsilon
 }
 if(!(is.null(dim(d2C)))){
   for(i in (1:(dim(d2C)[1]))){
@@ -2897,7 +2897,7 @@ ecrit<-function(aprinter,nl,nc){
   }
   else res<-paste(res,aprinter,sep=',')
   print(res)
-  
+
 }
 
 ecrit(L,0,0)

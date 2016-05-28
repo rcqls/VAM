@@ -1,13 +1,13 @@
-\name{logLikelihood.mle.vam}
+\name{logLik.mle.vam}
 
-\alias{logLikelihood.mle.vam}
+\alias{logLik.mle.vam}
 
 \title{Compute the log-likelihood for a virtual age model}
 
-\description{\code{logLikelihood.mle.vam} computes the log-likelihood of the parameters of a virtual age model for Corrective Maintenance (CM) and planned Preventive Maintenance (PM).}
+\description{\code{logLik.mle.vam} computes the log-likelihood of the parameters of a virtual age model for Corrective Maintenance (CM) and planned Preventive Maintenance (PM).}
 
 \usage{
-logLikelihood.mle.vam(obj,par0,with_value=TRUE,with_gradient=FALSE,with_hessian=FALSE)
+logLik.mle.vam(obj,par0,with_value=TRUE,with_gradient=FALSE,with_hessian=FALSE)
 }
 
 \arguments{
@@ -45,11 +45,11 @@ Otherwise, the log-likelihood is computed on the last parameters values obtained
 simARAInf<-sim.vam(  ~ (ARAInf(.4) | Weibull(.001,2.5)))
 simData<-simulate(simARAInf,30)
 mleARAInf <- mle.vam(Time & Type ~ (ARAInf(0.5) | Weibull(1,3)),data=simData)
-logLikelihood(mleARAInf,c(0.02,2.4,0.4))
+logLik(mleARAInf,c(0.02,2.4,0.4))
 Est<-coef(mleARAInf)
 contrast(mleARAInf)
-logLikelihood(mleARAInf)
-logLikelihood(mleARAInf,Est,c(TRUE,TRUE,TRUE))
+logLik(mleARAInf)
+logLik(mleARAInf,Est,c(TRUE,TRUE,TRUE))
 }
 
 \keyword{virtual age}

@@ -31,7 +31,7 @@ Otherwise, the last parameters values obtained by the optimization algorithm for
 \seealso{
 \code{\link{coef.mle.vam}} to extract the parameters value of the MLE.
 \code{\link{contrast.mle.vam}} to compute the contrast associated to the MLE.
-\code{\link{logLikelihood.mle.vam}} to compute the log-likelihood.
+\code{\link{logLik.mle.vam}} to compute the log-likelihood.
 }
 
 \examples{

@@ -1,14 +1,29 @@
 ## register priors but also
 
 #this update methods help for substituting mle
-update.Beta.prior <- function(obj) {
+mean.Beta.prior <- function(obj) {
   obj$params[1]/(obj$params[1]+obj$params[2])
 }
 
-update.Unif.prior <- function(obj) {
+sigma.Beta.prior <- function(obj) {
+  a<-obj$params[1];b<-obj$params[2]
+  sqrt(a*b/(a+b)^2*(a+b+1))
+}
+
+mean.Unif.prior <- function(obj) {
   (obj$params[1]+obj$params[2])/2
 }
 
-update.Gamma.prior <- function(obj) {
+sigma.Unif.prior <- function(obj) {
+  a<-obj$params[1];b<-obj$params[2]
+  sqrt((b-a)^2/12)
+}
+
+mean.Gamma.prior <- function(obj) {
   obj$params[1]*obj$params[2]
+}
+
+sigma.Gamma.prior <- function(obj) {
+  a<-obj$params[1];b<-obj$params[2]
+  sqrt(a*b^2)
 }

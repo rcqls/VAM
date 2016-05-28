@@ -29,7 +29,7 @@ Otherwise, the last parameters values obtained by the optimization algorithm for
 \seealso{
 \code{\link{run.mle.vam}} to compute the MLE.
 \code{\link{contrast.mle.vam}} to compute the contrast associated to the MLE.
-\code{\link{logLikelihood.mle.vam}} to compute the log-likelihood.
+\code{\link{logLik.mle.vam}} to compute the log-likelihood.
 \code{\link{formula.mle.vam}} to extract the original and estimated model.
 \code{\link{plot.mle.vam}} for plotting characteristics of the model.
 \code{\link{update.mle.vam}} to change the associated data set.

@@ -27,19 +27,17 @@ The symbolic description of the model done in \code{formula} has the form \code{
  \author{R. Drouilhet}
 
 \seealso{
-\code{\link{run.bayesian.vam}} to compute the MLE.
-\code{\link{coef.bayesian.vam}} to extract the parameters value of the MLE.
-\code{\link{formula.bayesian.vam}} to extract the original and estimated model.
-\code{\link{plot.bayesian.vam}} for plotting characteristics of the model.
-\code{\link{update.bayesian.vam}} to change the associated data set.
-\code{\link{contrast.bayesian.vam}} to compute the contrast associated to the MLE.
-\code{\link{logLikelihood.bayesian.vam}} to compute the log-likelihood.}
+\code{\link{run.bayesian.vam}} to compute the Bayesian method.
+\code{\link{coef.bayesian.vam}} to extract the parameters value of the Bayesian method.
+%\code{\link{formula.bayesian.vam}} to extract the original and estimated model.
+%\code{\link{plot.bayesian.vam}} for plotting characteristics of the model.
+}
 
 \examples{
 simARAInf<-sim.vam(  ~ (ARAInf(.4) | Weibull(.001,2.5)))
 simData<-simulate(simARAInf,30)
 bayesARAInf <- bayesian.vam(Time & Type ~ (ARAInf(~Unif(0,1)) | Weibull(~Unif(1,1.5),~Unif(2,4))),data=simData)
-#coef(bayesARAInf)
+coef(bayesARAInf)
 
 }
 
