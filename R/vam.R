@@ -432,7 +432,7 @@ bayesian.vam <- function(formula,data) {
 	self
 }
 
-run.bayesian.vam <- function(obj,par0,fixed,sigma,nb=100000,burn=10000,method=NULL,verbose=TRUE,...) {
+run.bayesian.vam <- function(obj,par0,fixed,sigma.proposal,nb=100000,burn=10000,method=NULL,verbose=TRUE,...) {
 	rcpp <- obj$rcpp()
 
 	## init via mle: par0 is supposed first to be initialized by mle
@@ -444,9 +444,11 @@ run.bayesian.vam <- function(obj,par0,fixed,sigma,nb=100000,burn=10000,method=NU
 	fixed <- fixed.tmp$fixed
 	obj$alpha_fixed <- fixed.tmp$alpha_fixed
 	##print(obj$mle.init)
-	if(missing(sigma)) {
-
+	if(missing(sigma.proposal)) sigma.proposal <- sapply(obj$priors,sigma)
+	else {
+		if(length(sigma.proposal)==1) sigma.proposal <- rep(sigma.proposal,length(obj$priors))
 	}
+	for(i in (1:length(obj$priors))) rcpp$set_sigma(i-1,sigma.proposal[i])
 	obj$par <- rcpp$mcmc(par0,nb,burn,obj$alpha_fixed)
 	obj$par
 }
