@@ -438,9 +438,10 @@ run.bayesian.vam <- function(obj,par0,fixed,sigma.proposal,nb=100000,burn=10000,
 	## init via mle: par0 is supposed first to be initialized by mle
 	if(missing(par0)) {
 		obj$mle <- mle.vam(obj$mle.formula,obj$data)
-		par0 <- coef(obj$mle,fixed=fixed)
+		obj$mle.init <- TRUE
+		obj$par0 <- coef(obj$mle,fixed=fixed)
 	}
-	fixed.tmp <- init.fixed.param(par0,fixed)
+	fixed.tmp <- init.fixed.param(obj$par0,fixed)
 	fixed <- fixed.tmp$fixed
 	obj$alpha_fixed <- fixed.tmp$alpha_fixed
 	##print(obj$mle.init)
@@ -449,12 +450,12 @@ run.bayesian.vam <- function(obj,par0,fixed,sigma.proposal,nb=100000,burn=10000,
 		if(length(sigma.proposal)==1) sigma.proposal <- rep(sigma.proposal,length(obj$priors))
 	}
 	for(i in (1:length(obj$priors))) rcpp$set_sigma(i-1,sigma.proposal[i])
-	obj$par <- rcpp$mcmc(par0,nb,burn,obj$alpha_fixed)
+	obj$par <- rcpp$mcmc(obj$par0,nb,burn,obj$alpha_fixed)
 	obj$par
 }
 
-coef.bayesian.vam <- function(obj,...) {
-	run(obj,...)
+coef.bayesian.vam <- function(obj,new.run=FALSE,...) {
+	if(new.run || is.null(obj$par)) run(obj,...)
 	param <- sapply(obj$par,mean)
 	if(!obj$alpha_fixed){
 		## complete the scale parameter
@@ -467,6 +468,14 @@ plot.bayesian.vam <- function(obj,i=1,...) {
 	if(is.null(obj$par)) run(obj)
 	hist(obj$par[[i]],prob=TRUE)
 	abline(v=mean(obj$par[[i]]),col="blue",lwd=2)
+}
+
+summary.bayesian.vam <- function(obj,new.run=FALSE,...) {
+	if(new.run || is.null(obj$par)) run(obj,...)
+	cat("Initial parameters",if(!is.null(obj$mle.init)) " (by MLE)" else "",": ",paste(obj$par0,collapse=", "),"\n",sep="")
+	cat("(Mean) Bayesian estimates: ", paste(coef(obj),collapse=", "),"\n",sep="")
+	cat("(SD) Bayesian estimates: ",paste(sapply(obj$par,sd),collapse=", "),"\n",sep="")
+	cat("(Number) Bayesian estimates: ",paste(sapply(obj$par,length),collapse=", "),"\n",sep="")
 }
 
 
