@@ -65,30 +65,54 @@ private:
 
 };
 
-class UnifPrior : public BayesianPrior {
+class NonInformativePrior : public BayesianPrior {
 
 public:
 
-    UnifPrior(NumericVector params_) : BayesianPrior() {
-    	a = params_[0];b=params_[1];
+    NonInformativePrior(NumericVector params_) : BayesianPrior() {
     }
 
     NumericVector get_params() {
       //printf("Unif:a,b=%lf,%lf\n",a,b);
-      return NumericVector::create(a,b);
+      return NumericVector::create();
     }
 
     double get() {
-      return R::runif(a,b);
+      return R::runif(0,2);//Non sense!
     };
 
     double density(double x) {
       //printf("Unif:a,b=%lf,%lf\n",a,b);
-      return R::dunif(x,a,b,0);
+      return 1/x;
     };
 
+};
+
+
+class UnifPrior : public BayesianPrior {
+
+public:
+
+UnifPrior(NumericVector params_) : BayesianPrior() {
+  a = params_[0];b=params_[1];
+}
+
+NumericVector get_params() {
+  //printf("Unif:a,b=%lf,%lf\n",a,b);
+  return NumericVector::create(a,b);
+}
+
+double get() {
+  return R::runif(a,b);
+};
+
+double density(double x) {
+  //printf("Unif:a,b=%lf,%lf\n",a,b);
+  return R::dunif(x,a,b,0);
+};
+
 private:
-    double a,b;
+double a,b;
 
 };
 
@@ -141,6 +165,32 @@ public:
 
 private:
     double a,s;
+
+};
+
+class NormPrior : public BayesianPrior {
+
+public:
+
+    NormPrior(NumericVector params_) : BayesianPrior() {
+    	m = params_[0];s=params_[1];
+    }
+
+    NumericVector get_params() {
+      //printf("Gamma:a,s=%lf,%lf\n",a,s);
+      return NumericVector::create(m,s);
+    }
+
+    double get() {
+      return R::rnorm(m,s);
+    };
+
+    double density(double x) {
+      return R::dnorm(x,m,s,0);
+    };
+
+private:
+    double m,s;
 
 };
 

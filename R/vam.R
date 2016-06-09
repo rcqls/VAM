@@ -804,6 +804,8 @@ priors.from.vam.formula <- function(model) {
 				Beta <- B <- Be <- function(a,b) list(name="Beta.prior",params=c(a,b))
 				Gamma <- G <- function(a,s) list(name="Gamma.prior",params=c(a,s))
 				Unif <- U <- function(a=0,b=1) list(name="Unif.prior",params=c(a,b))
+				Norm <- N <- function(m=0,s=1) list(name="Norm.prior",params=c(m,s))
+				NonInform <- NInf <- NI <- function() list(name="NonInform.prior",params=c())
 				res <- eval(prior)
 				class(res) <- res$name #to be accessible as a class in R
 				res
