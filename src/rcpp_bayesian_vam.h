@@ -58,6 +58,11 @@ public:
         model->set_params(pars);
     }
 
+    //delegate from model cache!
+    List get_virtual_age_infos(double by,double from, double to) {
+        return model->get_virtual_age_infos(by,from,to);
+    }
+
     //Is it make sense to consider multisystem for Bayesian framework? I guess so since you can compute
     // the contrast with these data.
 
@@ -112,6 +117,53 @@ public:
         //NumericVector res3(res2.begin(),res2.end());
         res[j-jStart]=res2;
       }
+      return res;
+    }
+
+    //nb is here the number of proposal accepted!
+    List mcmcDF(NumericVector pars,int nb, int burn, bool alpha_fixed=false) {
+      int nbParams = pars.size();
+      BayesianPrior* curPrior;
+      NumericVector curPars=clone(pars),oldPars=clone(pars);
+      int i,j,jStart=1;//jStart=1 here because alpha is not considered yet!
+      double oldL,L,r,r0,paramCurVal;
+      oldL=mle->contrast(oldPars,alpha_fixed)[0];
+      //if(alpha_fixed) jStart++;
+      NumericVector ind(nb),val(nb);
+      int cpt=0;
+      for(j=jStart;j<nbParams;j++) priors->at(j)->clear();
+      for(i=0;cpt<nb;i++) {//exit when cpt is nb
+        for(j=jStart;j<nbParams;j++) {
+          curPrior=priors->at(j);
+          //propose a new value!
+          paramCurVal=curPrior->new_proposal(oldPars[j]);
+          curPars[j]=paramCurVal;
+          // compute the ratio
+          // for(int jj=0;jj<nbParams;jj++) {
+          //   printf("[%d](%lf=%lf),",jj,oldPars[jj],curPars[jj]);
+          // }
+          // printf("\n");
+          L=mle->contrast(curPars,alpha_fixed)[0];
+          r=exp(L-oldL)*(curPrior->density(curPars[j]))/curPrior->density(oldPars[j]);
+          r0=R::runif(0,1);
+          //printf("r,r0=%lf,%lf\n",r,r0);
+          if(r > r0) {
+            if(i>burn) {
+              //curPrior->push_back(curPars[j]);
+              ind[cpt]=j;
+              val[cpt]=curPars[j];
+              cpt++;
+            }
+            oldPars[j]=curPars[j];
+            oldL=L;
+          } else {
+            //Put the old value;
+            curPars[j]=oldPars[j];
+          }
+        }
+      }
+      List res(2);
+      res[0]=ind;res[1]=val;
       return res;
     }
 
