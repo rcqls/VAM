@@ -1,21 +1,31 @@
 ## Provide cm.type or pm.type  with value "n" to not have cm and pm elements in the plot.
 ## cm.type or pm.type to NA means default value depending on type value.
-plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cumulative","F","conditional.cdf","S","conditional.survival","f","conditional.pdf"),from,to,length.out=101,by,system.index=1,cm.type=NA,pm.type=NA,add=FALSE,...) {
-	rcpp <- rcpp(obj)
-	## IMPORTANT: sim.vam is now
-	# d <- if(inherits(obj,"sim.vam")) rcpp$get_data() else
-	d <- rcpp$get_data(system.index-1) #0 since one-system first!
-	if(nrow(d)==0) stop("plot failed since data are required!")
-	#print("d");print(d)
+plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cumulative","F","conditional.cdf","S","conditional.survival","f","conditional.pdf"),from,to,length.out=101,by,system.index=1,cm.type=NA,pm.type=NA,add=FALSE,preplot,...) {
+	## preplot is used for plot.bayesian.vam where preplotting infos are precalculated
+	if(missing(preplot)) {
+		rcpp <- rcpp(obj)
+		## IMPORTANT: sim.vam is now
+		# d <- if(inherits(obj,"sim.vam")) rcpp$get_data() else
+		d <- rcpp$get_data(system.index-1) #0 since one-system first!
+		if(nrow(d)==0) stop("plot failed since data are required!")
+		#print("d");print(d)
 
-	mask <- TRUE
-	if(missing(from)) from <- min(d$Time) else mask <- mask & d$Time>= from
-	if(missing(to)) to <- max(d$Time) else mask <- mask & d$Time <= to
+		mask <- TRUE
+		if(missing(from)) from <- min(d$Time) else mask <- mask & d$Time>= from
+		if(missing(to)) to <- max(d$Time) else mask <- mask & d$Time <= to
 
-	if(missing(by)) by <- (to-from)/(length.out-1)
-	infos <- rcpp$get_virtual_age_infos(by,from,to)
-	infos <- infos[sapply(infos,function(e) !is.null(e))]
-	#print("infos");print(infos);infos2 <<- infos
+		if(missing(by)) by <- (to-from)/(length.out-1)
+		infos <- rcpp$get_virtual_age_infos(by,from,to)
+		infos <- infos[sapply(infos,function(e) !is.null(e))]
+		#print("infos");print(infos);infos2 <<- infos
+	} else {
+		d <- preplot$d
+		mask <- preplot$mask
+		from <- preplot$from
+		to <- preplot$to
+		by <- preplot$by
+		infos <- preplot$infos
+	}
 
 	## type
 	if(length(grep("-",type))) { # deal with modifier -cm and -pm
@@ -201,3 +211,61 @@ plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cum
 }
 
 plot.mle.vam  <- plot.sim.vam  <- plot.model.vam
+
+preplots.bayesian.vam <- function(obj,from,to,length.out=101,by,system.index=1,type=c("2.5%","mean","97.5%"),filter=c("i","I"),nb=500) {
+	rcpp <- rcpp(obj)
+	## IMPORTANT: sim.vam is now
+	# d <- if(inherits(obj,"sim.vam")) rcpp$get_data() else
+	d <- rcpp$get_data(system.index-1) #0 since one-system first!
+	if(nrow(d)==0) stop("plot failed since data are required!")
+	#print("d");print(d)
+
+	mask <- TRUE
+	if(missing(from)) from <- min(d$Time) else mask <- mask & d$Time>= from
+	if(missing(to)) to <- max(d$Time) else mask <- mask & d$Time <= to
+
+	if(missing(by)) by <- (to-from)/(length.out-1)
+
+	run(obj,nb=nb,history=TRUE)
+	param <- if(!obj$alpha_fixed) obj$par0[-1] else obj$par0
+	res <- NULL
+	for(k in 1:nrow(obj$par)) {
+		param[obj$par$ind[k]] <- obj$par$estimate[k]
+		rcpp$set_params( if(!obj$alpha_fixed) c(rcpp(obj$mle)$alpha_est(c(1,param)),param) else param)
+		infos <- rcpp$get_virtual_age_infos(by,from,to)
+		infos <- infos[sapply(infos,function(e) !is.null(e))]
+		if(k==1) res <- lapply(infos,function(e) as.list(e[filter]))
+		else {
+			for(i in seq(res)) for(f in filter) {
+				res[[i]][[f]] <- cbind(res[[i]][[f]],infos[[i]][[f]])
+			}
+		}
+	}
+	preplots <- list()
+	for(mode in type) {
+		preplots[[mode]] <- list(d=d,mask=mask,from=from,to=to,by=by,infos=list())
+		for(i in seq(res)) {
+			preplots[[mode]]$infos[[i]] <- infos[[i]][c("t","v")]
+			for(f in filter) {
+				if(substr(mode,nchar(mode),nchar(mode))=="%") {
+					alpha <- as.numeric(substr(mode,1,nchar(mode)-1))/100
+					fct <- function(e) quantile(e,alpha)
+				} else fct <- mean
+				preplots[[mode]]$infos[[i]][[f]] <- apply(res[[i]][[f]],1,fct)
+			}
+		}
+	}
+	preplots
+}
+
+plot.bayesian.vam <- function(obj,type=c("i","intensity","I","cumulative","F","conditional.cdf","S","conditional.survival","f","conditional.pdf"),from,to,length.out=101,by,system.index=1,cm.type=NA,pm.type=NA,add=FALSE,...) {
+	type <- match.arg(type)
+	preplots <- preplots.bayesian.vam(obj,from,to,length.out,by,system.index)
+	## first one
+	mode <- names(preplots)[1]
+	plot.model.vam(obj,type=type,cm.type=cm.type,pm.type=pm.type,preplot=preplots[[mode]],col=(if(mode=="mean") "blue" else "black") ,lty=if(mode=="mean") 1 else 3)
+	## the other plots
+	for(mode in  names(preplots)[-1]) {
+		plot.model.vam(obj,type=type,cm.type=cm.type,pm.type=pm.type,preplot=preplots[[mode]],add=TRUE,col=(if(mode=="mean") "blue" else "black") ,lty=if(mode=="mean") 1 else 3,...)
+	}
+}

@@ -61,8 +61,9 @@ RCPP_MODULE(vam_module) {
 	.method("get_sigma",&BayesianVam::get_sigma,"get sigma")
 	.method("get_prior_params",&BayesianVam::get_prior_params,"get prior params")
 	.method("get_virtual_age_infos",&BayesianVam::get_virtual_age_infos,"get infos related to virtual ages")
+	.method("get_data",&BayesianVam::get_selected_data,"get (selected) data")
 	.method("mcmc",&BayesianVam::mcmc,"mcmc method")
-	.method("mcmcDF",&BayesianVam::mcmcDF,"mcmc method with result as data.frame")
+	.method("mcmc_history",&BayesianVam::mcmc_history,"mcmc method with result as data.frame")
 	;
 
 	class_<FamilyModel>("FamilyModel")

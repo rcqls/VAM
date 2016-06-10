@@ -63,6 +63,10 @@ public:
         return model->get_virtual_age_infos(by,from,to);
     }
 
+    DataFrame get_selected_data(int i) {
+        return model->get_selected_data(i);
+    }
+
     //Is it make sense to consider multisystem for Bayesian framework? I guess so since you can compute
     // the contrast with these data.
 
@@ -121,7 +125,7 @@ public:
     }
 
     //nb is here the number of proposal accepted!
-    List mcmcDF(NumericVector pars,int nb, int burn, bool alpha_fixed=false) {
+    List mcmc_history(NumericVector pars,int nb, int burn, bool alpha_fixed=false) {
       int nbParams = pars.size();
       BayesianPrior* curPrior;
       NumericVector curPars=clone(pars),oldPars=clone(pars);
