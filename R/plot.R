@@ -212,7 +212,7 @@ plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cum
 
 plot.mle.vam  <- plot.sim.vam  <- plot.model.vam
 
-preplots.bayesian.vam <- function(obj,from,to,length.out=101,by,system.index=1,type=c("2.5%","mean","97.5%"),filter=c("i","I"),nb=500) {
+preplots.bayesian.vam <- function(obj,from,to,length.out=101,by,system.index=1,type=c("2.5%","mean","97.5%"),filter=c("i","I"),nb.proposal=500) {
 	rcpp <- rcpp(obj)
 	## IMPORTANT: sim.vam is now
 	# d <- if(inherits(obj,"sim.vam")) rcpp$get_data() else
@@ -226,7 +226,7 @@ preplots.bayesian.vam <- function(obj,from,to,length.out=101,by,system.index=1,t
 
 	if(missing(by)) by <- (to-from)/(length.out-1)
 
-	run(obj,nb=nb,history=TRUE)
+	run(obj,nb=nb.proposal,history=TRUE)
 	param <- if(!obj$alpha_fixed) obj$par0[-1] else obj$par0
 	res <- NULL
 	for(k in 1:nrow(obj$par)) {
@@ -258,14 +258,15 @@ preplots.bayesian.vam <- function(obj,from,to,length.out=101,by,system.index=1,t
 	preplots
 }
 
-plot.bayesian.vam <- function(obj,type=c("i","intensity","I","cumulative","F","conditional.cdf","S","conditional.survival","f","conditional.pdf"),from,to,length.out=101,by,system.index=1,cm.type=NA,pm.type=NA,add=FALSE,...) {
+plot.bayesian.vam <- function(obj,type=c("i","intensity","I","cumulative","F","conditional.cdf","S","conditional.survival","f","conditional.pdf"),from,to,length.out=101,by,system.index=1,cm.type=NA,pm.type=NA,add=FALSE,nb.proposal=500,...) {
 	type <- match.arg(type)
-	preplots <- preplots.bayesian.vam(obj,from,to,length.out,by,system.index)
+	if((!missing(from) && from != obj$preplots[[1]]$from) || (!missing(to) && to != obj$preplots[[1]]$to)) obj$preplots <- NULL
+	if(is.null(obj$preplots)) obj$preplots <- preplots.bayesian.vam(obj,from,to,length.out,by,system.index,nb.proposal=nb.proposal)
 	## first one
-	mode <- names(preplots)[1]
-	plot.model.vam(obj,type=type,cm.type=cm.type,pm.type=pm.type,preplot=preplots[[mode]],col=(if(mode=="mean") "blue" else "black") ,lty=if(mode=="mean") 1 else 3)
+	mode <- names(obj$preplots)[1]
+	plot.model.vam(obj,type=type,cm.type=cm.type,pm.type=pm.type,preplot=obj$preplots[[mode]],col=(if(mode=="mean") "blue" else "black") ,lty=if(mode=="mean") 1 else 3)
 	## the other plots
-	for(mode in  names(preplots)[-1]) {
-		plot.model.vam(obj,type=type,cm.type=cm.type,pm.type=pm.type,preplot=preplots[[mode]],add=TRUE,col=(if(mode=="mean") "blue" else "black") ,lty=if(mode=="mean") 1 else 3,...)
+	for(mode in  names(obj$preplots)[-1]) {
+		plot.model.vam(obj,type=type,cm.type=cm.type,pm.type=pm.type,preplot=obj$preplots[[mode]],add=TRUE,col=(if(mode=="mean") "blue" else "black") ,lty=if(mode=="mean") 1 else 3,...)
 	}
 }
