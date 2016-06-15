@@ -25,6 +25,7 @@
 	\item "F" or "conditional.cdf" for conditional distribution function of the next failure time,
 	\item "S" or "conditional.survival" for conditional survival function of the next failure time,
 	\item "f" or "conditional.pdf" for conditional probability density function of the next failure time.
+	\item "d" or "data" for data representation as the CM counting process.
 }
 By default, PM times are also represented, but "-pm" can be added at the end of the string \code{type} in order to avoid this representation. By default, CM times are also represented (or the cumulative number of CM in the "I" case), but "-cm" can be added at the end of the string "\code{type}" in order to avoid this representation. For example, the types \code{"I-pm"} and \code{"I-pm-cm"} both correspond to the cumulative failure intensity plot, but in the first case the cumulative number of failure will also be plotted.
 }

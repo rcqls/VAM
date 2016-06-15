@@ -1,6 +1,6 @@
 ## Provide cm.type or pm.type  with value "n" to not have cm and pm elements in the plot.
 ## cm.type or pm.type to NA means default value depending on type value.
-plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cumulative","F","conditional.cdf","S","conditional.survival","f","conditional.pdf"),from,to,length.out=101,by,system.index=1,cm.type=NA,pm.type=NA,add=FALSE,preplot,...) {
+plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cumulative","F","conditional.cdf","S","conditional.survival","f","conditional.pdf","d","data"),from,to,length.out=101,by,system.index=1,cm.type=NA,pm.type=NA,add=FALSE,preplot,...) {
 	## preplot is used for plot.bayesian.vam where preplotting infos are precalculated
 	if(missing(preplot)) {
 		rcpp <- rcpp(obj)
@@ -57,6 +57,11 @@ plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cum
 		cumulative=,I={
 			var <- "I"
 			ylab<-"cumulative intensity"
+			if(is.na(cm.type)) cm.type <- "s"
+		},
+		d=,data={
+			var <- "d"
+			ylab<-"CM counting process"
 			if(is.na(cm.type)) cm.type <- "s"
 		},
 		conditional.cdf=,F={
@@ -153,14 +158,15 @@ plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cum
 	if(!add) do.call("plot",c(list(c(from,to),c(0,ymax),type="n"),args.plot))
 
 	## 'v' or 'i' or 'I' plot
-	t <- infos[[1]]$t
-	v <- infos[[1]][[var]]
-	for(i in seq_along(infos)[-1]) {
-		t<-c(t,NA,infos[[i]]$t)
-		v <- c(v,NA,infos[[i]][[var]])
+	if(var != "d") {
+		t <- infos[[1]]$t
+		v <- infos[[1]][[var]]
+		for(i in seq_along(infos)[-1]) {
+			t<-c(t,NA,infos[[i]]$t)
+			v <- c(v,NA,infos[[i]][[var]])
+		}
+		do.call("lines",c(list(t,v),args.lines))
 	}
-	do.call("lines",c(list(t,v),args.lines))
-
 	## cm
 
 	if(cm.type != "n") {
