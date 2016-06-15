@@ -178,7 +178,7 @@ plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cum
 		},s={
 			cm.call<-"lines"
 			args.cm[["x"]] <- c(0,d$Time[d$Type == -1 & mask],d$Time[nrow(d)])
-			args.cm[["y"]] <- c(0,1:(sum(d$Type == -1 & mask)->tmp),tmp)
+			args.cm[["y"]] <- c(0,1:(sum(d$Type == -1 & mask)->tmp),tmp) + sum(d$Type == -1 & d$Time < from)
 			args.cm[["type"]] <- "s"
 		})
 		##DEBUG: print(c(list(call=cm.call),args.cm))
