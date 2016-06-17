@@ -94,7 +94,8 @@ parse.stop.policy <- function(ch) {
   parsed.expr <- simplify.parenthesis(parsed.expr)
 
 	expand.distrib <- function(e) {
-    if(is.name(e[[1]]) && (substring(e[[1]],1,1) %in% LETTERS)) {
+		## particular case: e can be a variable which is of class "name"
+    if(class(e)!="name" && is.name(e[[1]]) && (substring(e[[1]],1,1) %in% LETTERS)) {
       e[[1]] <- as.name(paste0("r",tolower(substring(e[[1]],1,1)),substring(e[[1]],2)))
       as.call(c(as.name("~"),as.call(c(e[[1]],1,as.list(e)[-1]))))
     } else e
@@ -105,9 +106,9 @@ parse.stop.policy <- function(ch) {
 
     ## Time > ???? or Time > (RightCensorship=???)
     if(e[[1]] == as.name(">") && e[[2]]==as.name("Time")) {
-      ## Time > (RightCensorship=???)
+      ## Time > (RightCensorship=???) 
       if(length(e[[3]])==2 && e[[3]][[1]]==as.name("(") && length(e[[3]][[2]])==3 && e[[3]][[2]][[1]]==as.name("=") && e[[3]][[2]][[2]]==as.name("RightCensorship")) {
-        return(as.call(c(as.name("TimeGreaterThanCensorship"),censorship=expand.distrib(e[[3]][[2]][[3]]))))
+				return(as.call(c(as.name("TimeGreaterThanCensorship"),censorship=expand.distrib(e[[3]][[2]][[3]]))))
       } else {## Time > ????
         return(as.call(c(as.name("TimeGreaterThan"),time=e[[3]])))
       }
