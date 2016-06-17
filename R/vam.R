@@ -486,6 +486,8 @@ summary.bayesian.vam <- function(obj,new.run=FALSE,...) {
 # for both sim and mle
 
 parse.vam.formula <- function(formula) {
+	## Needs to have this envir to evaluate params (otherwise, beta was found in baseenv() first before globalenv() for example!)
+	envir.eval <- parent.frame(4)
 	if(formula[[1]] != as.name("~")) stop("Argument has to be a formula")
 	if(length(formula) == 2) {
 		response <- NULL
@@ -590,12 +592,13 @@ parse.vam.formula <- function(formula) {
 	cms[[cpt.cms <- cpt.cms + 1]] <- parse.cm(cm)
 
 	convert.family <- function(fam) {
-		list(
+		res<-list(
 				name=as.character(fam[[1]]),
-				params=sapply(fam[-1],function(e) as.vector(eval(e)))
+				params=sapply(fam[-1],function(e) as.vector(eval(e,envir.eval)))
 				## instead of : params=sapply(cm$family[-1],as.vector)
 				## which does not work with negative real since element of tmp[-1] interpreted as call!
 		)
+		return(res)
 	}
 	convert.pm <- function(pm) {
 		n_pip<-c()
