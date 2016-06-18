@@ -756,7 +756,7 @@ substitute.vam.formula <- function(formula,coef,model) {
 						"~ (",
 							strsplit(model$models[[1]]$name,"\\.")[[1]][1],
 							"(",
-							paste(coef[nb_paramsFamily+(1:nb_paramsCM)],collapse=","),
+							if(nb_paramsCM>0) paste(coef[nb_paramsFamily+(1:nb_paramsCM)],collapse=",") else "",
 							if(!is.null(model$models[[1]]$m) || !is.null(model$models[[1]]$extra)) {
 								extra <- c()
 								if(!is.null(model$models[[1]]$extra)) extra <- c(extra,model$models[[1]]$extra)
@@ -767,7 +767,7 @@ substitute.vam.formula <- function(formula,coef,model) {
 						"|",
 							strsplit(model$family$name,"\\.")[[1]][1],
 							"(",
-							paste(coef[1:nb_paramsFamily],collapse=","),
+							 paste(coef[1:nb_paramsFamily],collapse=","),
 							")",
 						")"
 					)
@@ -780,7 +780,7 @@ substitute.vam.formula <- function(formula,coef,model) {
 									paste0(
 										strsplit(pms[[i]]$name,"\\.")[[1]][1],
 										"(",
-										paste(coef[nb_paramsFamily+nb_paramsCM+ifelse(i>1,sum(nb_paramsPM[1:(i-1)]),0)+(1:nb_paramsPM[i])],collapse=","),
+										if(nb_paramsPM[i]>0) paste(coef[nb_paramsFamily+nb_paramsCM+ifelse(i>1,sum(nb_paramsPM[1:(i-1)]),0)+(1:nb_paramsPM[i])],collapse=",") else "",
 										if(!is.null(pms[[i]]$m) || !is.null(pms[[i]]$extra)) {
 											extra <- c()
 											if(!is.null(pms[[i]]$extra)) extra <- c(extra,pms[[i]]$extra)
