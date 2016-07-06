@@ -488,6 +488,7 @@ summary.bayesian.vam <- function(obj,new.run=FALSE,...) {
 parse.vam.formula <- function(formula) {
 	## Needs to have this envir to evaluate params (otherwise, beta was found in baseenv() first before globalenv() for example!)
 	envir.eval <- parent.frame(4)
+	eval.vam <- function(e) eval(e,envir.eval)
 	if(formula[[1]] != as.name("~")) stop("Argument has to be a formula")
 	if(length(formula) == 2) {
 		response <- NULL
@@ -594,7 +595,7 @@ parse.vam.formula <- function(formula) {
 	convert.family <- function(fam) {
 		res<-list(
 				name=as.character(fam[[1]]),
-				params=sapply(fam[-1],function(e) as.vector(eval(e,envir.eval)))
+				params=sapply(fam[-1],function(e) as.vector(eval.vam(e)))
 				## instead of : params=sapply(cm$family[-1],as.vector)
 				## which does not work with negative real since element of tmp[-1] interpreted as call!
 		)
@@ -612,52 +613,52 @@ parse.vam.formula <- function(formula) {
 		if(length(n_pip)==0) {
 			list(
 				name=as.character(pm[[1]]),
-				params=as.vector(if(length(pm)==1) numeric(0) else sapply(pm[2:length(pm)],function(e) as.vector(eval(e))))
+				params=as.vector(if(length(pm)==1) numeric(0) else sapply(pm[2:length(pm)],function(e) as.vector(eval.vam(e))))
 			)
 		} else if(length(n_pip)==1) {
 			if(n_pip<(length(pm)-1)) {
 				stop("Maximum two arguments after a | in a maintenance effect!")
 			} else if(n_pip == length(pm)) {
-				if( typeof(tryCatch( as.double(eval(pm[[length(pm)]][[3]])) ,error=function(e){FALSE},finally=function(e){TRUE}))!="logical"){
-	  				if((round(eval(pm[[length(pm)]][[3]])) != eval(pm[[length(pm)]][[3]]))||(round(eval(pm[[length(pm)]][[3]]))<=0)) {
+				if( typeof(tryCatch( as.double(eval.vam(pm[[length(pm)]][[3]])) ,error=function(e){FALSE},finally=function(e){TRUE}))!="logical"){
+	  				if((round(eval.vam(pm[[length(pm)]][[3]])) != eval.vam(pm[[length(pm)]][[3]]))||(round(eval.vam(pm[[length(pm)]][[3]]))<=0)) {
 	  					stop("Memory argument of a maintenance model has to be a strictly positive integer!")
 	  				} else {
 	  	  				list(
 									name=as.character(pm[[1]]),
-									params=as.vector(if(length(pm)==2) as.vector(eval(pm[[2]][[2]])) else c(sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)]][[2]])))),
-									m=as.integer(eval(pm[[length(pm)]][[3]]))
+									params=as.vector(if(length(pm)==2) as.vector(eval.vam(pm[[2]][[2]])) else c(sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval.vam(e))),as.vector(eval.vam(pm[[length(pm)]][[2]])))),
+									m=as.integer(eval.vam(pm[[length(pm)]][[3]]))
 		  					)
 						}
 	  			} else {
 	  				list(
 							name=as.character(pm[[1]]),
-							params=as.vector(if(length(pm)==2) as.vector(eval(pm[[2]][[2]])) else c(sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)]][[2]])))),
+							params=as.vector(if(length(pm)==2) as.vector(eval.vam(pm[[2]][[2]])) else c(sapply(pm[2:(length(pm)-1)],function(e) as.vector(eval.vam(e))),as.vector(eval.vam(pm[[length(pm)]][[2]])))),
 							extra=as.character(pm[[length(pm)]][[3]])
 						)
 	  			}
 			} else {
-				if( typeof(tryCatch( as.double(eval(pm[[length(pm)-1]][[3]])) ,error=function(e){FALSE},finally=function(e){TRUE}))!="logical"){
-  				if((round(eval(pm[[length(pm)-1]][[3]]))!=eval(pm[[length(pm)-1]][[3]]))||(round(eval(pm[[length(pm)-1]][[3]]))<0)) {
+				if( typeof(tryCatch( as.double(eval.vam(pm[[length(pm)-1]][[3]])) ,error=function(e){FALSE},finally=function(e){TRUE}))!="logical"){
+  				if((round(eval.vam(pm[[length(pm)-1]][[3]]))!=eval.vam(pm[[length(pm)-1]][[3]]))||(round(eval.vam(pm[[length(pm)-1]][[3]]))<0)) {
   					stop("Memory argument of a maintenance model has to be a positive integer!")
   				} else {
   	  				list(
 								name=as.character(pm[[1]]),
-								params=as.vector(if(length(pm)==3) as.vector(eval(pm[[2]][[2]])) else c(sapply(pm[2:(length(pm)-2)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)-1]][[2]])))),
-								m=as.integer(eval(pm[[length(pm)-1]][[3]])),
+								params=as.vector(if(length(pm)==3) as.vector(eval.vam(pm[[2]][[2]])) else c(sapply(pm[2:(length(pm)-2)],function(e) as.vector(eval.vam(e))),as.vector(eval.vam(pm[[length(pm)-1]][[2]])))),
+								m=as.integer(eval.vam(pm[[length(pm)-1]][[3]])),
 								extra=as.character(pm[[length(pm)]])
 	  					)
 					}
 				} else {
-					if( typeof(tryCatch( as.double(eval(pm[[length(pm)]])) ,error=function(e){FALSE},finally=function(e){TRUE}))=="logical"){
+					if( typeof(tryCatch( as.double(eval.vam(pm[[length(pm)]])) ,error=function(e){FALSE},finally=function(e){TRUE}))=="logical"){
 						stop("At least one of the two argument of maintenance model after a | must be a memory that is to say a non negative positive integer!")
 					} else {
-						if((round(eval(pm[[length(pm)]]))!=eval(pm[[length(pm)]]))||(round(eval(pm[[length(pm)]]))<0)) {
+						if((round(eval.vam(pm[[length(pm)]]))!=eval.vam(pm[[length(pm)]]))||(round(eval.vam(pm[[length(pm)]]))<0)) {
 	  						stop("Memory argument of a maintenance model has to be a positive integer!")
 	  					} else {
 	  	  					list(
 								name=as.character(pm[[1]]),
-								params=as.vector(if(length(pm)==3) as.vector(eval(pm[[2]][[2]])) else c(sapply(pm[2:(length(pm)-2)],function(e) as.vector(eval(e))),as.vector(eval(pm[[length(pm)-1]][[2]])))),
-								m=as.integer(eval(pm[[length(pm)]])),
+								params=as.vector(if(length(pm)==3) as.vector(eval.vam(pm[[2]][[2]])) else c(sapply(pm[2:(length(pm)-2)],function(e) as.vector(eval.vam(e))),as.vector(eval.vam(pm[[length(pm)-1]][[2]])))),
+								m=as.integer(eval.vam(pm[[length(pm)]])),
 								extra=as.character(pm[[length(pm)-1]][[3]])
 		  					)
 	  	  				}
@@ -703,7 +704,7 @@ parse.vam.formula <- function(formula) {
 
 			## The function defining the maintenance policy
 			## (registered in maintenance-policy-register.R or in any other R file)
-			mp.fct <- eval(mp[[1]])
+			mp.fct <- eval.vam(mp[[1]])
 			## params used in the call mp
 			pars <- as.list(match.call(mp.fct,mp))[-1]
 
@@ -717,13 +718,13 @@ parse.vam.formula <- function(formula) {
 			## deal with model parameter which has a specific treatment
 			mod <- NULL
 			if(!is.null(pars[["model"]])) {
-				mod <- rcpp(eval(pars[["model"]]))
+				mod <- rcpp(eval.vam(pars[["model"]]))
 				pars[["model"]] <- NULL
 			}
 
 			res <- list(
 				name=as.character(mp[[1]]),
-				params=lapply(pars,eval)
+				params=lapply(pars,eval.vam)
 			)
 			res[["with.model"]] <- !is.null(mod)
 			if(!is.null(mod)) res[["model"]] <- mod
