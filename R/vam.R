@@ -38,7 +38,7 @@ simulate.sim.vam <- function(sim, stop.policy = 10, nb.system=1, cache.size=500,
 	rcpp <- self$rcpp()
 
 	self$stop.policy.last <- parse.stop.policy(deparse(substitute(stop.policy)))
-	stop.policy <- eval(self$stop.policy.last)
+	stop.policy <- eval(self$stop.policy.last,parent.frame(1))
 	if(is.numeric(stop.policy)) {
 		if(stop.policy == as.integer(stop.policy)) {#integer
 			stop.policy <- EndAt(size=stop.policy)
@@ -814,7 +814,7 @@ priors.from.vam.formula <- function(model) {
 				Unif <- U <- function(a=0,b=1) list(name="Unif.prior",params=c(a,b))
 				Norm <- N <- function(m=0,s=1) list(name="Norm.prior",params=c(m,s))
 				NonInform <- NInf <- NI <- function() list(name="NonInform.prior",params=c())
-				res <- eval(prior)
+				res <- eval(prior) ## TODO or NOT TODO: eval(prior,parent.frame())
 				class(res) <- res$name #to be accessible as a class in R
 				res
 		}
