@@ -15,6 +15,10 @@ DataFrame SimVam::get_last_data() {
 
 DataFrame SimVam::simulate(int nbsim) {
     init(nbsim);
+    RNGScope rngScope;
+
+    //DEBUG[distrib type1]: int type1CptAV=0,typeCptAV=0,type1CptAP=0,typeCptAP=0;
+
 
     stop_policy->first();
 
@@ -30,8 +34,6 @@ DataFrame SimVam::simulate(int nbsim) {
         //# Here, obj$model$k means k-1
         //#print(c(obj$model$Vleft,obj$model$Vright))
 
-        RNGScope rngScope;
-
         double timePM= 0.0, timeCM = model->virtual_age_inverse(model->family->inverse_cumulative_hazardRate(model->family->cumulative_hazardRate(model->virtual_age(model->time[model->k]))-log(runif(1))[0]));
         //TODO: submodels
         int idMod;
@@ -40,9 +42,14 @@ DataFrame SimVam::simulate(int nbsim) {
             timeAndTypePM = model->maintenance_policy->update(model); //# Peut-être ajout Vright comme argument de update
             //timeAndTypePM = model->maintenance_policy->update(model->time[model->k]); //# Peut-être ajout Vright comme argument de update
 
+            //DEBUG[distrib type1]:
+            //NumericVector tmp0=timeAndTypePM["type"];
+            //int type0PM=tmp0[0];
+            //typeCptAV++;if(type0PM==1) type1CptAV++;
+
             NumericVector tmp=timeAndTypePM["time"];
             timePM=tmp[0];
-            //DEBUG: printf("sim: timePM:%lf, timeCM=%lf\n",timePM,timeCM);
+            //DEBUG[distrib type1]: printf("sim: timePM(%d):%lf, timeCM=%lf\n",type0PM,timePM,timeCM);
             if(timePM<timeCM && timePM<model->time[model->k]) {
           		printf("Warning: PM ignored since next_time(=%lf)<current_time(=%lf) at rank %d.\n",timePM,model->time[model->k],model->k);
             }
@@ -55,6 +62,7 @@ DataFrame SimVam::simulate(int nbsim) {
             model->time[model->k + 1]=timePM;
             NumericVector tmp2=timeAndTypePM["type"];
             int typePM=tmp2[0];
+            //DEBUG[distrib type1]: typeCptAP++;if(typePM==1) type1CptAP++;printf("typePM=%d\n",typePM);
             model->type[model->k + 1]=typePM;
             idMod=timeAndTypePM["type"];
         }
@@ -67,6 +75,7 @@ DataFrame SimVam::simulate(int nbsim) {
         model->models->at(idMod)->update(false,false);
 
     }
+    //DEBUG[distrib type1]: printf("cpt: %d/%d et %d/%d\n",type1CptAV,typeCptAV,type1CptAP,typeCptAP);
 
     return get_last_data();
 }

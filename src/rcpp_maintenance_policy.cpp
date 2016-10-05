@@ -74,11 +74,18 @@ VamModel* MaintenancePolicy::update_external_model(VamModel* model) {
 List PeriodicMaintenancePolicy::update(VamModel* model) {
     double current=model->time[model->k];
     // List update(double current) {
-	Function sample_int = Environment::base_env()["sample.int"];
+	//BUG: VERY WEIRD, sample.int BECOMES BUGGY from R v3: Function sample_int = Environment::base_env()["sample.int"];
 	List res;
 	res["time"] = from + (floor((current - from)/by) + 1) * by;
+	//BUG: see above!
 	//First argument not automatically wrapped in RcppWin64bits ??? => weird!
-	int t=as<int>(sample_int(NumericVector::create(prob.size()),1,true,prob))+get_from_type();
+	//int t=as<int>(sample_int(NumericVector::create(prob.size()),1,true,prob))+get_from_type();
+	//SOLUTION:
+	int t=1,n=prob.size();
+	double r=R::runif(0,1);
+	while(t<n && r>prob[t-1]) {t++;r-=prob[t-1];}
+
+	//printf("from=%d,t=%d, %lf\n",get_from_type(),t,prob[0]);
 	res["type"]=t;
 	return res;
 
@@ -105,12 +112,12 @@ List AtTimesMaintenancePolicy::update(VamModel* model) {
             }
             current-=k*times[size-1];
             while(times[i]<=current) {i++;}
-            res["time"]=times[i]+k*times[size-1]; 
+            res["time"]=times[i]+k*times[size-1];
         } else {
             while((i<size)&&(times[i]<=current)) {i++;}
             if (i==size) {res["time"]=1.0/0.0;}
             else {res["time"]=times[i]; }
-        }   
+        }
     }
     res["type"]= 1+get_from_type();
     return res;
