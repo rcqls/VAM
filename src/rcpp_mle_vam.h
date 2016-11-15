@@ -17,6 +17,8 @@ public:
         d2S1=new double[(model->nb_paramsMaintenance+model->nb_paramsFamily-1)*(model->nb_paramsMaintenance+model->nb_paramsFamily)/2];//inferior diagonal part of the hessian matrice by lines
         d2S2=new double[(model->nb_paramsMaintenance+model->nb_paramsFamily-1)*(model->nb_paramsMaintenance+model->nb_paramsFamily)/2];//inferior diagonal part of the hessian matrice by lines
         d2S3=new double[(model->nb_paramsMaintenance)*(model->nb_paramsMaintenance+1)/2];
+        leftCensors=NULL;
+        leftCensor=0;
     }
 
     ~MLEVam() {
@@ -28,7 +30,22 @@ public:
         delete[] d2S1;
         delete[] d2S2;
         delete[] d2S3;
+        if(leftCensors != NULL) delete[] leftCensors;
     };
+
+    void set_leftCensors(IntegerVector leftCensorsR) {
+      leftCensors=NULL;//as<int*>(IntegerVector(leftCensorsR.begin(),leftCensorsR.end()));
+    }
+
+    void reset_leftCensors() {
+      if(leftCensors != NULL) delete[] leftCensors;
+      leftCensors=NULL;
+      leftCensor=0;
+    }
+
+    void select_leftCensor(int i) {
+      if(leftCensors != NULL) leftCensor=leftCensors[i];
+    }
 
     void set_data(List data_) {
         model->set_data(data_);
@@ -44,16 +61,16 @@ public:
 
     void contrast_for_current_system() {
     	init_mle_vam_for_current_system(false,false);
-		int n=(model->time).size() - 1;
-		while(model->k < n) {
-            //printf("  Time=%f, Type=%d\n",model->time[model->k+1],model->type[model->k+1]);
-			contrast_update_for_current_system(false,false);
-			// previous model for the next step
-			int type=model->type[model->k + 1 ];
-			if(type < 0) type=0;
-			//model->indMode = (type < 0 ? 0 : type);
-			model->models->at(type)->update(false,false);
-		}
+  		int n=(model->time).size() - 1;
+  		while(model->k < n) {
+              //printf("  Time=%f, Type=%d\n",model->time[model->k+1],model->type[model->k+1]);
+  			contrast_update_for_current_system(false,false);
+  			// previous model for the next step
+  			int type=model->type[model->k + 1 ];
+  			if(type < 0) type=0;
+  			//model->indMode = (type < 0 ? 0 : type);
+  			model->models->at(type)->update(false,false);
+  		}
         //model updated for current system: S1,S2,S0
         S1 += model->S1;S2 += model->S2; S0 += model->S0; S3 += model->S3;
         //printf("Conclusion : S1=%f, S2=%f, S0=%f\n",model->S1,model->S2,model->S0);
@@ -70,11 +87,13 @@ public:
         model->set_params(param);
         //printf("System %d\n",1);
         model->select_data(0);
+        select_leftCensor(0);
         contrast_for_current_system();
         //only if multi-system
         for(int i=1;i<model->nb_system;i++) {
             //printf("System %d\n",i+1);
             model->select_data(i);
+            select_leftCensor(i);
             contrast_for_current_system();
         }
 
@@ -120,11 +139,13 @@ public:
         init_mle_vam(true,false);
         model->set_params(param);
         model->select_data(0);
+        select_leftCensor(0);
         gradient_for_current_system();
 
         //only if multi-system
         for(int i=1;i<model->nb_system;i++) {
             model->select_data(i);
+            select_leftCensor(i);
             gradient_for_current_system();
         }
 
@@ -189,11 +210,13 @@ public:
         init_mle_vam(true,true);
         model->set_params(param);
         model->select_data(0);
+        select_leftCensor(0);
         hessian_for_current_system();
 
         //only if multi-system
         for(int i=1;i<model->nb_system;i++) {
             model->select_data(i);
+            select_leftCensor(i);
             hessian_for_current_system();
         }
 
@@ -285,6 +308,8 @@ private:
 
     double S1, S2, S0, S3, *dS1, *dS2, *dS3;//Accumulator!
     double *d2S1, *d2S2, *d2S3;//Accumulator!
+    int* leftCensors; //CAREFUL: this is a vector of indices!
+    int leftCensor; //leftCensor for current system
 
     void init_mle_vam(bool with_gradient,bool with_hessian) {
         int i;
@@ -381,7 +406,7 @@ private:
     	// printf("HVright:%lf,%lf\n",model->Vright,model->family->cumulative_hazardRate(model->Vright));
     	// printf("S1:%lf\n",model->S1);
     	// printf("indType,S2,hVleft:%lf,%lf,%lf\n",model->indType,model->S1,model->hVleft);
-    	model->S1 += model->family->cumulative_hazardRate(model->Vleft) - model->family->cumulative_hazardRate(model->Vright);
+    	if(model->k >= leftCensor) model->S1 += model->family->cumulative_hazardRate(model->Vleft) - model->family->cumulative_hazardRate(model->Vright);
     	model->S2 += log(model->hVleft)* model->indType;
         model->S3 += log(model->A)* model->indType;
     	//for(int i=0;i<(model->nbPM)+2;i++) model->dS1[i] += cdVleft[i] - cdVright[i];
@@ -396,14 +421,14 @@ private:
         double *cumhVleft_param_derivative=model->family->cumulative_hazardRate_param_derivative(model->Vleft,false);
         double *hVleft_param_derivative=model->family->hazardRate_param_derivative(model->Vleft,false);
         for(i=0;i<model->nb_paramsFamily-1;i++){
-            model->dS1[i] +=  cumhVleft_param_derivative[i]-cumhVright_param_derivative[i] ;
+            if(model->k >= leftCensor) model->dS1[i] +=  cumhVleft_param_derivative[i]-cumhVright_param_derivative[i] ;
             model->dS2[i] += hVleft_param_derivative[i]/model->hVleft*model->indType ;
         }
     	double hVright=model->family->hazardRate(model->Vright);
     	double dhVleft=model->family->hazardRate_derivative(model->Vleft);
     	  //printf("k:%d,hVright:%lf,dhVleft:%lf,indType:%lf\n",model->k,hVright,dhVleft,model->indType);
     	for(i=0;i<model->nb_paramsMaintenance;i++) {
-    		model->dS1[i+model->nb_paramsFamily-1] += model->hVleft * model->dVleft[i] - hVright * model->dVright[i];
+    		if(model->k >= leftCensor) model->dS1[i+model->nb_paramsFamily-1] += model->hVleft * model->dVleft[i] - hVright * model->dVright[i];
     		//printf("dS1[%d]=(%lf,%lf,%lf),%lf,",i+1,model->hVleft,model->dVleft[i],model->dVright[i],model->dS1[i+1]);
     		model->dS2[i+model->nb_paramsFamily-1] +=  dhVleft * model->dVleft[i]/model->hVleft * model->indType;
     		//printf("dS2[%d]=%lf,",i+1,model->dS2[i+1]);
@@ -424,10 +449,10 @@ private:
         double *cumhVleft_param_2derivative=model->family->cumulative_hazardRate_param_2derivative(model->Vleft,false);
         double *hVleft_param_2derivative=model->family->hazardRate_param_2derivative(model->Vleft);
         for(i=0;i<model->nb_paramsFamily-1;i++){
-            model->dS1[i] +=  cumhVleft_param_derivative[i]-cumhVright_param_derivative[i] ;
+            if(model->k >= leftCensor) model->dS1[i] +=  cumhVleft_param_derivative[i]-cumhVright_param_derivative[i] ;
             model->dS2[i] += hVleft_param_derivative[i]/model->hVleft*model->indType ;
             for(j=0;j<=i;j++) {
-                model->d2S1[i*(i+1)/2+j] += cumhVleft_param_2derivative[i*(i+1)/2+j]-cumhVright_param_2derivative[i*(i+1)/2+j];
+                if(model->k >= leftCensor) model->d2S1[i*(i+1)/2+j] += cumhVleft_param_2derivative[i*(i+1)/2+j]-cumhVright_param_2derivative[i*(i+1)/2+j];
                 model->d2S2[i*(i+1)/2+j] += (hVleft_param_2derivative[i*(i+1)/2+j]/model->hVleft -hVleft_param_derivative[i]*hVleft_param_derivative[j]/pow(model->hVleft,2))*model->indType;
                 }
             }
@@ -439,19 +464,19 @@ private:
         double d2hVleft=model->family->hazardRate_2derivative(model->Vleft);
         //printf("k:%d,hVright:%lf,dhVleft:%lf,indType:%lf\n",model->k,hVright,dhVleft,model->indType);
         for(i=0;i<model->nb_paramsMaintenance;i++) {
-            model->dS1[i+model->nb_paramsFamily-1] += model->hVleft * model->dVleft[i] - hVright * model->dVright[i];
+            if(model->k >= leftCensor) model->dS1[i+model->nb_paramsFamily-1] += model->hVleft * model->dVleft[i] - hVright * model->dVright[i];
             //printf("dS1[%d]=(%lf,%lf,%lf),%lf,",i+1,model->hVleft,model->dVleft[i],model->dVright[i],model->dS1[i+1]);
             model->dS2[i+model->nb_paramsFamily-1] +=  dhVleft * model->dVleft[i]/model->hVleft * model->indType;
             //printf("dS2[%d]=%lf,",i+1,model->dS2[i+1]);
             //column 0 and i+1 corresponds to the line indice of (inferior diagonal part of) the hessian matrice
             model->dS3[i] +=  model->dA[i]/model->A * model->indType;
             for(j=0;j<model->nb_paramsFamily-1;j++){
-                model->d2S1[(i+model->nb_paramsFamily-1)*(i+model->nb_paramsFamily)/2+j] += hVleft_param_derivative[j] * model->dVleft[i] - hVright_param_derivative[j] * model->dVright[i];
+                if(model->k >= leftCensor) model->d2S1[(i+model->nb_paramsFamily-1)*(i+model->nb_paramsFamily)/2+j] += hVleft_param_derivative[j] * model->dVleft[i] - hVright_param_derivative[j] * model->dVright[i];
                 model->d2S2[(i+model->nb_paramsFamily-1)*(i+model->nb_paramsFamily)/2+j] +=  dhVleft_param_derivative[j] * model->dVleft[i]/model->hVleft * model->indType - hVleft_param_derivative[j]*dhVleft * model->dVleft[i]/pow(model->hVleft,2) * model->indType;
             }
             for(j=0;j<=i;j++){
                 //i+1 and j+1(<=i+1) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
-                model->d2S1[(i+model->nb_paramsFamily-1)*(i+model->nb_paramsFamily)/2+j+model->nb_paramsFamily-1] += dhVleft*model->dVleft[i]*model->dVleft[j] + model->hVleft * model->d2Vleft[i*(i+1)/2+j] - dhVright*model->dVright[i]*model->dVright[j] - hVright * model->d2Vright[i*(i+1)/2+j];
+                if(model->k >= leftCensor) model->d2S1[(i+model->nb_paramsFamily-1)*(i+model->nb_paramsFamily)/2+j+model->nb_paramsFamily-1] += dhVleft*model->dVleft[i]*model->dVleft[j] + model->hVleft * model->d2Vleft[i*(i+1)/2+j] - dhVright*model->dVright[i]*model->dVright[j] - hVright * model->d2Vright[i*(i+1)/2+j];
                 model->d2S2[(i+model->nb_paramsFamily-1)*(i+model->nb_paramsFamily)/2+j+model->nb_paramsFamily-1] += ( model->dVleft[i]*model->dVleft[j]*(d2hVleft/model->hVleft-pow(dhVleft/model->hVleft,2)) + dhVleft * model->d2Vleft[i*(i+1)/2+j]/model->hVleft )* model->indType;
                 model->d2S3[i*(i+1)/2+j] += (model->d2A[i*(i+1)/2+j]/model->A -model->dA[i]*model->dA[j]/pow(model->A,2))* model->indType;
             }
