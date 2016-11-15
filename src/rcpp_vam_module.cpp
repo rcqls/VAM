@@ -41,6 +41,7 @@ RCPP_MODULE(vam_module) {
 	//.finalizer( &finalizer_of_mle_vam)
 	//.method("model",&MLEVam::get_model,"model accessor")
 	.method("set_data",&MLEVam::set_data,"set data")
+	.method("set_leftCensors",&MLEVam::set_leftCensors,"set leftCensors")
 	//.method("get_selected_data",&MLEVam::get_selected_data,"get selected data")
 	.method("contrast",&MLEVam::contrast,"compute contrast")
 	.method("gradient",&MLEVam::gradient,"compute gradient")

@@ -34,7 +34,8 @@ public:
     };
 
     void set_leftCensors(IntegerVector leftCensorsR) {
-      leftCensors=NULL;//as<int*>(IntegerVector(leftCensorsR.begin(),leftCensorsR.end()));
+      leftCensors=new int[model->nb_system];
+      for(int i=0; i<leftCensorsR.size();i++) leftCensors[i]=leftCensorsR[i];
     }
 
     void reset_leftCensors() {

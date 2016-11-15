@@ -122,6 +122,23 @@ update.model.vam <- function(model,data) {
 	}
 }
 
+check.censorship <- function(data) {
+		lapply(data,function(data.syst) {
+			ty <- data.syst$Type[-1]
+			check<-list(type="none",index=0)
+			if(any(ty==0)) {
+				if(which(ty==0)[1]==length(ty)) check$type <- 'right' #meaning: right only
+				else if(!any(ty<0) || (which(ty<0)[1] > which(ty==0)[1])) {
+					check$type <- 'left' #can have also a right censorship
+					check$index <- which(ty==0)[1] - 1
+				}
+				else check$type <- 'unknown'
+			}
+			check
+		})
+}
+
+
 data.frame.to.list.multi.vam <- function(data,response) {
 	# return data if it is already only a list!
 	if(is.list(data) && !is.data.frame(data)) {
@@ -155,6 +172,14 @@ check.data.vam <-function(data,response) {
 	}
 }
 
+make.censorship <- function(data,rcpp) {
+	if(any(sapply(censorship <- check.censorship(data),function(e) e$type == 'unknown'))) stop("VAM package does know how to deal with this kind of censorship!")
+	if(any(sapply(censorship,function(e) e$type == 'left'))) {
+		leftCensors <- sapply(censorship,function(e) e$index)
+		rcpp$set_leftCensors(leftCensors)
+	}
+}
+
 mle.vam <- function(formula,data) {
 	self <- newEnv(mle.vam,formula=formula(formula),data=data)
 
@@ -164,6 +189,7 @@ mle.vam <- function(formula,data) {
 		response <- model$response
 		data <- data.frame.to.list.multi.vam(self$data,response)
 		rcpp <- new(MLEVam,model,data)
+		make.censorship(data,rcpp)
 		rcpp
 	})
 
@@ -201,6 +227,7 @@ update.mle.vam <- function(mle,data) {
 		self$data <- data
 		data2 <- data.frame.to.list.multi.vam(self$data,response)
 		self$rcpp()$set_data(data2)
+		make.censorship(data2,self$rcpp())
 		## estimation has to be computed again!
 		self$mle.coef<-NULL
 	}
