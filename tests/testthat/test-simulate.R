@@ -690,10 +690,10 @@ test<-function(Data,n){
 }
 set.seed(0.5)
 res1<-test(Data1,dim(Data1)[1]);U1<-res1[[2]]
-U1bis<-runif(dim(Data1)[1])[Data1$Type==-1]
 res2<-test(Data2,dim(Data2)[1]);U2<-res2[[2]]
-U2bis<-runif(dim(Data2)[1])[Data2$Type==-1]
 res3<-test(Data3,dim(Data3)[1]);U3<-res3[[2]]
+U1bis<-runif(dim(Data1)[1])[Data1$Type==-1]
+U2bis<-runif(dim(Data2)[1])[Data2$Type==-1]
 U3bis<-runif(dim(Data3)[1])[Data3$Type==-1]
 
 expect_that(res1[[1]],equals(0,tolerance=0.00000000000001))
@@ -759,10 +759,10 @@ test<-function(Data,n){
 }
 set.seed(0.5)
 res1<-test(Data1,dim(Data1)[1]);U1<-res1[[2]]
-U1bis<-runif(dim(Data1)[1])[Data1$Type==-1]
 res2<-test(Data2,dim(Data2)[1]);U2<-res2[[2]]
-U2bis<-runif(dim(Data2)[1])[Data2$Type==-1]
 res3<-test(Data3,dim(Data3)[1]);U3<-res3[[2]]
+U1bis<-runif(dim(Data1)[1])[Data1$Type==-1]
+U2bis<-runif(dim(Data2)[1])[Data2$Type==-1]
 U3bis<-runif(dim(Data3)[1])[Data3$Type==-1]
 
 expect_that(res1[[1]],equals(0,tolerance=0.00000000000001))
