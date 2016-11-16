@@ -1,9 +1,109 @@
 # R script used to develop the testthat test for log-likelihood.R
 
 # The number of the test
-nbtest<-"TGQRGQR"
+nbtest<-"TLeftCens3"
 
 switch(nbtest,
+       TLeftCens3={
+         #Weibull + CM ABAO + PM ARAInf + mutlisystems + LeftCens
+         simData<-data.frame(System=c(rep(1,5),rep(2,4),rep(3,5),rep(4,4),rep(5,8)),Time=c(2.28,3.36,4.04,4.97,5.16, 2.34,3.46,5.02,5.45, 1.18,1.57,2.22,3.14,4.83, 0.78,2.36,4.05,4.97, 1.95,2.45,2.78,3.56,4.23,5.32,6.43,6.98),Type=c(1,1,1,0,1, -1,-1,-1,0, 1,0,-1,-1,1, -1,1,1,0, 1,0,-1,1,-1,-1,1,0),row.names=1:26)
+         mle <- mle.vam(System & Time & Type ~ (ABAO() | Weibull(0.001,2.5)) & (ARAInf(0.5)),data=simData)
+         theta<-c(0.3,1.8,0.6)
+         
+         rhoMC<-0
+         rhoMP<-theta[3]
+         h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
+         H<-function(t) theta[1]*t^(theta[2])
+         T<-simData$Time[simData$System==1]
+         c<-T[4]
+         T<-T[c(1:3,5:length(T))]
+         rho<-rhoMP
+         #Lcalc<--H(T[1])
+         #Lcalc<-Lcalc-(H(T[2]-rho*T[1])-H(T[1]-rho*T[1]))
+         #Lcalc<-Lcalc-(H(T[3]-rho*T[2]-rho*(1-rho)*T[1])-H(T[2]-rho*T[2]-rho*(1-rho)*T[1]))
+         Lcalc<-Lcalc-(H(T[4]-rho*T[3]-rho*(1-rho)*T[2]-rho*(1-rho)^2*T[1])-H(c-rho*T[3]-rho*(1-rho)*T[2]-rho*(1-rho)^2*T[1]))
+         T<-simData$Time[simData$System==2]
+         rho<-rhoMC
+         Lcalc<-Lcalc+log(h(T[1]))-H(T[1])
+         Lcalc<-Lcalc+log(h(T[2]-rho*T[1]))-(H(T[2]-rho*T[1])-H(T[1]-rho*T[1]))
+         Lcalc<-Lcalc+log(h(T[3]-rho*T[2]-rho*(1-rho)*T[1]))-(H(T[3]-rho*T[2]-rho*(1-rho)*T[1])-H(T[2]-rho*T[2]-rho*(1-rho)*T[1]))
+         Lcalc<-Lcalc-(H(T[4]-rho*T[3]-rho*(1-rho)*T[2]-rho*(1-rho)^2*T[1])-H(T[3]-rho*T[3]-rho*(1-rho)*T[2]-rho*(1-rho)^2*T[1]))
+         T<-simData$Time[simData$System==3]
+         c<-T[2]
+         T<-T[c(1,3:length(T))]
+         #Lcalc<-Lcalc-H(T[1])
+         Lcalc<-Lcalc+log(h(T[2]-rhoMP*T[1]))-(H(T[2]-rhoMP*T[1])-H(c-rhoMP*T[1]))
+         V<-(1-rhoMC)*(T[2]-rhoMP*T[1])
+         Lcalc<-Lcalc+log(h(T[3]-T[2]+V))-(H(T[3]-T[2]+V)-H(V))
+         V<-(1-rhoMC)*(T[3]-T[2]+V)
+         Lcalc<-Lcalc-(H(T[4]-T[3]+V)-H(V))
+         T<-simData$Time[simData$System==4]
+         Lcalc<-Lcalc+log(h(T[1]))-H(T[1])
+         Lcalc<-Lcalc-(H(T[2]-rhoMC*T[1])-H(T[1]-rhoMC*T[1]))
+         V<-(1-rhoMP)*(T[2]-rhoMC*T[1])
+         Lcalc<-Lcalc-(H(T[3]-T[2]+V)-H(V))
+         V<-(1-rhoMP)*(T[3]-T[2]+V)
+         Lcalc<-Lcalc-(H(T[4]-T[3]+V)-H(V))
+         T<-simData$Time[simData$System==5]
+         c<-T[2]
+         T<-T[c(1,3:length(T))]
+         #Lcalc<-Lcalc-H(T[1])
+         Lcalc<-Lcalc+log(h(T[2]-rhoMP*T[1]))-(H(T[2]-rhoMP*T[1])-H(c-rhoMP*T[1]))
+         V<-(1-rhoMC)*(T[2]-rhoMP*T[1])
+         Lcalc<-Lcalc-(H(T[3]-T[2]+V)-H(V))
+         V<-(1-rhoMP)*(T[3]-T[2]+V)
+         Lcalc<-Lcalc+log(h(T[4]-T[3]+V))-(H(T[4]-T[3]+V)-H(V))
+         V<-(1-rhoMC)*(T[4]-T[3]+V)
+         Lcalc<-Lcalc+log(h(T[5]-T[4]+V))-(H(T[5]-T[4]+V)-H(V))
+         V<-(1-rhoMC)*(T[5]-T[4]+V)
+         Lcalc<-Lcalc-(H(T[6]-T[5]+V)-H(V))
+         V<-(1-rhoMP)*(T[6]-T[5]+V)
+         Lcalc<-Lcalc-(H(T[7]-T[6]+V)-H(V))
+         fix<-rep(TRUE,length(theta))
+         fix[1]=FALSE
+         run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
+         Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
+       },
+       TLeftCens2={
+         #Weibull + CM ABAO + LeftCens + RightCens
+         simData<-data.frame(Time=c(2,3.36,4.04,4.97,5.16),Type=c(0,-1,-1,-1,0),row.names=1:5)
+         mle <- mle.vam(Time & Type ~ (ABAO() | Weibull(0.001,2.5)),data=simData)
+         theta<-c(0.3,2.5)
+         
+         rho<-0
+         h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
+         H<-function(t) theta[1]*t^(theta[2])
+         T<-simData$Time[2:5]
+         c<-simData$Time[1]
+         Lcalc<-log(h(T[1]))-(H(T[1])-H(c))
+         Lcalc<-Lcalc+log(h(T[2]-rho*T[1]))-(H(T[2]-rho*T[1])-H(T[1]-rho*T[1]))
+         Lcalc<-Lcalc+log(h(T[3]-rho*T[2]-rho*(1-rho)*T[1]))-(H(T[3]-rho*T[2]-rho*(1-rho)*T[1])-H(T[2]-rho*T[2]-rho*(1-rho)*T[1]))
+         Lcalc<-Lcalc-(H(T[4]-rho*T[3]-rho*(1-rho)*T[2]-rho*(1-rho)^2*T[1])-H(T[3]-rho*T[3]-rho*(1-rho)*T[2]-rho*(1-rho)^2*T[1]))
+         fix<-rep(TRUE,length(theta))
+         fix[1]=FALSE
+         run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
+         Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
+       },
+       TLeftCens1={
+         #Weibull + CM ABAO + LeftCens
+         simData<-data.frame(Time=c(2,3.36,4.04,4.97,5.16),Type=c(0,-1,-1,-1,-1),row.names=1:5)
+         mle <- mle.vam(Time & Type ~ (ABAO() | Weibull(0.001,2.5)),data=simData)
+         theta<-c(0.3,2.5)
+         
+         rho<-0
+         h<-function(t) theta[1]*theta[2]*t^(theta[2]-1)
+         H<-function(t) theta[1]*t^(theta[2])
+         T<-simData$Time[2:5]
+         c<-simData$Time[1]
+         Lcalc<-log(h(T[1]))-(H(T[1])-H(c))
+         Lcalc<-Lcalc+log(h(T[2]-rho*T[1]))-(H(T[2]-rho*T[1])-H(T[1]-rho*T[1]))
+         Lcalc<-Lcalc+log(h(T[3]-rho*T[2]-rho*(1-rho)*T[1]))-(H(T[3]-rho*T[2]-rho*(1-rho)*T[1])-H(T[2]-rho*T[2]-rho*(1-rho)*T[1]))
+         Lcalc<-Lcalc+log(h(T[4]-rho*T[3]-rho*(1-rho)*T[2]-rho*(1-rho)^2*T[1]))-(H(T[4]-rho*T[3]-rho*(1-rho)*T[2]-rho*(1-rho)^2*T[1])-H(T[3]-rho*T[3]-rho*(1-rho)*T[2]-rho*(1-rho)^2*T[1]))
+         fix<-rep(TRUE,length(theta))
+         fix[1]=FALSE
+         run(mle,fixed=fix,verbose=FALSE);alpha_Est<-coef(mle)[1]
+         Ccalc<-contrast(mle,c(alpha_Est,theta[2:length(theta)]))
+       },
        TGQRGQR={
          #Weibull + CM GQR-sqrt+PM GQR-ARA4-log
          simData<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,15)),Time=c(3.36,4.04,4.97,5.16, 0.78,2.36,4.05,4.97, 2.45,2.78,3.56,4.23,5.32,6.43,6.98,7.51,8.02,9.43,10.2,11.5,12,13.78,15.2),Type=c(1,1,-1,1, -1,1,1,0, 1,-1,1,-1,-1,1,1,1,-1,2,1,-1,1,-1,0),row.names=1:23)

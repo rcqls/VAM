@@ -130,7 +130,7 @@ check.censorship <- function(data) {
 				if(which(ty==0)[1]==length(ty)) check$type <- 'right' #meaning: right only
 				else if(!any(ty<0) || (which(ty<0)[1] > which(ty==0)[1])) {
 					check$type <- 'left' #can have also a right censorship
-					check$index <- which(ty==0)[1] - 1
+					check$index <- which(ty==0)[1]
 				}
 				else check$type <- 'unknown'
 			}
@@ -227,6 +227,7 @@ update.mle.vam <- function(mle,data) {
 		self$data <- data
 		data2 <- data.frame.to.list.multi.vam(self$data,response)
 		self$rcpp()$set_data(data2)
+		self$rcpp()$reset_leftCensors()
 		make.censorship(data2,self$rcpp())
 		## estimation has to be computed again!
 		self$mle.coef<-NULL

@@ -1482,3 +1482,84 @@ test_that("Weibull + CM GQR-sqrt+PM GQR-ARA4-log",{
 	expect_that(contrast(mle,theta,c(FALSE,FALSE,TRUE)),equals(d2C,tolerance=0.00000000000001))
 }
 )
+
+test_that("Weibull + CM ABAO + LeftCens",{
+	simData<-data.frame(Time=c(2,3.36,4.04,4.97,5.16),Type=c(0,-1,-1,-1,-1),row.names=1:5)
+    mle <- mle.vam(Time & Type ~ (ABAO() | Weibull(0.001,2.5)),data=simData)
+    theta<-c(0.3,2.5)
+	lnL<- -8.81937993286691
+	dlnL<- c(-41.4915492379502,-21.1451564444401)
+	d2lnL<- matrix(c(-44.4444444444444,-95.3256617666342,-95.3256617666342,-48.681903539105),nrow=2,byrow=TRUE)
+	C<- -2.02742310937457
+	dC<-c(0.497622545672179)
+	d2C<- -0.230996044748901
+	expect_that(logLik(mle,theta,TRUE,FALSE,FALSE),equals(lnL,tolerance=0.00000000000001))
+	expect_that(logLik(mle,theta,FALSE,TRUE,FALSE),equals(dlnL,tolerance=0.00000000000001))
+	expect_that(logLik(mle,theta,FALSE,FALSE,TRUE),equals(d2lnL,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,TRUE,FALSE,FALSE),equals(C,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,FALSE,TRUE,FALSE),equals(dC,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,FALSE,FALSE,TRUE),equals(d2C,tolerance=0.00000000000001))
+	simData2<-data.frame(Time=c(3.36,4.04,4.97,5.16),Type=c(-1,-1,-1,-1),row.names=1:4)
+    mle2 <- mle.vam(Time & Type ~ (ABAO() | Weibull(0.001,2.5)),data=simData2)
+    update(mle2,simData)
+    expect_that(logLik(mle,theta,TRUE,FALSE,FALSE),equals(logLik(mle2,theta,TRUE,FALSE,FALSE),tolerance=0.00000000000001))
+    mle3 <- mle.vam(Time & Type ~ (ABAO() | Weibull(0.001,2.5)),data=simData2)
+    mle4 <- mle.vam(Time & Type ~ (ABAO() | Weibull(0.001,2.5)),data=simData)
+    update(mle4,simData2)
+    expect_that(logLik(mle3,theta,TRUE,FALSE,FALSE),equals(logLik(mle4,theta,TRUE,FALSE,FALSE),tolerance=0.00000000000001))
+}
+)
+
+test_that("Weibull + CM ABAO + LeftCens + RightCens",{
+	simData<-data.frame(Time=c(2,3.36,4.04,4.97,5.16),Type=c(0,-1,-1,-1,0),row.names=1:5)
+    mle <- mle.vam(Time & Type ~ (ABAO() | Weibull(0.001,2.5)),data=simData)
+    theta<-c(0.3,2.5)
+	lnL<- -10.9931027296553
+	dlnL<- c(-44.8248825712835,-23.186093023933)
+	d2lnL<- matrix(c(-33.3333333333333,-95.3256617666342,-95.3256617666342,-48.521903539105),nrow=2,byrow=TRUE)
+	C<- -2.65031513654516
+	dC<-c(0.195415851148208)
+	d2C<- -0.173247033561675
+	expect_that(logLik(mle,theta,TRUE,FALSE,FALSE),equals(lnL,tolerance=0.00000000000001))
+	expect_that(logLik(mle,theta,FALSE,TRUE,FALSE),equals(dlnL,tolerance=0.00000000000001))
+	expect_that(logLik(mle,theta,FALSE,FALSE,TRUE),equals(d2lnL,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,TRUE,FALSE,FALSE),equals(C,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,FALSE,TRUE,FALSE),equals(dC,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,FALSE,FALSE,TRUE),equals(d2C,tolerance=0.00000000000001))
+	simData2<-data.frame(Time=c(3.36,4.04,4.97,5.16),Type=c(-1,-1,-1,0),row.names=1:4)
+    mle2 <- mle.vam(Time & Type ~ (ABAO() | Weibull(0.001,2.5)),data=simData2)
+    update(mle2,simData)
+    expect_that(logLik(mle,theta,TRUE,FALSE,FALSE),equals(logLik(mle2,theta,TRUE,FALSE,FALSE),tolerance=0.00000000000001))
+    mle3 <- mle.vam(Time & Type ~ (ABAO() | Weibull(0.001,2.5)),data=simData2)
+    mle4 <- mle.vam(Time & Type ~ (ABAO() | Weibull(0.001,2.5)),data=simData)
+    update(mle4,simData2)
+    expect_that(logLik(mle3,theta,TRUE,FALSE,FALSE),equals(logLik(mle4,theta,TRUE,FALSE,FALSE),tolerance=0.00000000000001))
+}
+)
+
+test_that("Weibull + CM ABAO + PM ARAInf + mutlisystems + LeftCens",{
+	simData<-data.frame(System=c(rep(1,5),rep(2,4),rep(3,5),rep(4,4),rep(5,8)),Time=c(2.28,3.36,4.04,4.97,5.16, 2.34,3.46,5.02,5.45, 1.18,1.57,2.22,3.14,4.83, 0.78,2.36,4.05,4.97, 1.95,2.45,2.78,3.56,4.23,5.32,6.43,6.98),Type=c(1,1,1,0,1, -1,-1,-1,0, 1,0,-1,-1,1, -1,1,1,0, 1,0,-1,1,-1,-1,1,0),row.names=1:26)
+    mle <- mle.vam(System & Time & Type ~ (ABAO() | Weibull(0.001,2.5)) & (ARAInf(0.5)),data=simData)
+    theta<-c(0.3,1.8,0.6)
+	lnL<- -18.3495730327467
+	dlnL<- c(-30.5997998851721,-14.4371097829312,5.2616319836793)
+	d2lnL<- matrix(c(-100,-87.1905417248509,32.4548475547877,-87.1905417248509,-39.5521455750697,18.2435580647309,32.4548475547877,18.2435580647309,-7.82756357635268),nrow=3,byrow=TRUE)
+	C<- -15.4974809498401
+	dC<-c(-1.22908038160137,0.345220498680633)
+	d2C<- matrix(c(-2.35185397287521,-0.727993035616652,-0.727993035616652,-2.76405321485956),nrow=2,byrow=TRUE)
+	expect_that(logLik(mle,theta,TRUE,FALSE,FALSE),equals(lnL,tolerance=0.00000000000001))
+	expect_that(logLik(mle,theta,FALSE,TRUE,FALSE),equals(dlnL,tolerance=0.00000000000001))
+	expect_that(logLik(mle,theta,FALSE,FALSE,TRUE),equals(d2lnL,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,TRUE,FALSE,FALSE),equals(C,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,FALSE,TRUE,FALSE),equals(dC,tolerance=0.00000000000001))
+	expect_that(contrast(mle,theta,FALSE,FALSE,TRUE),equals(d2C,tolerance=0.00000000000001))
+	simData2<-data.frame(System=c(rep(1,4),rep(2,4),rep(3,4),rep(4,4),rep(5,8)),Time=c(2.28,3.36,4.97,5.16, 2.34,3.46,5.02,5.45, 1.18,2.22,3.14,4.83, 0.78,2.36,4.05,4.97, 1.95,2.45,2.78,3.56,4.23,5.32,6.43,6.98),Type=c(1,1,1,1, -1,-1,-1,0, 1,-1,-1,1, -1,1,1,0, 1,0,-1,1,-1,-1,1,0),row.names=1:24)
+	mle2 <- mle.vam(System & Time & Type ~ (ABAO() | Weibull(0.001,2.5)) & (ARAInf(0.5)),data=simData2)
+    update(mle2,simData)
+    expect_that(logLik(mle,theta,TRUE,FALSE,FALSE),equals(logLik(mle2,theta,TRUE,FALSE,FALSE),tolerance=0.00000000000001))
+    mle3 <- mle.vam(System & Time & Type ~ (ABAO() | Weibull(0.001,2.5)) & (ARAInf(0.5)),data=simData2)
+	mle4 <- mle.vam(System & Time & Type ~ (ABAO() | Weibull(0.001,2.5)) & (ARAInf(0.5)),data=simData)
+    update(mle4,simData2)
+    expect_that(logLik(mle3,theta,TRUE,FALSE,FALSE),equals(logLik(mle4,theta,TRUE,FALSE,FALSE),tolerance=0.00000000000001))
+}
+)
