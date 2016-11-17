@@ -146,7 +146,9 @@ data.frame.to.list.multi.vam <- function(data,response) {
 		names(tmp) <- names(data[[1]])
 		return(lapply(data,function(df) rbind(tmp,df)))
 	}
-	if(NCOL(data) > length(response) && ("System" %in% names(data)) ) warning(paste0("WARNING: data has variable 'System' when response in formula does not contain this variable!"))
+	if(!("System" %in% response) && ("System" %in% names(data)) ) {
+		warning(paste0("WARNING: data has variable 'System' when response in formula does not contain this variable!"))
+	}
 	# otherwise
 	if(length(response)==2) {
 		if(length(intersect(response,names(data))) != 2) stop(paste0("Bad response:",response))
