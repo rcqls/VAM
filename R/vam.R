@@ -332,7 +332,7 @@ logLik.mle.vam <-function(obj,par0,with_value=TRUE,with_gradient=FALSE,with_hess
 }
 
 # alpha is not considered in the estimation!
-run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=TRUE,...) {
+run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=FALSE,...) {
 	rcpp <- obj$rcpp()
 
 	par0.tmp <- init.par0(obj,par0)
