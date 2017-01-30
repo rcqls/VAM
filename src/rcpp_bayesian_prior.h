@@ -130,7 +130,7 @@ public:
     }
 
     double get() {
-      return R::beta(a,b);
+      return R::rbeta(a,b); //R::rbeta plutôt à la place R::beta!!!
     };
 
     double density(double x) {
