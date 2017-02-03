@@ -833,7 +833,7 @@ substitute.vam.formula <- function(formula,coef,model) {
 priors.from.vam.formula <- function(model) {
 	flatten.params <- c(model$family$params,unlist(sapply(model$models,function(e) e$params)))
 	if(all(sapply(flatten.params,class) == "formula") ) {
-		prior.families <- c("B","Beta","U","Unif","G","Gamma","NonInform","NInf")
+		prior.families <- c("B","Beta","U","Unif","G","Gamma","Norm","N","NonInform","NInf")
 		## clear "|" expression
 		flatten.params <- lapply(flatten.params,function(e) if(!as.character(e[[2]][[1]]) %in% prior.families) e[[2]][[2]] else e[[2]])
 		## transform to list
