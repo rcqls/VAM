@@ -474,12 +474,15 @@ run.bayesian.vam <- function(obj,par0,fixed,sigma.proposal,nb=100000,burn=10000,
 		obj$mle <- mle.vam(obj$mle.formula,obj$data)
 		obj$mle.init <- TRUE
 		obj$par0 <- coef(obj$mle,fixed=fixed,method=method,verbose=verbose)
+	} else {
+		obj$par0<-par0
+		obj$mle.init <- FALSE
 	}
-	fixed.tmp <- init.fixed.param(obj$par0,fixed)
-	obj$fixed <- fixed.tmp$fixed ## NOT USED FOR BAYESIAN ESTIMATION
-	obj$alpha_fixed <- fixed.tmp$alpha_fixed
+	fixed.tmp <- init.fixed.param(obj$par0[-1],fixed)
+	obj$fixed <- c(fixed.tmp$alpha_fixed,fixed.tmp$fixed)
+	#obj$alpha_fixed <- fixed.tmp$alpha_fixed
 	obj$profile_alpha<-profile.alpha
-    if (obj$alpha_fixed&profile.alpha){
+    if (fixed.tmp$alpha_fixed & profile.alpha){
     	warning("Parameter alpha can not simultaneously be fixed and optimized: it is fixed !")
     	obj$profile_alpha<-FALSE
     }
@@ -493,13 +496,13 @@ run.bayesian.vam <- function(obj,par0,fixed,sigma.proposal,nb=100000,burn=10000,
 		obj$sigma_proposal<-sigma.proposal
 	}
 	if(history) {
-		res <- rcpp$mcmc_history(obj$par0,nb,burn,obj$alpha_fixed,obj$profile_alpha)
+		res <- rcpp$mcmc_history(obj$par0,nb,burn,obj$fixed,obj$profile_alpha)
 		obj$nb<-res[[3+obj$profile_alpha]]
 		obj$nb_proposal<-nb
 		obj$par<-as.data.frame(res[1:(2+obj$profile_alpha)])
 		names(obj$par) <- c("ind","estimate","alpha")[1:(2+obj$profile_alpha)]
 	} else {
-		obj$par <- rcpp$mcmc(obj$par0,nb,burn,obj$alpha_fixed,obj$profile_alpha)
+		obj$par <- rcpp$mcmc(obj$par0,nb,burn,obj$fixed,obj$profile_alpha)
 	}
 	obj$par
 }
@@ -515,12 +518,16 @@ coef.bayesian.vam <- function(obj,new.run=FALSE,...) {
 	} else {
 		param <- sapply(obj$par,mean)
 	}
+	param[as.logical(obj$fixed)]<-obj$par0[as.logical(obj$fixed)]
 	param
 }
 
 hist.bayesian.vam <- function(obj,i=1,...) {
-	if(is.null(obj$par)) run(obj)
-	if(obj$history){
+	if(is.null(obj$par)) run(obj,...)
+	if(obj$fixed[i]){
+		warning("No hist for a fixed parameter!")
+	} else {
+	  if(obj$history){
 		if((obj$profile_alpha)&(i==1)){
 			thetak<-obj$par$alpha
 		} else {
@@ -528,15 +535,16 @@ hist.bayesian.vam <- function(obj,i=1,...) {
 		}
 		hist(thetak,prob=TRUE)
 		abline(v=mean(thetak),col="blue",lwd=2)
-	} else{
+	  } else{
 		hist(obj$par[[i]],prob=TRUE)
 		abline(v=mean(obj$par[[i]]),col="blue",lwd=2)
+	  }
 	}
 }
 
 summary.bayesian.vam <- function(obj,alpha=0.05,new.run=FALSE,...) {
 	if(new.run || is.null(obj$par)) run(obj,...)
-	cat("Initial parameters",if(!is.null(obj$mle.init)) " (by MLE)" else "",": ",paste(obj$par0,collapse=", "),"\n",sep="")
+	cat("Initial parameters",if(obj$mle.init) " (by MLE)" else "",": ",paste(obj$par0,collapse=", "),"\n",sep="")
 	cat("(Mean) Bayesian estimates: ", paste(coef(obj),collapse=", "),"\n",sep="")
 	if(obj$history){
 		thetak<-lapply(obj$profile_alpha:(length(obj$par0)-1),function(j){obj$par$estimate[obj$par$ind==j]})
@@ -544,7 +552,9 @@ summary.bayesian.vam <- function(obj,alpha=0.05,new.run=FALSE,...) {
 	} else {
 		thetak<-obj$par
 	}
-	cat("(SD) Bayesian estimates: ",paste(sapply(thetak,sd),collapse=", "),"\n",sep="")
+	sd<-sapply(thetak,sd)
+	sd[as.logical(obj$fixed)]<-0
+	cat("(SD) Bayesian estimates: ",paste(sd,collapse=", "),"\n",sep="")
 	cat("(", alpha/2,"-Quantile) Bayesian estimates: ",paste(sapply(thetak,function(x){quantile(x,probs=alpha/2)}),collapse=", "),"\n",sep="")
 	cat("(", 1-alpha/2,"-Quantile) Bayesian estimates: ",paste(sapply(thetak,function(x){quantile(x,probs=1-alpha/2)}),collapse=", "),"\n",sep="")
 	cat("(Number) Bayesian estimates: ",paste(sapply(thetak,length),collapse=", "),"\n",sep="")
@@ -950,7 +960,7 @@ init.fixed.param <- function(param,fixed) {
 		fixedInd<-fixed
 		fixed<-rep(FALSE,length(param))
 		fixed[fixedInd-1]<-TRUE #LD2: ajout du -1
-		alpha_fixed<-sum(fixed==1) #OR ( 1 %in% fixed which is more expressive)
+		alpha_fixed<-sum(fixedInd==1) #OR ( 1 %in% fixedInd which is more expressive)
 	} else {#LD2
 		alpha_fixed<-fixed[1] #LD2
 		fixed<-fixed[-1] #LD2

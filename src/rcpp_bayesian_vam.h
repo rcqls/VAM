@@ -70,7 +70,7 @@ public:
     //Is it make sense to consider multisystem for Bayesian framework? I guess so since you can compute
     // the contrast with these data.
 
-    List mcmc(NumericVector pars,int nb, int burn, bool alpha_fixed=false, bool profile_alpha=false) {
+    List mcmc(NumericVector pars,int nb, int burn, LogicalVector fixed, bool profile_alpha=false) {
       int nbParams = pars.size();
       BayesianPrior* curPrior;
       NumericVector curPars=clone(pars),oldPars=clone(pars);
@@ -78,7 +78,7 @@ public:
       if(!profile_alpha) {jStart=0;}
       double oldL,L,r,r0,paramCurVal;
       if(profile_alpha) {
-        oldL=mle->contrast(oldPars,alpha_fixed)[0];
+        oldL=mle->contrast(oldPars,FALSE)[0];
       } else {
         oldL=mle->contrast(oldPars,TRUE)[0];
       }
@@ -86,7 +86,7 @@ public:
       List res(nbParams);
       for(j=0;j<nbParams;j++) priors->at(j)->clear();
       for(i=0;i<nb;i++) {
-        for(j=jStart;j<nbParams;j++) {
+        for(j=jStart;j<nbParams;j++) { if(!fixed[j]) {
           curPrior=priors->at(j);
           //propose a new value!
           paramCurVal=curPrior->new_proposal(oldPars[j]);
@@ -97,7 +97,7 @@ public:
           // }
           // printf("\n");
           if(profile_alpha) {
-            L=mle->contrast(curPars,alpha_fixed)[0];
+            L=mle->contrast(curPars,FALSE)[0];
           } else {
             L=mle->contrast(curPars,TRUE)[0];
           } 
@@ -115,7 +115,7 @@ public:
             //Put the old value;
             curPars[j]=oldPars[j];
           }
-        }
+        }}
       }
       // for(int jj=0;jj<nbParams;jj++) {
       //   printf("[%d](%lf=%lf),",jj,oldPars[jj],curPars[jj]);
@@ -137,7 +137,7 @@ public:
     }
 
     //nb is here the number of proposal accepted!
-    List mcmc_history(NumericVector pars,int nb, int burn, bool alpha_fixed=false, bool profile_alpha=false) {
+    List mcmc_history(NumericVector pars,int nb, int burn, LogicalVector fixed, bool profile_alpha=false) {
       int nbParams = pars.size();
       BayesianPrior* curPrior;
       NumericVector curPars=clone(pars),oldPars=clone(pars);
@@ -145,7 +145,7 @@ public:
       if(!profile_alpha) {jStart=0;}
       double oldL,L,r,r0,paramCurVal;
       if(profile_alpha) {
-        oldL=mle->contrast(oldPars,alpha_fixed)[0];
+        oldL=mle->contrast(oldPars,FALSE)[0];
       } else {
         oldL=mle->contrast(oldPars,TRUE)[0];
       }
@@ -154,7 +154,7 @@ public:
       int cpt=0;
       for(j=0;j<nbParams;j++) priors->at(j)->clear();
       for(i=0;cpt<nb;i++) {//exit when cpt is nb
-        for(j=jStart;j<nbParams;j++) {
+        for(j=jStart;j<nbParams;j++) { if(!fixed[j]) {
           curPrior=priors->at(j);
           //propose a new value!
           paramCurVal=curPrior->new_proposal(oldPars[j]);
@@ -165,7 +165,7 @@ public:
           // }
           // printf("\n");
           if(profile_alpha) {
-            L=mle->contrast(curPars,alpha_fixed)[0];
+            L=mle->contrast(curPars,FALSE)[0];
           } else {
             L=mle->contrast(curPars,TRUE)[0];
           }
@@ -186,7 +186,7 @@ public:
             //Put the old value;
             curPars[j]=oldPars[j];
           }
-        }
+        }}
       }
       List res(3+profile_alpha);
       res[0]=ind;res[1]=val;

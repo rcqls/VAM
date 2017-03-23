@@ -8,7 +8,7 @@
 \description{\code{coef.mle.vam} extract the Maximum Likelihood Estimator (MLE) of the parameters of a virtual age model for Corrective Maintenance (CM) and planned Preventive Maintenance (PM). If the optimization method has never been applied it previously call the method \code{\link{run.mle.vam}}.}
 
 \usage{
-\method{coef}{mle.vam}(obj,par=NULL,method=NULL,verbose=FALSE)
+\method{coef}{mle.vam}(obj,par=NULL,method=NULL,verbose=FALSE,...)
 }
 
 \arguments{
@@ -20,6 +20,7 @@ If \code{par} is not specified and the optimization algorithm has never been exe
 Otherwise, the last parameters values obtained by the optimization algorithm for \code{obj} are used as initialization point. Then, if one execution of \code{run.mle.vam} is not sufficient to make the optimization algorithm converged (\code{$convergence!=1}), the method can be re-executed until convergence. }
 \item{\code{method}}{an optimization method of \code{\link{optim}} function used for optimization. \code{method} can also be equal to the string \code{fast} in order to let the function choose the method known as the faster one.}
 \item{\code{verbose}}{if \code{TRUE}, the value returned by \code{\link{optim}} function is printed.}
+\item{\code{...}}{some supplementary arguments used in the call of the \code{\link{run.mle.vam}} method if this one has never been applied to \code{obj}.}
 }
 
 \value{The function extract the vector of parameter values obtained by the maximization algorithm applied to the likelihood. The successive values respectively refer to the parameters of time to failure distribution of the new unmaintained system (except the scale parameter), of the CM effect model and finally of the PM effect models (if defined and in the same order as they appear in the \code{obj} formula).}

@@ -232,7 +232,9 @@ preplots.bayesian.vam <- function(obj,from,to,length.out=101,by,system.index=1,t
 
 	if(missing(by)) by <- (to-from)/(length.out-1)
 
-	if(is.null(obj$par) || (!obj$history) || (obj$nb_proposal<nb.proposal)) run(obj,nb=nb.proposal,history=TRUE,profile.alpha=obj$profile_alpha,fixed=obj$fixed,sigma.proposal=obj$sigma_proposal)
+	if(is.null(obj$par)){
+		run(obj,nb=nb.proposal,history=TRUE)
+	} else { if((!obj$history) || (obj$nb_proposal<nb.proposal)) run(obj,nb=nb.proposal,history=TRUE,profile.alpha=obj$profile_alpha,fixed=obj$fixed,sigma.proposal=obj$sigma_proposal)}
 
 	param <- if(obj$profile_alpha) obj$par0[-1] else obj$par0
 	res <- NULL
