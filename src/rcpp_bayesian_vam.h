@@ -70,16 +70,21 @@ public:
     //Is it make sense to consider multisystem for Bayesian framework? I guess so since you can compute
     // the contrast with these data.
 
-    List mcmc(NumericVector pars,int nb, int burn, bool alpha_fixed=false) {
+    List mcmc(NumericVector pars,int nb, int burn, bool alpha_fixed=false, bool profile_alpha=false) {
       int nbParams = pars.size();
       BayesianPrior* curPrior;
       NumericVector curPars=clone(pars),oldPars=clone(pars);
       int i,j,jStart=1;//jStart=1 here because alpha is not considered yet!
+      if(!profile_alpha) {jStart=0;}
       double oldL,L,r,r0,paramCurVal;
-      oldL=mle->contrast(oldPars,alpha_fixed)[0];
+      if(profile_alpha) {
+        oldL=mle->contrast(oldPars,alpha_fixed)[0];
+      } else {
+        oldL=mle->contrast(oldPars,TRUE)[0];
+      }
       //if(alpha_fixed) jStart++;
-      List res(nbParams-jStart);
-      for(j=jStart;j<nbParams;j++) priors->at(j)->clear();
+      List res(nbParams);
+      for(j=0;j<nbParams;j++) priors->at(j)->clear();
       for(i=0;i<nb;i++) {
         for(j=jStart;j<nbParams;j++) {
           curPrior=priors->at(j);
@@ -91,12 +96,19 @@ public:
           //   printf("[%d](%lf=%lf),",jj,oldPars[jj],curPars[jj]);
           // }
           // printf("\n");
-          L=mle->contrast(curPars,alpha_fixed)[0];
+          if(profile_alpha) {
+            L=mle->contrast(curPars,alpha_fixed)[0];
+          } else {
+            L=mle->contrast(curPars,TRUE)[0];
+          } 
           r=exp(L-oldL)*(curPrior->density(curPars[j]))/curPrior->density(oldPars[j]);
           r0=R::runif(0,1);
           //printf("r,r0=%lf,%lf\n",r,r0);
           if(r > r0) {
-            if(i>burn) curPrior->push_back(curPars[j]);
+            if(i>=burn) {
+              curPrior->push_back(curPars[j]);
+              if(profile_alpha) {priors->at(0)->push_back(mle->get_alpha_est(curPars)[0]);}
+            }
             oldPars[j]=curPars[j];
             oldL=L;
           } else {
@@ -116,26 +128,31 @@ public:
       // printf("here:%lf==%lf\n",L,oldL);
       // oldL=mle->contrast(oldPars,alpha_fixed)[0];
       // printf("here:%lf==%lf\n",L,oldL);
-      for(j=jStart;j<nbParams;j++) {
+      for(j=0;j<nbParams;j++) {//LD:j=jStart
         std::vector<double> res2=priors->at(j)->get_result();
         //NumericVector res3(res2.begin(),res2.end());
-        res[j-jStart]=res2;
+        res[j]=res2;
       }
       return res;
     }
 
     //nb is here the number of proposal accepted!
-    List mcmc_history(NumericVector pars,int nb, int burn, bool alpha_fixed=false) {
+    List mcmc_history(NumericVector pars,int nb, int burn, bool alpha_fixed=false, bool profile_alpha=false) {
       int nbParams = pars.size();
       BayesianPrior* curPrior;
       NumericVector curPars=clone(pars),oldPars=clone(pars);
       int i,j,jStart=1;//jStart=1 here because alpha is not considered yet!
+      if(!profile_alpha) {jStart=0;}
       double oldL,L,r,r0,paramCurVal;
-      oldL=mle->contrast(oldPars,alpha_fixed)[0];
+      if(profile_alpha) {
+        oldL=mle->contrast(oldPars,alpha_fixed)[0];
+      } else {
+        oldL=mle->contrast(oldPars,TRUE)[0];
+      }
       //if(alpha_fixed) jStart++;
-      NumericVector ind(nb),val(nb);
+      NumericVector ind(nb),val(nb),alpha(nb);
       int cpt=0;
-      for(j=jStart;j<nbParams;j++) priors->at(j)->clear();
+      for(j=0;j<nbParams;j++) priors->at(j)->clear();
       for(i=0;cpt<nb;i++) {//exit when cpt is nb
         for(j=jStart;j<nbParams;j++) {
           curPrior=priors->at(j);
@@ -147,15 +164,20 @@ public:
           //   printf("[%d](%lf=%lf),",jj,oldPars[jj],curPars[jj]);
           // }
           // printf("\n");
-          L=mle->contrast(curPars,alpha_fixed)[0];
+          if(profile_alpha) {
+            L=mle->contrast(curPars,alpha_fixed)[0];
+          } else {
+            L=mle->contrast(curPars,TRUE)[0];
+          }
           r=exp(L-oldL)*(curPrior->density(curPars[j]))/curPrior->density(oldPars[j]);
           r0=R::runif(0,1);
           //printf("r,r0=%lf,%lf\n",r,r0);
           if(r > r0) {
-            if(i>burn) {
+            if(i>=burn) {
               //curPrior->push_back(curPars[j]);
               ind[cpt]=j;
               val[cpt]=curPars[j];
+              if(profile_alpha) {alpha[cpt]=mle->get_alpha_est(curPars)[0];}
               cpt++;
             }
             oldPars[j]=curPars[j];
@@ -166,8 +188,10 @@ public:
           }
         }
       }
-      List res(2);
+      List res(3+profile_alpha);
       res[0]=ind;res[1]=val;
+      if(profile_alpha) {res[2]=alpha;}
+      res[2+profile_alpha]=i+1;
       return res;
     }
 

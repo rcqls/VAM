@@ -462,18 +462,26 @@ bayesian.vam <- function(formula,data) {
 	self
 }
 
-run.bayesian.vam <- function(obj,par0,fixed,sigma.proposal,nb=100000,burn=10000,method=NULL,verbose=TRUE,history=FALSE,...) {
+run.bayesian.vam <- function(obj,par0,fixed,sigma.proposal,nb=100000,burn=10000,profile.alpha=FALSE,method=NULL,verbose=FALSE,history=FALSE,...) {
 	rcpp <- obj$rcpp()
-
+	obj$history<-history
+	obj$nb<-nb
+	obj$burn<-burn
+	
 	## init via mle: par0 is supposed first to be initialized by mle
 	if(missing(par0)) {
 		obj$mle <- mle.vam(obj$mle.formula,obj$data)
 		obj$mle.init <- TRUE
-		obj$par0 <- coef(obj$mle,fixed=fixed)
+		obj$par0 <- coef(obj$mle,fixed=fixed,method=method,verbose=verbose)
 	}
 	fixed.tmp <- init.fixed.param(obj$par0,fixed)
 	fixed <- fixed.tmp$fixed
 	obj$alpha_fixed <- fixed.tmp$alpha_fixed
+	obj$profile_alpha<-profile.alpha
+    if (obj$alpha_fixed&profile.alpha){
+    	warning("Parameter alpha can not simultaneously be fixed and optimized: it is fixed !")
+    	obj$profile_alpha<-FALSE
+    }
 	##print(obj$mle.init)
 	if(missing(sigma.proposal)) sigma.proposal <- sapply(obj$priors,sigma)
 	else {
@@ -481,35 +489,61 @@ run.bayesian.vam <- function(obj,par0,fixed,sigma.proposal,nb=100000,burn=10000,
 	}
 	for(i in (1:length(obj$priors))) rcpp$set_sigma(i-1,sigma.proposal[i])
 	if(history) {
-		obj$par <- as.data.frame(rcpp$mcmc_history(obj$par0,nb,burn,obj$alpha_fixed))
-		names(obj$par) <- c("ind","estimate")
-	} else
-		obj$par <- rcpp$mcmc(obj$par0,nb,burn,obj$alpha_fixed)
+		res <- rcpp$mcmc_history(obj$par0,nb,burn,obj$alpha_fixed,obj$profile_alpha)
+		obj$nb<-res[[3+obj$profile_alpha]]
+		obj$par<-as.data.frame(res[1:(2+obj$profile_alpha)])
+		names(obj$par) <- c("ind","estimate","alpha")[1:(2+obj$profile_alpha)]
+	} else {
+		obj$par <- rcpp$mcmc(obj$par0,nb,burn,obj$alpha_fixed,obj$profile_alpha)
+	}
 	obj$par
 }
 
 coef.bayesian.vam <- function(obj,new.run=FALSE,...) {
 	if(new.run || is.null(obj$par)) run(obj,...)
-	param <- sapply(obj$par,mean)
-	if(!obj$alpha_fixed){
+	if(obj$history){
+		param<-sapply(obj$profile_alpha:(length(obj$par0)-1),function(j){mean(obj$par$estimate[obj$par$ind==j])})
+		if(obj$profile_alpha){
 		## complete the scale parameter
-		param <- c(rcpp(obj$mle)$alpha_est(c(1,param)),param)
+			param <- c(mean(obj$par$alpha),param)
+		}
+	} else {
+		param <- sapply(obj$par,mean)
 	}
 	param
 }
 
 hist.bayesian.vam <- function(obj,i=1,...) {
 	if(is.null(obj$par)) run(obj)
-	hist(obj$par[[i]],prob=TRUE)
-	abline(v=mean(obj$par[[i]]),col="blue",lwd=2)
+	if(obj$history){
+		if((obj$profile_alpha)&(i==1)){
+			thetak<-obj$par$alpha
+		} else {
+			thetak<-obj$par$estimate[obj$par$ind==(i-1)]
+		}
+		hist(thetak,prob=TRUE)
+		abline(v=mean(thetak),col="blue",lwd=2)
+	} else{
+		hist(obj$par[[i]],prob=TRUE)
+		abline(v=mean(obj$par[[i]]),col="blue",lwd=2)
+	}
 }
 
-summary.bayesian.vam <- function(obj,new.run=FALSE,...) {
+summary.bayesian.vam <- function(obj,alpha=0.05,new.run=FALSE,...) {
 	if(new.run || is.null(obj$par)) run(obj,...)
 	cat("Initial parameters",if(!is.null(obj$mle.init)) " (by MLE)" else "",": ",paste(obj$par0,collapse=", "),"\n",sep="")
 	cat("(Mean) Bayesian estimates: ", paste(coef(obj),collapse=", "),"\n",sep="")
-	cat("(SD) Bayesian estimates: ",paste(sapply(obj$par,sd),collapse=", "),"\n",sep="")
-	cat("(Number) Bayesian estimates: ",paste(sapply(obj$par,length),collapse=", "),"\n",sep="")
+	if(obj$history){
+		thetak<-lapply(obj$profile_alpha:(length(obj$par0)-1),function(j){obj$par$estimate[obj$par$ind==j]})
+		if(obj$profile_alpha){thetak<-c(list(obj$par$alpha),thetak)}
+	} else {
+		thetak<-obj$par
+	}
+	cat("(SD) Bayesian estimates: ",paste(sapply(thetak,sd),collapse=", "),"\n",sep="")
+	cat("(", alpha/2,"-Quantile) Bayesian estimates: ",paste(sapply(thetak,function(x){quantile(x,probs=alpha/2)}),collapse=", "),"\n",sep="")
+	cat("(", 1-alpha/2,"-Quantile) Bayesian estimates: ",paste(sapply(thetak,function(x){quantile(x,probs=1-alpha/2)}),collapse=", "),"\n",sep="")
+	cat("(Number) Bayesian estimates: ",paste(sapply(thetak,length),collapse=", "),"\n",sep="")
+	cat("Metropolis-Hasting acceptation rates: ",paste(sapply(thetak,length)/(obj$nb-obj$burn),collapse=", "),"\n",sep="")
 }
 
 
@@ -843,7 +877,7 @@ priors.from.vam.formula <- function(model) {
 				Gamma <- G <- function(a,s) list(name="Gamma.prior",params=c(a,s))
 				Unif <- U <- function(a=0,b=1) list(name="Unif.prior",params=c(a,b))
 				Norm <- N <- function(m=0,s=1) list(name="Norm.prior",params=c(m,s))
-				NonInform <- NInf <- NI <- function() list(name="NonInform.prior",params=c())
+				NonInform <- NInf <- NI <- function(init=1,init_sigma=1) list(name="NonInform.prior",params=c(init,init_sigma))
 				res <- eval(prior) ## TODO or NOT TODO: eval(prior,parent.frame())
 				class(res) <- res$name #to be accessible as a class in R
 				res

@@ -106,6 +106,7 @@ public:
           res[0]=log(alpha)*S0+S2-alpha*S1+S3;
         }
 
+        param[0]=alpha;//LD:changed for bayesian
         return res;
         //return res[0]==R_NaN ? R_NegInf : res;
     }
@@ -169,6 +170,7 @@ public:
                 res[i+1] = -dS1[i]*alpha + dS2[i]+dS3[i-(model->nb_paramsFamily-1)];
             }
         }
+        param[0]=alpha;//LD:changed for bayesian
         return res;
     }
 
@@ -278,7 +280,7 @@ public:
                 }
             }
         }
-
+        param[0]=alpha;//LD:changed for bayesian
         return res;
     }
 
