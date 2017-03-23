@@ -467,6 +467,7 @@ run.bayesian.vam <- function(obj,par0,fixed,sigma.proposal,nb=100000,burn=10000,
 	obj$history<-history
 	obj$nb<-nb
 	obj$burn<-burn
+	obj$preplots <- NULL
 	
 	## init via mle: par0 is supposed first to be initialized by mle
 	if(missing(par0)) {
@@ -475,7 +476,7 @@ run.bayesian.vam <- function(obj,par0,fixed,sigma.proposal,nb=100000,burn=10000,
 		obj$par0 <- coef(obj$mle,fixed=fixed,method=method,verbose=verbose)
 	}
 	fixed.tmp <- init.fixed.param(obj$par0,fixed)
-	fixed <- fixed.tmp$fixed
+	obj$fixed <- fixed.tmp$fixed ## NOT USED FOR BAYESIAN ESTIMATION
 	obj$alpha_fixed <- fixed.tmp$alpha_fixed
 	obj$profile_alpha<-profile.alpha
     if (obj$alpha_fixed&profile.alpha){
@@ -487,10 +488,14 @@ run.bayesian.vam <- function(obj,par0,fixed,sigma.proposal,nb=100000,burn=10000,
 	else {
 		if(length(sigma.proposal)==1) sigma.proposal <- rep(sigma.proposal,length(obj$priors))
 	}
-	for(i in (1:length(obj$priors))) rcpp$set_sigma(i-1,sigma.proposal[i])
+	for(i in (1:length(obj$priors))) {
+		rcpp$set_sigma(i-1,sigma.proposal[i])
+		obj$sigma_proposal<-sigma.proposal
+	}
 	if(history) {
 		res <- rcpp$mcmc_history(obj$par0,nb,burn,obj$alpha_fixed,obj$profile_alpha)
 		obj$nb<-res[[3+obj$profile_alpha]]
+		obj$nb_proposal<-nb
 		obj$par<-as.data.frame(res[1:(2+obj$profile_alpha)])
 		names(obj$par) <- c("ind","estimate","alpha")[1:(2+obj$profile_alpha)]
 	} else {
