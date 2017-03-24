@@ -1,0 +1,13 @@
+VAM 3.5:
+	* possibilité de fixer la valeur de certain paramètre dans VAM bayésien
+	* help des fonctions VAM bayésien
+	* debug prior loi normale
+VAM 3.4:
+	* prise en compte des modif de VAM 3.3 dans plot bayesien
+VAM 3.3:
+	* debug de certain priors en particulier NInform
+    * debug des fonctions  contrast, gradient, hessian de mle qui modifiées la valeur du paramètre d'entrée param[0]
+    * ajout de la méthode d'estimation bayésienne avec alpha non profilé
+    * ajout compatibilité de coef, hist et summary avec mcmc_history
+    * modification de l'estimation bayésienne de alpha quand il est profilé
+    * ajout des jeux de données AMC Ambassador et off road engines (+doc correspondante)
