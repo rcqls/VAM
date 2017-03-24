@@ -28,6 +28,15 @@ sigma.Gamma.prior <- function(obj) {
   sqrt(a*b^2)
 }
 
+mean.Norm.prior <- function(obj) {
+  obj$params[1]
+}
+
+sigma.Norm.prior <- function(obj) {
+  obj$params[2]
+}
+
+
 mean.NonInform.prior <- function(obj) {
   obj$params[1]
 }

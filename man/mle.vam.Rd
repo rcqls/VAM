@@ -53,3 +53,4 @@ coef(mleCMPM_Multi)
 \keyword{corrective maintenance}
 \keyword{preventive maintenance}
 \keyword{ARA}
+\keyword{maximum likelihood}

@@ -1,6 +1,7 @@
 \name{run.mle.vam}
 
 \alias{run.mle.vam}
+\alias{run}
 
 \title{Compute the maximum likelihood estimator of a virtual age model}
 
@@ -18,7 +19,7 @@ run.mle.vam(obj, par0, fixed, method=NULL, verbose=TRUE,...)
 
 If \code{par0} is not specified and the optimization algorithm has never been executed on \code{obj} (via \code{\link{coef.mle.vam}} or \code{\link{run.mle.vam}}), the optimization algorithm used the parameter values specified in the \code{obj} formula as initialization point.
 Otherwise, the last parameters values obtained by the optimization algorithm for \code{obj} are used as initialization point. Then, if one execution of \code{run.mle.vam} is not sufficient to make the optimization algorithm converged (\code{$convergence!=1}), the method can be re-executed until convergence. }
-\item{\code{fixed}}{an optional argument specifying the parameters for which the value is fixed to initialization. \code{fixed} can be a vector of logical whose length is equal the total number of parameters in the formula used for defining the object \code{obj}. The successive values of \code{fixed} respectively refer to the parameters of time to failure distribution of the new unmaintained system, of the CM effect model and finally of the PM effect models (if defined and in the same order as they appear in the \code{obj} formula). Otherwise \code{fixed} can be equivalently a vector of integers correspoding to the indices of the true values in the previous \code{fixed} version.}
+\item{\code{fixed}}{an optional argument specifying the parameters for which the value is fixed to initialization. \code{fixed} can be a vector of logical whose length is equal the total number of parameters in the formula used for defining the object \code{obj}. The successive values of \code{fixed} respectively refer to the parameters of time to failure distribution of the new unmaintained system, of the CM effect model and finally of the PM effect models (if defined and in the same order as they appear in the \code{obj} formula). Otherwise \code{fixed} can be equivalently a vector of integers correspoding to the indexes of the true values in the previous \code{fixed} version.}
 \item{\code{method}}{an optimization method of \code{\link{optim}} function used for optimization. \code{method} can also be equal to the string \code{"fast"} in order to let the function choose the method known as the faster one.}
 \item{\code{verbose}}{if \code{TRUE}, the value returned by \code{\link{optim}} function is printed.}
 \item{\code{...}}{further arguments passed to the \code{\link{optim}} function.}

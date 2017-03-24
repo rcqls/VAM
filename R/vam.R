@@ -473,7 +473,7 @@ run.bayesian.vam <- function(obj,par0,fixed,sigma.proposal,nb=100000,burn=10000,
 	if(missing(par0)) {
 		obj$mle <- mle.vam(obj$mle.formula,obj$data)
 		obj$mle.init <- TRUE
-		obj$par0 <- coef(obj$mle,fixed=fixed,method=method,verbose=verbose)
+		obj$par0 <- coef(obj$mle,fixed=fixed,method=method,verbose=verbose,...)
 	} else {
 		obj$par0<-par0
 		obj$mle.init <- FALSE
@@ -523,7 +523,7 @@ coef.bayesian.vam <- function(obj,new.run=FALSE,...) {
 }
 
 hist.bayesian.vam <- function(obj,i=1,...) {
-	if(is.null(obj$par)) run(obj,...)
+	if(is.null(obj$par)) run(obj)
 	if(obj$fixed[i]){
 		warning("No hist for a fixed parameter!")
 	} else {
@@ -533,10 +533,10 @@ hist.bayesian.vam <- function(obj,i=1,...) {
 		} else {
 			thetak<-obj$par$estimate[obj$par$ind==(i-1)]
 		}
-		hist(thetak,prob=TRUE)
+		hist(thetak,prob=TRUE,...)
 		abline(v=mean(thetak),col="blue",lwd=2)
 	  } else{
-		hist(obj$par[[i]],prob=TRUE)
+		hist(obj$par[[i]],prob=TRUE,...)
 		abline(v=mean(obj$par[[i]]),col="blue",lwd=2)
 	  }
 	}
