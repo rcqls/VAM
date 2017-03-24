@@ -6,7 +6,7 @@
 
 \description{For \code{bayesian.vam} object, plots the Bayesian estimations (mean and 0.95 credibility interval) of the characteristics of a virtual age model for Corrective Maintenance (CM) and planned Preventive Maintenance (PM).}
 
-\usage{plot.bayesian.vam(obj,type,from,to,length.out=101,by,system.index=1,cm.type=NA,pm.type=NA,add=FALSE,nb.proposal=500,...)
+\usage{plot.bayesian.vam(obj,type,from,to,length.out=101,by,system.index=1,cm.type=NA,pm.type=NA,add=FALSE,nb.proposal=500,col=c("blue","black"),lty=c(1,3),lwd=c(1,1),...)
 }
 
 \arguments{
@@ -31,7 +31,10 @@ By default, PM times are also represented, but "-pm" can be added at the end of 
 \item{\code{pm.type}}{how to additionally represent the PM times. Possible types are "p" for points and "l" for lines.}
 \item{\code{add}}{if \code{add==FALSE} the characteristic is plotted on a new graphical, otherwise it is added to the current one.}
   	\item{nb.proposal}{an optional argument specifying the size of the simulated sample of the posterior distribution (used to compute the estimation and credibility interval of the plotted characteristic).}
-\item{\code{...}}{Further classical graphical parameters specifying how the plot of the characteristic. Others non usual arguments can also be added in order to specify the additional representation of the CM and PM times: \code{cm.col, cm.pch, cm.lty, cm.lwd, pm.col, pm.pch, pm.lty, pm.lwd}. For PM, those arguments can be vectors in order to specify a specific value of the argument for each PM type.}
+\item{\code{col}}{a vector specifying the lines colors corresponding to the mean and the credibility interval.}
+\item{\code{lty}}{a vector specifying the lines types corresponding to the mean and the credibility interval.}
+\item{\code{lwd}}{a vector specifying the lines width corresponding to the mean and the credibility interval.}
+\item{\code{...}}{Further classical graphical parameters specifying the characteristic of the plot. Others non usual arguments can also be added in order to specify the additional representation of the CM and PM times: \code{cm.col, cm.pch, cm.lty, cm.lwd, pm.col, pm.pch, pm.lty, pm.lwd}. For PM, those arguments can be vectors in order to specify a specific value of the argument for each PM type.}
 }
 
 \details{

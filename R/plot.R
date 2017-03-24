@@ -267,7 +267,7 @@ preplots.bayesian.vam <- function(obj,from,to,length.out=101,by,system.index=1,t
 	preplots
 }
 
-plot.bayesian.vam <- function(obj,type=c("i","intensity","I","cumulative","F","conditional.cdf","S","conditional.survival","f","conditional.pdf"),from,to,length.out=101,by,system.index=1,cm.type=NA,pm.type=NA,add=FALSE,nb.proposal=500,...) {
+plot.bayesian.vam <- function(obj,type=c("i","intensity","I","cumulative","F","conditional.cdf","S","conditional.survival","f","conditional.pdf"),from,to,length.out=101,by,system.index=1,cm.type=NA,pm.type=NA,add=FALSE,nb.proposal=500,col=c("blue","black"),lty=c(1,3),lwd=c(1,1),...) {
 	type <- match.arg(type)
 	if((!is.null(obj$preplots))&&((!missing(from) && from != obj$preplots[[1]]$from) || (!missing(to) && to != obj$preplots[[1]]$to) || (!missing(by) && by != obj$preplots[[1]]$by) || (!missing(length.out) && missing(by) && (obj$preplots[[1]]$by!= (obj$preplots[[1]]$to-obj$preplots[[1]]$from)/(length.out-1))))) obj$preplots <- NULL
 	if(is.null(obj$preplots)||(obj$preplot_index!=system.index)) {
@@ -276,9 +276,9 @@ plot.bayesian.vam <- function(obj,type=c("i","intensity","I","cumulative","F","c
 	}
 	## first one
 	mode <- names(obj$preplots)[1]
-	plot.model.vam(obj,type=type,cm.type=cm.type,pm.type=pm.type,preplot=obj$preplots[[mode]],col=(if(mode=="mean") "blue" else "black") ,lty=if(mode=="mean") 1 else 3)
+	plot.model.vam(obj,type=type,cm.type=cm.type,pm.type=pm.type,preplot=obj$preplots[[mode]],col=(if(mode=="mean") col[1] else col[2]) ,lty=if(mode=="mean") lty[1] else lty[2],lwd=if(mode=="mean") lwd[1] else lwd[2],...)
 	## the other plots
 	for(mode in  names(obj$preplots)[-1]) {
-		plot.model.vam(obj,type=type,cm.type=cm.type,pm.type=pm.type,preplot=obj$preplots[[mode]],add=TRUE,col=(if(mode=="mean") "blue" else "black") ,lty=if(mode=="mean") 1 else 3,...)
+		plot.model.vam(obj,type=type,cm.type=cm.type,pm.type=pm.type,preplot=obj$preplots[[mode]],add=TRUE,col=(if(mode=="mean") col[1] else col[2]) ,lty=if(mode=="mean") lty[1] else lty[2],lwd=if(mode=="mean") lwd[1] else lwd[2])
 	}
 }
