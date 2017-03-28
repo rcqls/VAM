@@ -232,21 +232,24 @@ preplots.bayesian.vam <- function(obj,from,to,length.out=101,by,system.index=1,t
 
 	if(missing(by)) by <- (to-from)/(length.out-1)
 
-	if(is.null(obj$par)){
-		run(obj,nb=nb.proposal,history=TRUE)
-	} else { if((!obj$history) || (obj$nb_proposal<nb.proposal)) run(obj,nb=nb.proposal,history=TRUE,profile.alpha=obj$profile_alpha,fixed=obj$fixed,sigma.proposal=obj$sigma_proposal)}
-
 	param <- if(obj$profile_alpha) obj$par0[-1] else obj$par0
 	res <- NULL
-	for(k in 1:nb.proposal) {
+	whichIndex<-1:obj$nb_proposal %in% sample(obj$nb_proposal,nb.proposal)
+	firstIndex<-TRUE
+	for(k in 1:obj$nb_proposal) {
 		param[obj$par$ind[k]+!obj$profile_alpha] <- obj$par$estimate[k]
-		rcpp$set_params( if(obj$profile_alpha) c(obj$par$alpha[k],param) else param)
-		infos <- rcpp$get_virtual_age_infos(by,from,to)
-		infos <- infos[sapply(infos,function(e) !is.null(e))]
-		if(k==1) res <- lapply(infos,function(e) as.list(e[filter]))
-		else {
-			for(i in seq(res)) for(f in filter) {
-				res[[i]][[f]] <- cbind(res[[i]][[f]],infos[[i]][[f]])
+		if(whichIndex[k]){
+			rcpp$set_params( if(obj$profile_alpha) c(obj$par$alpha[k],param) else param)
+			infos <- rcpp$get_virtual_age_infos(by,from,to)
+			infos <- infos[sapply(infos,function(e) !is.null(e))]
+			if(firstIndex) {
+				res <- lapply(infos,function(e) as.list(e[filter]))
+				firstIndex<-FALSE
+			}
+			else {
+				for(i in seq(res)) for(f in filter) {
+					res[[i]][[f]] <- cbind(res[[i]][[f]],infos[[i]][[f]])
+				}
 			}
 		}
 	}
@@ -269,14 +272,18 @@ preplots.bayesian.vam <- function(obj,from,to,length.out=101,by,system.index=1,t
 
 plot.bayesian.vam <- function(obj,type=c("i","intensity","I","cumulative","F","conditional.cdf","S","conditional.survival","f","conditional.pdf"),from,to,length.out=101,by,system.index=1,cm.type=NA,pm.type=NA,add=FALSE,nb.proposal=500,col=c("blue","black"),lty=c(1,3),lwd=c(1,1),...) {
 	type <- match.arg(type)
+	if(is.null(obj$par)){
+		run(obj,nb=nb.proposal,history=TRUE)
+	} else { if((!obj$history) || (obj$nb_proposal<nb.proposal)) run(obj,nb=nb.proposal,history=TRUE,profile.alpha=obj$profile_alpha,fixed=obj$fixed,sigma.proposal=obj$sigma_proposal)}
 	if((!is.null(obj$preplots))&&((!missing(from) && from != obj$preplots[[1]]$from) || (!missing(to) && to != obj$preplots[[1]]$to) || (!missing(by) && by != obj$preplots[[1]]$by) || (!missing(length.out) && missing(by) && (obj$preplots[[1]]$by!= (obj$preplots[[1]]$to-obj$preplots[[1]]$from)/(length.out-1))))) obj$preplots <- NULL
-	if(is.null(obj$preplots)||(obj$preplot_index!=system.index)) {
+	if(is.null(obj$preplots)||(obj$preplot_index!=system.index)||(obj$nb_proposal_preplot!=nb.proposal)) {
 		obj$preplots <- preplots.bayesian.vam(obj,from,to,length.out,by,system.index,nb.proposal=nb.proposal)
 		obj$preplot_index<-system.index
+		obj$nb_proposal_preplot<-nb.proposal
 	}
 	## first one
 	mode <- names(obj$preplots)[1]
-	plot.model.vam(obj,type=type,cm.type=cm.type,pm.type=pm.type,preplot=obj$preplots[[mode]],col=(if(mode=="mean") col[1] else col[2]) ,lty=if(mode=="mean") lty[1] else lty[2],lwd=if(mode=="mean") lwd[1] else lwd[2],...)
+	plot.model.vam(obj,type=type,cm.type=cm.type,pm.type=pm.type,preplot=obj$preplots[[mode]],col=(if(mode=="mean") col[1] else col[2]) ,lty=if(mode=="mean") lty[1] else lty[2],lwd=if(mode=="mean") lwd[1] else lwd[2],add=add,...)
 	## the other plots
 	for(mode in  names(obj$preplots)[-1]) {
 		plot.model.vam(obj,type=type,cm.type=cm.type,pm.type=pm.type,preplot=obj$preplots[[mode]],add=TRUE,col=(if(mode=="mean") col[1] else col[2]) ,lty=if(mode=="mean") lty[1] else lty[2],lwd=if(mode=="mean") lwd[1] else lwd[2])

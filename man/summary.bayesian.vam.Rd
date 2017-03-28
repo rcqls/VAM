@@ -7,13 +7,14 @@
 \description{For \code{bayesian.vam} object, produce a summary of the Bayesian estimation method corresponding to the posterior distribution sampled obtained with \code{\link{run.bayesian.vam}}.}
 
 \usage{
-summary.bayesian.vam(obj,alpha=0.05,new.run=FALSE,...)
+summary.bayesian.vam(obj,alpha=0.05,new.run=FALSE,digits=4,...)
 }
 
 \arguments{
 	\item{\code{obj}}{an object of class \code{\link{bayesian.vam}} specifying the virtual age model considered, the prior distribution of the parameters and the data set of observations.}
 	\item{\code{alpha}}{an optional argument specifying the level (\code{1-alpha}) of the credibility intervals for the parameters.}
   	\item{\code{new.run}}{an optional argument specifying if \code{\link{run.bayesian.vam}} methods has to be relaunched even if it has already been executed.}
+  	\item{\code{digits}}{an optional argument specifying the number of significant digits to be printed for estimated characteristics.}
   	\item{\code{...}}{some supplementary arguments for the \code{\link{run.bayesian.vam}} method.}
 }
 
@@ -26,6 +27,7 @@ Print a summary of the Bayesian method \code{\link{run.bayesian.vam}} applied to
 	\item{The number of accepted marginal simulated parameters values of the posterior distribution in the Metropolis Hasting step.}
 	\item{The acceptation rate of the Metropolis Hasting step.}
 }
+The returned value is a data frame with in line the parameters and in column the previous detailed characteristics.
  }
 
 \details{The acceptation rate of the Metropolis Hasting step can be used to calibrate the standard deviation of the instrumental distribution (see the argument \code{sigma.proposal} of the \code{\link{run.bayesian.vam}} method).}

@@ -542,10 +542,12 @@ hist.bayesian.vam <- function(obj,i=1,...) {
 	}
 }
 
-summary.bayesian.vam <- function(obj,alpha=0.05,new.run=FALSE,...) {
+summary.bayesian.vam <- function(obj,alpha=0.05,new.run=FALSE,digits=4,...) {
 	if(new.run || is.null(obj$par)) run(obj,...)
-	cat("Initial parameters",if(obj$mle.init) " (by MLE)" else "",": ",paste(obj$par0,collapse=", "),"\n",sep="")
-	cat("(Mean) Bayesian estimates: ", paste(coef(obj),collapse=", "),"\n",sep="")
+	res1<-obj$par0
+	cat("Initial parameters",if(obj$mle.init) " (by MLE)" else "",": ",paste(signif(res1,digits=digits),collapse=", "),"\n",sep="")
+	res2<-coef(obj)
+	cat("(Mean) Bayesian estimates: ", paste(signif(res2,digits=digits),collapse=", "),"\n",sep="")
 	if(obj$history){
 		thetak<-lapply(obj$profile_alpha:(length(obj$par0)-1),function(j){obj$par$estimate[obj$par$ind==j]})
 		if(obj$profile_alpha){thetak<-c(list(obj$par$alpha),thetak)}
@@ -554,11 +556,18 @@ summary.bayesian.vam <- function(obj,alpha=0.05,new.run=FALSE,...) {
 	}
 	sd<-sapply(thetak,sd)
 	sd[as.logical(obj$fixed)]<-0
-	cat("(SD) Bayesian estimates: ",paste(sd,collapse=", "),"\n",sep="")
-	cat("(", alpha/2,"-Quantile) Bayesian estimates: ",paste(sapply(thetak,function(x){quantile(x,probs=alpha/2)}),collapse=", "),"\n",sep="")
-	cat("(", 1-alpha/2,"-Quantile) Bayesian estimates: ",paste(sapply(thetak,function(x){quantile(x,probs=1-alpha/2)}),collapse=", "),"\n",sep="")
-	cat("(Number) Bayesian estimates: ",paste(sapply(thetak,length),collapse=", "),"\n",sep="")
-	cat("Metropolis-Hasting acceptation rates: ",paste(sapply(thetak,length)/(obj$nb-obj$burn),collapse=", "),"\n",sep="")
+	cat("(SD) Bayesian estimates: ",paste(signif(sd,digits=digits),collapse=", "),"\n",sep="")
+	res4<-sapply(thetak,function(x){quantile(x,probs=alpha/2)})
+	cat("(", alpha/2,"-Quantile) Bayesian estimates: ",paste(signif(res4,digits=digits),collapse=", "),"\n",sep="")
+	res5<-sapply(thetak,function(x){quantile(x,probs=1-alpha/2)})
+	cat("(", 1-alpha/2,"-Quantile) Bayesian estimates: ",paste(signif(res5,digits=digits),collapse=", "),"\n",sep="")
+	res6<-sapply(thetak,length)
+	cat("(Number) Bayesian estimates: ",paste(res6,collapse=", "),"\n",sep="")
+	res7<-sapply(thetak,length)/(obj$nb-obj$burn)
+	cat("Metropolis-Hasting acceptation rates: ",paste(signif(res7,digits=digits),collapse=", "),"\n",sep="")
+	res<-data.frame(res1,res2,sd,res4,res5,res6,res7)
+	names(res)<-c(paste("Init",if(obj$mle.init) "(MLE)" else "",sep=""),"Mean","SD",paste(alpha/2,"-Quantile",sep=""),paste(1-alpha/2,"-Quantile",sep=""),"Number","Accept_Rate")
+	invisible(res)
 }
 
 
