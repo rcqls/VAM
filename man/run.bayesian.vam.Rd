@@ -7,7 +7,7 @@
 \description{For \code{bayesian.vam} object, the method \code{run.bayesian.vam} produces a sample from the posterior distribution of the parameters using a Gibbs sampling algorithm with a Metropolis Hasting step. The generated sample is memorized in the \code{bayesian.vam} object and can be used in particular by the \code{\link{coef.bayesian.vam}} and \code{\link{summary.bayesian.vam}} to produce Bayesian estimators of the parameters.}
 
 \usage{
-run.bayesian.vam(obj,par0,fixed,sigma.proposal,nb=100000,burn=10000,profile.alpha=FALSE,method=NULL,verbose=FALSE,history=FALSE,...)
+run.bayesian.vam(obj,par0,fixed,sigma.proposal,nb=100000,burn=10000,profile.alpha=FALSE,method=NULL,verbose=FALSE,history=FALSE,proposal='norm',...)
 
 }
 
@@ -24,7 +24,8 @@ run.bayesian.vam(obj,par0,fixed,sigma.proposal,nb=100000,burn=10000,profile.alph
   	\item{\code{profile.alpha}}{an optional argument specifying if the likelihood is profiled in \eqn{\alpha} (the log likelihood is replaced by the contrast function, see \code{\link{contrast.mle.vam}}). If the likelihood is profiled the prior distribution of parameter \eqn{\alpha} is not used. However it must have been specified in the \code{\link{bayesian.vam}} object even if it is not used.}
   	\item{\code{method}}{an optional argument to be used by the maximum likelihood method for computing the initialization of the Gibbs algorithm (see \code{run.mle.vam}).}
   	\item{\code{verbose}}{an optional argument to be used by the maximum likelihood method for computing the initialization of the Gibbs algorithm (see \code{run.mle.vam}).}
-  	\item{\code{history}}{an optional argument defining how to stop the Gibbs sampling method and how to memorized its result. The plotting method \code{\link{plot.bayesian.vam}} needs to run the Bayesian method with \code{history=TRUE}, but that takes more computing time.} 
+  	\item{\code{history}}{an optional argument defining how to stop the Gibbs sampling method and how to memorized its result. The plotting method \code{\link{plot.bayesian.vam}} needs to run the Bayesian method with \code{history=TRUE}, but that takes more computing time.}
+  	\item{\code{proposal}}{an optional argument specifying the instrumental distribution of the Metropolis Hasting step of the Gibbs sampling algorithm. Possible distributions are \code{'norm'} for normal distribution and \code{'lnorm'} for log-normal distribution. That can be a seldom value and then the used distribution will be the same for all the parameters. Otherwise, it can be vector whose length is equal to the total number of parameters.}
   	\item{\code{...}}{some supplementary arguments for the maximum likelihood method used to compute the initialization of the Gibbs algorithm (see \code{run.mle.vam}).}
 }
 

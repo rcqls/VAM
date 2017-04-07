@@ -43,13 +43,42 @@ public:
     virtual NumericVector get_params() = 0;
 
     double new_proposal(double par) {
-      return R::rnorm(par,sigma);
+      switch (proposal_distribution){
+      case 1:
+        return exp(R::rnorm(log(par)-log(1+pow(sigma/par,2.0))/2,pow(log(1+pow(sigma/par,2.0)),0.5)));
+        break;
+      default:
+        return R::rnorm(par,sigma);
+      }
     }
 
+    bool not_symetric_proposal() {
+      switch (proposal_distribution){
+      case 1:
+        return true;
+        break;
+      default:
+        return false;
+      }
+    }
+
+    double density_proposal(double x,double par) {
+      switch (proposal_distribution){
+      case 1:
+        return (R::dnorm(log(x),log(par)-log(1+pow(sigma/par,2.0))/2,pow(log(1+pow(sigma/par,2.0)),0.5),false))/x;
+        break;
+      default:
+        return R::dnorm(x,par,sigma,false);
+      }
+    }
+
+    void set_proposal(int proposal_distribution_) {proposal_distribution=proposal_distribution_;}
 
     void set_sigma(double sigma_) {sigma=sigma_;}; //initialization could be managed directly in R
 
     double get_sigma() {return sigma;}; //initialization could be managed directly in R
+
+    double get_proposal() {return proposal_distribution;}; //initialization could be managed directly in R
 
     void clear() {result.clear();};
 
@@ -60,6 +89,8 @@ public:
 private:
 
     double sigma;
+
+    int proposal_distribution;//instrumental proposal distribution: 0 for normal and 1 for log-normal
 
     std::vector<double> result;
 
@@ -193,6 +224,33 @@ private:
     double m,s;
 
 };
+
+class LNormPrior : public BayesianPrior {
+
+public:
+
+  LNormPrior(NumericVector params_) : BayesianPrior() {
+    m = params_[0];s=params_[1];
+  }
+
+  NumericVector get_params() {
+    //printf("Gamma:a,s=%lf,%lf\n",a,s);
+    return NumericVector::create(m,s);
+  }
+
+  double get() {
+    return exp(R::rnorm(m,s));
+  };
+
+  double density(double x) {
+    return (R::dnorm(log(x),m,s,0))/x;
+  };
+
+private:
+  double m,s;
+
+};
+
 
 BayesianPrior* newBayesianPrior(List prior);
 

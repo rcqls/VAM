@@ -47,6 +47,8 @@ BayesianPrior* newBayesianPrior(List prior) {
     bp=new GammaPrior(params);
   } else if(name.compare("Norm.prior") == 0) {
     bp=new NormPrior(params);
+  } else if(name.compare("LNorm.prior") == 0) {
+    bp=new LNormPrior(params);
   } else if(name.compare("NonInform.prior") == 0) {
     bp=new NonInformativePrior(params);
   }

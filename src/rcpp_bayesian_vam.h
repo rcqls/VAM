@@ -26,7 +26,10 @@ public:
     void set_priors(List priors_) {// Notice that priors are in provided in the same order as params (to fulfill set_params of VamModel)
       priors=new BayesianPriorList(priors_);
       //initial values of sigma is 1
-      for(int j=0;j<priors->size();j++) set_sigma_at(j,1);
+      for(int j=0;j<priors->size();j++) {
+        set_sigma_at(j,1);
+        set_proposal_at(j,0);
+      }
     }
 
     //facility method to initialize directly in R sigma of the proposal
@@ -34,8 +37,17 @@ public:
       if(j>=0 && j<priors->size()) priors->at(j)->set_sigma(sigma_);
     }
 
+    //facility method to initialize directly in R the proposal distribution
+    void set_proposal_at( int j, int proposal_) {
+      if(j>=0 && j<priors->size()) priors->at(j)->set_proposal(proposal_);
+    }
+
     double get_sigma(int j) {
       return ( (j>=0 && j<priors->size())  ? priors->at(j)->get_sigma() : -1 );
+    }
+
+    double get_proposal(int j) {
+      return ( (j>=0 && j<priors->size())  ? priors->at(j)->get_proposal() : -1 );
     }
 
     void set_data(List data_) {
@@ -100,8 +112,11 @@ public:
             L=mle->contrast(curPars,FALSE)[0];
           } else {
             L=mle->contrast(curPars,TRUE)[0];
-          } 
+          }
           r=exp(L-oldL)*(curPrior->density(curPars[j]))/curPrior->density(oldPars[j]);
+          if(curPrior->not_symetric_proposal()){
+            r=r*(curPrior->density_proposal(oldPars[j],curPars[j]))/(curPrior->density_proposal(curPars[j],oldPars[j]));
+          }
           r0=R::runif(0,1);
           //printf("r,r0=%lf,%lf\n",r,r0);
           if(r > r0) {
@@ -170,6 +185,9 @@ public:
             L=mle->contrast(curPars,TRUE)[0];
           }
           r=exp(L-oldL)*(curPrior->density(curPars[j]))/curPrior->density(oldPars[j]);
+          if(curPrior->not_symetric_proposal()){
+            r=r*(curPrior->density_proposal(oldPars[j],curPars[j]))/(curPrior->density_proposal(curPars[j],oldPars[j]));
+          }
           r0=R::runif(0,1);
           //printf("r,r0=%lf,%lf\n",r,r0);
           if(r > r0) {

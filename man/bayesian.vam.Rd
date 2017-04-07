@@ -23,9 +23,10 @@ The symbolic description of the model done in \code{formula} has the form \code{
 	\item{\code{Gamma(a,s)}}{or \code{G(a,s)} for a gamma distribution with parameters \code{a} and \code{s} (see \code{\link{dgamma}} for supplementary informations about this distribution),}
 	\item{\code{Unif(a=0,b=1)}}{or \code{U(a=0,b=1)} for a uniform distribution on the interval [\code{a},\code{b}] (see \code{\link{dunif}} for supplementary informations about this distribution),}
 	\item{\code{Norm(m=0,s=1)}}{or \code{N(m=0,s=1)} for a normal distribution with mean \code{m} and standard deviation \code{s} (see \code{\link{dnorm}} for supplementary informations about this distribution),}
+		\item{\code{LNorm(m=0,s=1)}}{or \code{LN(m=0,s=1)} or \code{LogNorm(m=0,s=1)} for a log-normal distribution, that is to say Y=exp(X) follows a log-normal distribution if X follows a normal distribution with mean \code{m} and standard deviation \code{s},}
 	\item{\code{NonInform(init=1,init_sigma=1)}}{or \code{NInf(init=1,init_sigma=1)} or \code{NI(init=1,init_sigma=1)} for a a standard Jeffrey's non informative prior distribution for Weibull parameters (with a prior density in x proportional to 1/x). \code{Init} represents the initialization of the maximum likelihood method used to compute the initialization of the Gibbs sampling algorithm in the \code{\link{run.bayesian.vam}} method (in order to evaluate the posterior distribution). \code{init_sigma} represents the standard deviation of instrumental distribution of the Metropolis Hasting step of Gibbs sampling algorithm used in \code{\link{run.bayesian.vam}} to evaluate the posterior distribution. \code{init_sigma} is used only if this standard deviation is not specified in \code{\link{run.bayesian.vam}}. Those characteristics are defined since this non informative prior distribution is not a proper distribution, then it does not have a mean and standard deviation.}
 }
-In addition, in this case the PM policy is useless, so it has not to be necessarily defined. 
+In addition, in this case the PM policy is useless, so it has not to be necessarily defined.
 }
 
 \value{

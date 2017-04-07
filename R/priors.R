@@ -36,6 +36,13 @@ sigma.Norm.prior <- function(obj) {
   obj$params[2]
 }
 
+mean.LNorm.prior <- function(obj) {
+  exp(obj$params[1]+(obj$params[2])^2/2)
+}
+
+sigma.LNorm.prior <- function(obj) {
+  sqrt((exp((obj$params[2])^2)-1)*exp(2*obj$params[1]+(obj$params[2])^2))
+}
 
 mean.NonInform.prior <- function(obj) {
   obj$params[1]

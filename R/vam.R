@@ -462,13 +462,13 @@ bayesian.vam <- function(formula,data) {
 	self
 }
 
-run.bayesian.vam <- function(obj,par0,fixed,sigma.proposal,nb=100000,burn=10000,profile.alpha=FALSE,method=NULL,verbose=FALSE,history=FALSE,...) {
+run.bayesian.vam <- function(obj,par0,fixed,sigma.proposal,nb=100000,burn=10000,profile.alpha=FALSE,method=NULL,verbose=FALSE,history=FALSE,proposal='norm',...) {
 	rcpp <- obj$rcpp()
 	obj$history<-history
 	obj$nb<-nb
 	obj$burn<-burn
 	obj$preplots <- NULL
-	
+
 	## init via mle: par0 is supposed first to be initialized by mle
 	if(missing(par0)) {
 		obj$mle <- mle.vam(obj$mle.formula,obj$data)
@@ -491,10 +491,13 @@ run.bayesian.vam <- function(obj,par0,fixed,sigma.proposal,nb=100000,burn=10000,
 	else {
 		if(length(sigma.proposal)==1) sigma.proposal <- rep(sigma.proposal,length(obj$priors))
 	}
+	if(length(proposal)==1) proposal <- rep(proposal,length(obj$priors))
 	for(i in (1:length(obj$priors))) {
 		rcpp$set_sigma(i-1,sigma.proposal[i])
-		obj$sigma_proposal<-sigma.proposal
+	  rcpp$set_proposal(i-1,switch(proposal[i],'lnorm'=1,0))
 	}
+	obj$sigma_proposal<-sigma.proposal
+	obj$proposal<-proposal
 	if(history) {
 		res <- rcpp$mcmc_history(obj$par0,nb,burn,obj$fixed,obj$profile_alpha)
 		obj$nb<-res[[3+obj$profile_alpha]]
@@ -891,7 +894,7 @@ substitute.vam.formula <- function(formula,coef,model) {
 priors.from.vam.formula <- function(model) {
 	flatten.params <- c(model$family$params,unlist(sapply(model$models,function(e) e$params)))
 	if(all(sapply(flatten.params,class) == "formula") ) {
-		prior.families <- c("B","Beta","U","Unif","G","Gamma","Norm","N","NonInform","NInf")
+		prior.families <- c("B","Beta","U","Unif","G","Gamma","Norm","N","NonInform","NInf","LNorm","LogNorm","LN")
 		## clear "|" expression
 		flatten.params <- lapply(flatten.params,function(e) if(!as.character(e[[2]][[1]]) %in% prior.families) e[[2]][[2]] else e[[2]])
 		## transform to list
@@ -901,6 +904,7 @@ priors.from.vam.formula <- function(model) {
 				Gamma <- G <- function(a,s) list(name="Gamma.prior",params=c(a,s))
 				Unif <- U <- function(a=0,b=1) list(name="Unif.prior",params=c(a,b))
 				Norm <- N <- function(m=0,s=1) list(name="Norm.prior",params=c(m,s))
+				LNorm <- LogNorm <- LN <- function(m=0,s=1) list(name="LNorm.prior",params=c(m,s))
 				NonInform <- NInf <- NI <- function(init=1,init_sigma=1) list(name="NonInform.prior",params=c(init,init_sigma))
 				res <- eval(prior) ## TODO or NOT TODO: eval(prior,parent.frame())
 				class(res) <- res$name #to be accessible as a class in R
