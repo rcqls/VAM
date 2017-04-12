@@ -1,4 +1,5 @@
 VAM 3.5:
+  * correction bug dans politique PM Periodic
   * ajout log-normal prior
   * possibilité d'avoir une distribution instrumentale normale ou log-normale dans le MCMC
 	* possibilité de fixer la valeur de certain paramètre dans VAM bayésien

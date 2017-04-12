@@ -86,7 +86,7 @@ List PeriodicMaintenancePolicy::update(VamModel* model) {
 	while(t<n && r>prob[t-1]) {t++;r-=prob[t-1];}
 
 	//printf("from=%d,t=%d, %lf\n",get_from_type(),t,prob[0]);
-	res["type"]=t;
+	res["type"]=t+get_from_type();
 	return res;
 
 };
