@@ -5,7 +5,7 @@ src-*
 *.dylib
 *DEBUG
 *SAVE
-*.RData
+#*.RData
 *.rds
 *.Rhistory
 *.tar.gz
