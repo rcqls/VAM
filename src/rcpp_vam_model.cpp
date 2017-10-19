@@ -129,7 +129,8 @@ void VamModel::select_data(int i) {
 	//In particular, if no data the following is skipped!
 	if(data.size() > i) {
 		List data2=data[i];
-		time = data2[0]; type = data2[1];//0 stand for Time and 1 for Type
+		//OLD CODE before gcc6: time = data2[0]; type = data2[1];//0 stand for Time and 1 for Type
+		time = as<std::vector<double> >(data2[0]); type = as<std::vector<int> >(data2[1]); //Thanks to Lea, seems to be related to introduction of gcc Version 6 (see also https://github.com/apache/incubator-mxnet/issues/2185)
 	}
 }
 
