@@ -1,8 +1,8 @@
 # Simulation: sim.vam
 
-sim.vam <- function(formula) {
-
-	self <- newEnv(sim.vam,formula=formula(formula))
+sim.vam <- function(formula,data.covariates) {
+	if(missing(data.covariates)) data.covariates<-NULL
+	self <- newEnv(sim.vam,formula=formula(formula),data.covariates=data.covariates)
 
 	PersistentRcppObject(self,new = {
 		model <- parse.vam.formula(self$formula)
@@ -91,9 +91,10 @@ simulate.sim.vam <- function(sim, stop.policy = 10, nb.system=1, cache.size=500,
 
 # Model part
 
-model.vam <- function(formula,data) {
+model.vam <- function(formula,data,data.covariates) {
 	if(missing(data)) data<-NULL
-	self <- newEnv(model.vam,formula=formula(formula),data=data)
+	if(missing(data.covariates)) data.covariates<-NULL
+	self <- newEnv(model.vam,formula=formula(formula),data=data,data.covariates=data.covariates)
 
 	PersistentRcppObject(self,new = {
 		model <- parse.vam.formula(self$formula)
@@ -182,8 +183,9 @@ make.censorship <- function(data,rcpp) {
 	}
 }
 
-mle.vam <- function(formula,data) {
-	self <- newEnv(mle.vam,formula=formula(formula),data=data)
+mle.vam <- function(formula,data,data.covariates) {
+	if(missing(data.covariates)) data.covariates<-NULL
+	self <- newEnv(mle.vam,formula=formula(formula),data=data,data.covariates=data.covariates)
 
 	PersistentRcppObject(self,new = {
 		model <- parse.vam.formula(self$formula)
@@ -683,13 +685,42 @@ parse.vam.formula <- function(formula) {
 	}
 	cms[[cpt.cms <- cpt.cms + 1]] <- parse.cm(cm)
 
+	## Parse covariates
+	parse.covariates <- function(expr) {
+		form<-list()
+		params <- list()
+		add_term <- function(term,sign) {
+			##print(term)
+			if(term[[1]]==as.name("*")) {
+				form <<- c(as.character(term[[3]]),form)
+				## TODO: eval.vam instead of eval???
+				param_expr <- eval(parse(text=paste0(sign,as.character(eval(term[[2]])))))
+				params<<- c(param_expr,params)
+			}
+			##print(list(form=form,params=params))
+		}
+		while(expr[[1]]==as.name("+") || expr[[1]]==as.name("-")) {
+			add_term(expr[[3]],as.character(expr[[1]]))
+			expr <- expr[[2]]
+		}
+		add_term(expr,"")
+		list(formula=eval(parse(text=paste0("~",paste(form,collapse="+")))),params=params)
+	}
+
 	convert.family <- function(fam) {
+		if(has.covariates <- fam[[length(fam)]][[1]] == as.name("|")) {
+			covariates_expr<-fam[[length(fam)]][[3]]
+			fam[[length(fam)]] <- fam[[length(fam)]][[2]] # first argument of last terms becomes last argument of family
+		} 
 		res<-list(
 				name=as.character(fam[[1]]),
 				params=sapply(fam[-1],function(e) as.vector(eval.vam(e)))
 				## instead of : params=sapply(cm$family[-1],as.vector)
 				## which does not work with negative real since element of tmp[-1] interpreted as call!
 		)
+		if(has.covariates) {
+			res$covariates <- parse.covariates(covariates_expr)
+		}
 		return(res)
 	}
 	convert.pm <- function(pm) {

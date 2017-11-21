@@ -11,6 +11,7 @@ public:
 
     MLEVam(List model_,List data_) {
         model=new VamModel(model_,data_);
+        //Sum of d<?>S<??> defined in model
         dS1=new double[model->nb_paramsMaintenance+model->nb_paramsFamily-1];
         dS2=new double[model->nb_paramsMaintenance+model->nb_paramsFamily-1];
         dS3=new double[model->nb_paramsMaintenance];
