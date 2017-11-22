@@ -34,6 +34,11 @@ public:
 
 	List data;
 
+	//Additional Covariates stuff
+
+	DataFrame data_cov;
+	double exp_cov; //to save the 
+
 	//NumericVector time, type;
 	std::vector<double> time;
 	std::vector<int> type;
@@ -191,7 +196,7 @@ public:
 
     List get_virtual_age_infos(double by, double from, double to);
 
-		void init_computation_values();
+	void init_computation_values();
 
 private:
 	void set_models(List models_);
@@ -205,6 +210,11 @@ private:
 	void init_virtual_age_infos();
 
 	DataFrame get_virtual_age_info(double from,double to,double by);
+
+	//Covariates related
+	void set_covariates(List covariates_);
+
+	double compute_exp_covariates();
 
 };
 
