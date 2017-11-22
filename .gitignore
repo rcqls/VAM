@@ -1,4 +1,5 @@
 src-*
+.RData
 *~
 *.o
 *.so
