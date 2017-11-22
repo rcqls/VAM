@@ -20,8 +20,8 @@ sim.vam <- function(formula,data.covariates) {
 			}
 		}
 		self$formula <- substitute.vam.formula(model=model)
-		if(!is.null(self$data.covariates) && !is.null(model$covariates)) {
-			model$covariates$data <- model.frame(model$covariates$formula,data=data.covariates)
+		if(!is.null(model$covariates)) {
+			 model$covariates$data <- model.frame(model$covariates$formula,data=data.covariates) #ok even if data.covariates is null
 		}
 		rcpp <- new(SimVam,model)
 		rcpp
@@ -102,8 +102,8 @@ model.vam <- function(formula,data,data.covariates) {
 	PersistentRcppObject(self,new = {
 		model <- parse.vam.formula(self$formula)
 		self$formula <- substitute.vam.formula(model=model)
-		if(!is.null(self$data.covariates) && !is.null(model$covariates)) {
-			model$covariates$data <- model.frame(model$covariates$formula,data=data.covariates)
+		if(!is.null(model$covariates)) {
+			 model$covariates$data <- model.frame(model$covariates$formula,data=data.covariates) #ok even if data.covariates is null
 		}
 		if(is.null(self$data)) {## No data
 			rcpp <- new(ModelVam,model)
@@ -196,8 +196,8 @@ mle.vam <- function(formula,data,data.covariates) {
 	PersistentRcppObject(self,new = {
 		model <- parse.vam.formula(self$formula)
 		self$formula <- substitute.vam.formula(model=model)
-		if(!is.null(self$data.covariates) && !is.null(model$covariates)) {
-			model$covariates$data <- model.frame(model$covariates$formula,data=data.covariates)
+		if(!is.null(model$covariates)) {
+			 model$covariates$data <- model.frame(model$covariates$formula,data=data.covariates) #ok even if data.covariates is null
 		}
 		response <- model$response
 		data <- data.frame.to.list.multi.vam(self$data,response)
@@ -467,8 +467,8 @@ bayesian.vam <- function(formula,data,data.covariates) {
 		## THIS IS LESS CLEVER THAN THE NEXT LINE: print(model<-bayesian.model.to.mle.model(model,priors))
 		model<-parse.vam.formula(self$mle.formula)
 		##DEBUG: print("modelAP");print(model)
-		if(!is.null(self$data.covariates) && !is.null(model$covariates)) {
-			model$covariates$data <- model.frame(model$covariates$formula,data=data.covariates)
+		if(!is.null(model$covariates)) {
+			 model$covariates$data <- model.frame(model$covariates$formula,data=data.covariates) #ok even if data.covariates is null
 		}
 		rcpp <- new(BayesianVam,model,data,self$priors)
 		rcpp
