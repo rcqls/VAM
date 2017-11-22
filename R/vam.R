@@ -193,6 +193,9 @@ mle.vam <- function(formula,data,data.covariates) {
 	PersistentRcppObject(self,new = {
 		model <- parse.vam.formula(self$formula)
 		self$formula <- substitute.vam.formula(model=model)
+		if(!is.null(self$data.covariates) && !is.null(model$family$covariates)) {
+			self$data.covariates <- model.frame(model$family$covariates$formula,data=data.covariates)
+		}
 		response <- model$response
 		data <- data.frame.to.list.multi.vam(self$data,response)
 		rcpp <- new(MLEVam,model,data)
@@ -444,8 +447,9 @@ coef.mle.vam <- function(obj,par=NULL,method=NULL,verbose=FALSE,...) {
 
 # bayesian.vam class
 
-bayesian.vam <- function(formula,data) {
-	self <- newEnv(bayesian.vam,formula=formula,data=data)
+bayesian.vam <- function(formula,data,data.covariates) {
+	if(missing(data.covariates)) data.covariates<-NULL
+	self <- newEnv(bayesian.vam,formula=formula,data=data,data.covariates=data.covariates)
 
 	PersistentRcppObject(self,new = {
 		model <- parse.vam.formula(self$formula)
@@ -460,6 +464,9 @@ bayesian.vam <- function(formula,data) {
 		## THIS IS LESS CLEVER THAN THE NEXT LINE: print(model<-bayesian.model.to.mle.model(model,priors))
 		model<-parse.vam.formula(self$mle.formula)
 		##DEBUG: print("modelAP");print(model)
+		if(!is.null(self$data.covariates) && !is.null(model$family$covariates)) {
+			self$data.covariates <- model.frame(model$family$covariates$formula,data=data.covariates)
+		}
 		rcpp <- new(BayesianVam,model,data,self$priors)
 		rcpp
 	})
@@ -873,7 +880,15 @@ parse.vam.formula <- function(formula) {
 # use substitute coef in vam formula
 substitute.vam.formula <- function(formula,coef,model) {
 	if(missing(model)) model <- parse.vam.formula(formula)
-	if(missing(coef)) coef <- c(model$family$params,sapply(model$models,function(m) m$params))
+	if(missing(coef)) {
+		coef <- c(model$family$params,sapply(model$models,function(m) m$params))
+		if(!is.null(model$family$covariates)) {
+			coef <- c(coef,model$family$covariates$params)
+			nb_paramsCovariates <- length(model$family$covariates$params)
+		} else {
+			nb_paramsCovariates <- 0
+		}
+	}
 	nb_paramsFamily <- length(model$family$params)
 	nb_paramsCM <- length(model$models[[1]]$params)
 	nb_paramsPM <- sapply(model$models[-1],function(m) length(m$params))
@@ -895,7 +910,8 @@ substitute.vam.formula <- function(formula,coef,model) {
 							"(",
 							 paste(coef[1:nb_paramsFamily],collapse=","),
 							 if(!is.null(model$family$covariates)) {
-								 tmp<-model$family$covariates$params
+								 # unlist(nb_paramsPM) since nb_paramsPM is list() when no PM 
+								 tmp<-coef[nb_paramsFamily + nb_paramsCM + sum(unlist(nb_paramsPM)) + (1:nb_paramsCovariates)]
 								 tmp[tmp<0] <- paste0("(",tmp[tmp<0],")")
 								 paste0("|",
 								 	paste(tmp,all.vars(model$family$covariates$formula),sep=" * ",collapse=" + ")
