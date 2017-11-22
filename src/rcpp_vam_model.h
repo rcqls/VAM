@@ -30,7 +30,7 @@ public:
 	int k,nb_system;
 
 	int nbPM,idMod;
-	int nb_paramsMaintenance,nb_paramsFamily;
+	int nb_paramsMaintenance,nb_paramsFamily,nb_paramsCov;
 
 	List data;
 

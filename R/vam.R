@@ -20,8 +20,8 @@ sim.vam <- function(formula,data.covariates) {
 			}
 		}
 		self$formula <- substitute.vam.formula(model=model)
-		if(!is.null(self$data.covariates) && !is.null(model$family$covariates)) {
-			self$data.covariates <- model.frame(model$family$covariates$formula,data=data.covariates)
+		if(!is.null(self$data.covariates) && !is.null(model$covariates)) {
+			model$covariates$data <- model.frame(model$covariates$formula,data=data.covariates)
 		}
 		rcpp <- new(SimVam,model)
 		rcpp
@@ -102,6 +102,9 @@ model.vam <- function(formula,data,data.covariates) {
 	PersistentRcppObject(self,new = {
 		model <- parse.vam.formula(self$formula)
 		self$formula <- substitute.vam.formula(model=model)
+		if(!is.null(self$data.covariates) && !is.null(model$covariates)) {
+			model$covariates$data <- model.frame(model$covariates$formula,data=data.covariates)
+		}
 		if(is.null(self$data)) {## No data
 			rcpp <- new(ModelVam,model)
 			rcpp
@@ -193,8 +196,8 @@ mle.vam <- function(formula,data,data.covariates) {
 	PersistentRcppObject(self,new = {
 		model <- parse.vam.formula(self$formula)
 		self$formula <- substitute.vam.formula(model=model)
-		if(!is.null(self$data.covariates) && !is.null(model$family$covariates)) {
-			self$data.covariates <- model.frame(model$family$covariates$formula,data=data.covariates)
+		if(!is.null(self$data.covariates) && !is.null(model$covariates)) {
+			model$covariates$data <- model.frame(model$covariates$formula,data=data.covariates)
 		}
 		response <- model$response
 		data <- data.frame.to.list.multi.vam(self$data,response)
@@ -464,8 +467,8 @@ bayesian.vam <- function(formula,data,data.covariates) {
 		## THIS IS LESS CLEVER THAN THE NEXT LINE: print(model<-bayesian.model.to.mle.model(model,priors))
 		model<-parse.vam.formula(self$mle.formula)
 		##DEBUG: print("modelAP");print(model)
-		if(!is.null(self$data.covariates) && !is.null(model$family$covariates)) {
-			self$data.covariates <- model.frame(model$family$covariates$formula,data=data.covariates)
+		if(!is.null(self$data.covariates) && !is.null(model$covariates)) {
+			model$covariates$data <- model.frame(model$covariates$formula,data=data.covariates)
 		}
 		rcpp <- new(BayesianVam,model,data,self$priors)
 		rcpp
@@ -871,6 +874,9 @@ parse.vam.formula <- function(formula) {
 		family=convert.family(cms[[1]]$family),
 		pm.policy=convert.mp(policy)
 	)
+	## covariates direct acces
+	res$covariates <- res$family$covariates
+	res$family$covariates <- NULL
 
 	res$max_memory <- max(1,unlist(sapply(res$models,function(e) e$m)),na.rm=TRUE)
 	res
@@ -882,9 +888,9 @@ substitute.vam.formula <- function(formula,coef,model) {
 	if(missing(model)) model <- parse.vam.formula(formula)
 	if(missing(coef)) {
 		coef <- c(model$family$params,sapply(model$models,function(m) m$params))
-		if(!is.null(model$family$covariates)) {
-			coef <- c(coef,model$family$covariates$params)
-			nb_paramsCovariates <- length(model$family$covariates$params)
+		if(!is.null(model$covariates)) {
+			coef <- c(coef,model$covariates$params)
+			nb_paramsCovariates <- length(model$covariates$params)
 		} else {
 			nb_paramsCovariates <- 0
 		}
@@ -909,12 +915,12 @@ substitute.vam.formula <- function(formula,coef,model) {
 							strsplit(model$family$name,"\\.")[[1]][1],
 							"(",
 							 paste(coef[1:nb_paramsFamily],collapse=","),
-							 if(!is.null(model$family$covariates)) {
+							 if(!is.null(model$covariates)) {
 								 # unlist(nb_paramsPM) since nb_paramsPM is list() when no PM 
 								 tmp<-coef[nb_paramsFamily + nb_paramsCM + sum(unlist(nb_paramsPM)) + (1:nb_paramsCovariates)]
 								 tmp[tmp<0] <- paste0("(",tmp[tmp<0],")")
 								 paste0("|",
-								 	paste(tmp,all.vars(model$family$covariates$formula),sep=" * ",collapse=" + ")
+								 	paste(tmp,all.vars(model$covariates$formula),sep=" * ",collapse=" + ")
 								 )
 							 } else "",
 							")",
@@ -950,6 +956,7 @@ substitute.vam.formula <- function(formula,coef,model) {
 
 priors.from.vam.formula <- function(model) {
 	flatten.params <- c(model$family$params,unlist(sapply(model$models,function(e) e$params)))
+	if(!is.null(mode$family$covariates)) flatten.params <- c(flatten.params,mode$family$covariates$params)
 	if(all(sapply(flatten.params,class) == "formula") ) {
 		prior.families <- c("B","Beta","U","Unif","G","Gamma","Norm","N","NonInform","NInf","LNorm","LogNorm","LN")
 		## clear "|" expression
