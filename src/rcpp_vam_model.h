@@ -35,9 +35,9 @@ public:
 	List data;
 
 	//Additional Covariates stuff
-
 	DataFrame data_cov;
-	double exp_cov; //to save the 
+	NumericVector params_cov;
+	double exp_cov; //to save the computation 
 
 	//NumericVector time, type;
 	std::vector<double> time;

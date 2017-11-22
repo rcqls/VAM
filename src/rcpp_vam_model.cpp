@@ -33,7 +33,7 @@ NumericVector VamModel::get_params() {
 	int i;
 	int j;
 	int k;
-	NumericVector pars(nb_paramsMaintenance+nb_paramsFamily);
+	NumericVector pars(nb_paramsMaintenance+nb_paramsFamily+nb_paramsCov);
 	NumericVector fam=family->get_params();
 	for(i=0;i<nb_paramsFamily;i++){
 		pars[i]=fam[i];
@@ -47,6 +47,11 @@ NumericVector VamModel::get_params() {
 			pars[j]=res[k];
 		}
 	}
+	//Covariates related
+	for(k=0;k<nb_paramsCov;k++) {
+		j++;
+		pars[j]=params_cov[k];
+	}
 	return pars;
 }
 
@@ -54,14 +59,14 @@ void VamModel::set_params(NumericVector pars) {
 	int i;
 	int j;
 	double toto;
-	if (pars.size()!=nb_paramsFamily+nb_paramsMaintenance){
-		if (pars.size()>nb_paramsFamily+nb_paramsMaintenance){
+	if (pars.size()!=nb_paramsFamily+nb_paramsMaintenance+nb_paramsCov){
+		if (pars.size()>nb_paramsFamily+nb_paramsMaintenance+nb_paramsCov){
 			toto=time[1];
 			printf("The length of the parameter vector is too big, some values are not considered !%f \n",toto);
 		} else {
 			printf("The length of the parameter vector is too small, the missing values are fixed to 0.5 !\n");
 		}
-		NumericVector pars2(nb_paramsMaintenance+nb_paramsFamily);
+		NumericVector pars2(nb_paramsMaintenance+nb_paramsFamily+nb_paramsCov);
 		for(i=0;i<std::min(pars.size(),pars2.size());i++){
 			pars2[i]=pars[i];
 		}
@@ -77,6 +82,10 @@ void VamModel::set_params(NumericVector pars) {
 			vam->set_params(pars2,j);
 			j=j+vam->nb_params();
 		}
+		for(i=0;i<nb_paramsCov;i++) {
+			params_cov[i]=pars2[j];
+			j++;
+		}
 	} else {
 		if(nb_paramsFamily>0){
 			family->set_params(pars);
@@ -86,6 +95,10 @@ void VamModel::set_params(NumericVector pars) {
 			MaintenanceModel* vam=models->at(i);
 			vam->set_params(pars,j);
 			j=j+vam->nb_params();
+		}
+		for(i=0;i<nb_paramsCov;i++) {
+			params_cov[i]=pars[j];
+			j++;
 		}
 	}
 }
@@ -285,10 +298,17 @@ void VamModel::set_covariates(List model) {
 	} else {
 		List covariates_=model["covariates"];
 		data_cov=covariates_["data"];
-		nb_paramsCov=data_cov.nrows();
+		params_cov=covariates_["params"];
+		nb_paramsCov=params_cov.size();
 	}
 }
 
 double VamModel::compute_exp_covariates(int i) {
+	double sum=0.0;
+	for(int j=0;j<nb_paramsCov + 1;j++) {
+		NumericVector var=data_cov[j];
+		sum += params_cov[j] * var[i-1]; //i-1 because R start from 1
+	}
+	exp_cov=exp(sum);
 	return exp_cov;
 }
