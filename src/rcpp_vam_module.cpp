@@ -21,7 +21,7 @@ RCPP_MODULE(vam_module) {
 	.method("get_virtual_age_infos",&VamModel::get_virtual_age_infos,"get infos related to virtual ages")
 	.method("set_data",&VamModel::set_data,"set data")
 	.method("get_data",&VamModel::get_selected_data,"get (selected) data")
-	.method("exp_covariates",&VamModel::compute_exp_covariates,"compute exp covariates")
+	.method("compute_covariates",&VamModel::compute_covariates,"compute covariates")
 	;
 
 	class_<SimVam>( "SimVam" )
@@ -35,7 +35,7 @@ RCPP_MODULE(vam_module) {
 	.method("set_data",&SimVam::set_data,"set data")
 	.method("get_virtual_age_infos",&SimVam::get_virtual_age_infos,"get infos related to virtual ages")
 	.method("add_stop_policy",&SimVam::add_stop_policy,"add stop policy")
-	.method("exp_covariates",&SimVam::compute_exp_covariates,"compute exp covariates")
+	.method("compute_covariates",&SimVam::compute_covariates,"compute covariates")
 	;
 
 	class_<MLEVam>( "MLEVam" )

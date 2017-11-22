@@ -37,7 +37,7 @@ public:
 	//Additional Covariates stuff
 	DataFrame data_cov;
 	NumericVector params_cov;
-	double exp_cov; //to save the computation 
+	double sum_cov; //to save the computation 
 
 	//NumericVector time, type;
 	std::vector<double> time;
@@ -199,7 +199,7 @@ public:
 	void init_computation_values();
 	
 	//Covariates related
-	double compute_exp_covariates(int i); //output maybe useful inside R
+	double compute_covariates(int i); //output maybe useful inside R
 
 private:
 	void set_models(List models_);
