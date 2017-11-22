@@ -694,7 +694,7 @@ parse.vam.formula <- function(formula) {
 			if(term[[1]]==as.name("*")) {
 				form <<- c(as.character(term[[3]]),form)
 				## TODO: eval.vam instead of eval???
-				param_expr <- eval(parse(text=paste0(sign,as.character(eval(term[[2]])))))
+				param_expr <- eval.vam(parse(text=paste0(sign,as.character(eval(term[[2]])))))
 				params<<- c(param_expr,params)
 			}
 			##print(list(form=form,params=params))
@@ -891,6 +891,13 @@ substitute.vam.formula <- function(formula,coef,model) {
 							strsplit(model$family$name,"\\.")[[1]][1],
 							"(",
 							 paste(coef[1:nb_paramsFamily],collapse=","),
+							 if(!is.null(model$family$covariates)) {
+								 tmp<-model$family$covariates$params
+								 tmp[tmp<0] <- paste0("(",tmp[tmp<0],")")
+								 paste0("|",
+								 	paste(tmp,all.vars(model$family$covariates$formula),sep=" * ",collapse=" + ")
+								 )
+							 } else "",
 							")",
 						")"
 					)
