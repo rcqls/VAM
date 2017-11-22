@@ -167,7 +167,6 @@ void VamModel::init(List model_) {
 	List models_=model_["models"];
 	List family_=model_["family"];
 	List maintenance_policy_=model_["pm.policy"];
-	List covariates_=model_["covariates"];
   	set_models(models_);
 	nbPM=models->size()-1;
 	nb_paramsMaintenance=0;
@@ -179,7 +178,7 @@ void VamModel::init(List model_) {
 	nb_paramsFamily=family->nb_params();
 	set_maintenance_policy(maintenance_policy_);
 
-	set_covariates(covariates_);
+	set_covariates(model_);
 
 	// S1=0;S2=0;S0=0;
 	// Vleft=0;Vright=0;
@@ -278,12 +277,18 @@ List VamModel::get_virtual_age_infos(double by,double from, double to) {
 	return res;
 };
 
-void VamModel::set_covariates(List covariates_) {
+//Covariates related
+void VamModel::set_covariates(List model) {
 	exp_cov=1.0;
-	if(covariates_==R_NilValue) {
+	if(model["covariates"]==R_NilValue) {
 		nb_paramsCov=0;
 	} else {
+		List covariates_=model["covariates"];
 		data_cov=covariates_["data"];
 		nb_paramsCov=data_cov.nrows();
 	}
+}
+
+double VamModel::compute_exp_covariates(int i) {
+	return exp_cov;
 }

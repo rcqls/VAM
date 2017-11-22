@@ -54,6 +54,12 @@ public:
 
     void add_stop_policy(List policy);
 
+    //Covariates related: output maybe useful inside R
+	double compute_exp_covariates(int i) {
+        return model->compute_exp_covariates(i);
+    }; 
+
+
     int cache_size,size;
 private:
     VamModel* model;

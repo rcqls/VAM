@@ -197,6 +197,9 @@ public:
     List get_virtual_age_infos(double by, double from, double to);
 
 	void init_computation_values();
+	
+	//Covariates related
+	double compute_exp_covariates(int i); //output maybe useful inside R
 
 private:
 	void set_models(List models_);
@@ -213,8 +216,6 @@ private:
 
 	//Covariates related
 	void set_covariates(List covariates_);
-
-	double compute_exp_covariates();
 
 };
 
