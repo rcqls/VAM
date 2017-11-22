@@ -20,6 +20,9 @@ sim.vam <- function(formula,data.covariates) {
 			}
 		}
 		self$formula <- substitute.vam.formula(model=model)
+		if(!is.null(self$data.covariates) && !is.null(model$family$covariates)) {
+			self$data.covariates <- model.frame(model$family$covariates$formula,data=data.covariates)
+		}
 		rcpp <- new(SimVam,model)
 		rcpp
 	})
