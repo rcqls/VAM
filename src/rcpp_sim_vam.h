@@ -54,13 +54,22 @@ public:
 
     void add_stop_policy(List policy);
 
-    //Covariates related: output maybe useful inside R
-	double compute_covariates(int i) {
-        return exp(-model->compute_covariates(i));
+    int cache_size,size;
+
+    //Covariates related
+
+    void set_current_system(int i) {
+        //Covariates related
+        current_system=i;
+        printf("current system:%d\n",i);
+    }
+
+	double compute_covariates() {
+        return exp(-model->compute_covariates(current_system));
     }; 
 
+    int current_system;
 
-    int cache_size,size;
 private:
     VamModel* model;
 

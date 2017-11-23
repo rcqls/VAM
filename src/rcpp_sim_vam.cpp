@@ -33,8 +33,9 @@ DataFrame SimVam::simulate(int nbsim) {
         //### modAV <- if(Type[k]<0) obj$vam.CM[[1]]$model else obj$vam.PM$models[[obj$data$Type[k]]]
         //# Here, obj$model$k means k-1
         //#print(c(obj$model$Vleft,obj$model$Vright))
-
-        double timePM= 0.0, timeCM = model->virtual_age_inverse(model->family->inverse_cumulative_hazardRate(model->family->cumulative_hazardRate(model->virtual_age(model->time[model->k]))-log(runif(1))[0]));
+        double u=log(runif(1))[0];
+        if(model->nb_paramsCov>0) u *= compute_covariates();
+        double timePM= 0.0, timeCM = model->virtual_age_inverse(model->family->inverse_cumulative_hazardRate(model->family->cumulative_hazardRate(model->virtual_age(model->time[model->k]))-u));
         //TODO: submodels
         int idMod;
         List timeAndTypePM;

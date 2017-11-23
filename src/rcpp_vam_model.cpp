@@ -293,9 +293,8 @@ List VamModel::get_virtual_age_infos(double by,double from, double to) {
 //Covariates related
 void VamModel::set_covariates(List model) {
 	sum_cov=0.0;
-	if(model["covariates"]==R_NilValue) {
-		nb_paramsCov=0;
-	} else {
+	nb_paramsCov=0;
+	if(model.containsElementNamed("covariates")) {
 		List covariates_=model["covariates"];
 		data_cov=covariates_["data"];
 		params_cov=covariates_["params"];
@@ -305,7 +304,7 @@ void VamModel::set_covariates(List model) {
 
 double VamModel::compute_covariates(int i) {
 	double sum_cov=0.0;
-	for(int j=0;j<nb_paramsCov + 1;j++) {
+	for(int j=0;j<nb_paramsCov;j++) {
 		NumericVector var=data_cov[j];
 		sum_cov += params_cov[j] * var[i-1]; //i-1 because R start from 1
 	}

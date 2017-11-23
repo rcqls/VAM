@@ -21,8 +21,9 @@ sim.vam <- function(formula,data.covariates) {
 		}
 		self$formula <- substitute.vam.formula(model=model)
 		if(!is.null(model$covariates)) {
-			 model$covariates$data <- model.frame(model$covariates$formula,data=data.covariates) #ok even if data.covariates is null
+			 model$covariates$data <- model.frame(model$covariates$formula,data=self$data.covariates) #ok even if data.covariates is null
 		}
+		self$model.parsed <- model #just to keep some info notably on covariates
 		rcpp <- new(SimVam,model)
 		rcpp
 	})
@@ -33,12 +34,14 @@ sim.vam <- function(formula,data.covariates) {
 
 
 # TODO: when data provided, complete the data!
-simulate.sim.vam <- function(sim, stop.policy = 10, nb.system=1, cache.size=500,as.list=FALSE,data) {
+simulate.sim.vam <- function(sim, stop.policy = 10, nb.system, cache.size=500,as.list=FALSE,data) {
 
 	# To have a first argument more readable
 	self <- sim
 
 	rcpp <- self$rcpp()
+
+	if(missing(nb.system)) nb.system <- if(is.null(sim$model.parsed$covariates)) 1 else nrow(sim$model.parsed$covariates$data)
 
 	self$stop.policy.last <- parse.stop.policy(deparse(substitute(stop.policy)))
 	stop.policy <- eval(self$stop.policy.last,parent.frame(1))
@@ -63,6 +66,7 @@ simulate.sim.vam <- function(sim, stop.policy = 10, nb.system=1, cache.size=500,
 		# multisystem
 		if(as.list) df<-list()
 		for(i in 1:nb.system) {
+			rcpp$set_current_system(i)
 			df2 <- rcpp$simulate(stop.policy$cache.size)[-1,]
 			names(df2) <- sim$response.names
 			if(as.list) {
@@ -103,8 +107,9 @@ model.vam <- function(formula,data,data.covariates) {
 		model <- parse.vam.formula(self$formula)
 		self$formula <- substitute.vam.formula(model=model)
 		if(!is.null(model$covariates)) {
-			 model$covariates$data <- model.frame(model$covariates$formula,data=data.covariates) #ok even if data.covariates is null
+			 model$covariates$data <- model.frame(model$covariates$formula,data=self$data.covariates) #ok even if data.covariates is null
 		}
+		self$model.parsed <- model #just to keep some info notably on covariates
 		if(is.null(self$data)) {## No data
 			rcpp <- new(ModelVam,model)
 			rcpp
@@ -197,8 +202,9 @@ mle.vam <- function(formula,data,data.covariates) {
 		model <- parse.vam.formula(self$formula)
 		self$formula <- substitute.vam.formula(model=model)
 		if(!is.null(model$covariates)) {
-			 model$covariates$data <- model.frame(model$covariates$formula,data=data.covariates) #ok even if data.covariates is null
+			 model$covariates$data <- model.frame(model$covariates$formula,data=self$data.covariates) #ok even if data.covariates is null
 		}
+		self$model.parsed <- model #just to keep some info notably on covariates
 		response <- model$response
 		data <- data.frame.to.list.multi.vam(self$data,response)
 		rcpp <- new(MLEVam,model,data)
@@ -468,8 +474,9 @@ bayesian.vam <- function(formula,data,data.covariates) {
 		model<-parse.vam.formula(self$mle.formula)
 		##DEBUG: print("modelAP");print(model)
 		if(!is.null(model$covariates)) {
-			 model$covariates$data <- model.frame(model$covariates$formula,data=data.covariates) #ok even if data.covariates is null
+			 model$covariates$data <- model.frame(model$covariates$formula,data=self$data.covariates) #ok even if data.covariates is null
 		}
+		self$model.parsed <- model #just to keep some info notably on covariates
 		rcpp <- new(BayesianVam,model,data,self$priors)
 		rcpp
 	})
@@ -701,7 +708,7 @@ parse.vam.formula <- function(formula) {
 	## Parse covariates
 	parse.covariates <- function(expr) {
 		form<-list()
-		params <- list()
+		params <- c()
 		add_term <- function(term,sign) {
 			##print(term)
 			if(term[[1]]==as.name("*")) {
