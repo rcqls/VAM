@@ -34,13 +34,14 @@ sim.vam <- function(formula,data.covariates) {
 
 
 # TODO: when data provided, complete the data!
-simulate.sim.vam <- function(sim, stop.policy = 10, nb.system, cache.size=500,as.list=FALSE,data) {
+simulate.sim.vam <- function(sim, stop.policy, nb.system, cache.size=500,as.list=FALSE,data) {
 
 	# To have a first argument more readable
 	self <- sim
 
 	rcpp <- self$rcpp()
 
+	if(missing(stop.policy)) stop.policy <- if(is.null(sim$model.parsed$covariates)) 10 else 1
 	if(missing(nb.system)) nb.system <- if(is.null(sim$model.parsed$covariates)) 1 else nrow(sim$model.parsed$covariates$data)
 
 	self$stop.policy.last <- parse.stop.policy(deparse(substitute(stop.policy)))

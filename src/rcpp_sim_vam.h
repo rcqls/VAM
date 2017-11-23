@@ -61,7 +61,7 @@ public:
     void set_current_system(int i) {
         //Covariates related
         current_system=i;
-        printf("current system:%d\n",i);
+        //printf("current system:%d\n",i);
     }
 
 	double compute_covariates() {
