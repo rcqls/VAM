@@ -43,11 +43,11 @@ public:
 	std::vector<double> time;
 	std::vector<int> type;
 
-	double S1, S2, S0, S3, indType;
+	double S1, S2, S0, S3, S4, indType;
 
 	double Vleft, Vright, hVleft;
 
-	double *dVleft, *dVright, *dS1, *dS2, *dS3;
+	double *dVleft, *dVright, *dS1, *dS2, *dS3, *dS4;
 	double *d2Vleft, *d2Vright, *d2S1, *d2S2, *d2S3;
 
 	double A;
@@ -199,7 +199,19 @@ public:
 	void init_computation_values();
 	
 	//Covariates related
-	double compute_covariates(int i); //output maybe useful inside R
+
+	int current_system;
+
+    void select_current_system(int i,bool compute) {
+        //Covariates related
+        current_system=i;
+		//simulation: compute=false since only computation in c++ and set_current_system in R
+		//mle: compute=true since both computation and select_current_system in c++ 
+		if(compute) compute_covariates();
+    }
+
+	double compute_covariates(); //output maybe useful inside R
+
 
 private:
 	void set_models(List models_);

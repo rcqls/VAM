@@ -58,17 +58,13 @@ public:
 
     //Covariates related
 
-    void set_current_system(int i) {
-        //Covariates related
-        current_system=i;
-        //printf("current system:%d\n",i);
+    void select_current_system(int i) {
+        model->select_current_system(i,false);
     }
 
 	double compute_covariates() {
-        return exp(-model->compute_covariates(current_system));
+        return exp(-model->compute_covariates());
     }; 
-
-    int current_system;
 
 private:
     VamModel* model;

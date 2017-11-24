@@ -35,7 +35,7 @@ RCPP_MODULE(vam_module) {
 	.method("set_data",&SimVam::set_data,"set data")
 	.method("get_virtual_age_infos",&SimVam::get_virtual_age_infos,"get infos related to virtual ages")
 	.method("add_stop_policy",&SimVam::add_stop_policy,"add stop policy")
-	.method("set_current_system",&SimVam::set_current_system,"set current system")
+	.method("select_current_system",&SimVam::select_current_system,"select current system")
 	.method("compute_covariates",&SimVam::compute_covariates,"compute covariates")
 	;
 

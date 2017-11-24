@@ -12,9 +12,10 @@ public:
     MLEVam(List model_,List data_) {
         model=new VamModel(model_,data_);
         //Sum of d<?>S<??> defined in model
-        dS1=new double[model->nb_paramsMaintenance+model->nb_paramsFamily-1];
+        dS1=new double[model->nb_paramsMaintenance+model->nb_paramsFamily-1+model->nb_paramsCov];
         dS2=new double[model->nb_paramsMaintenance+model->nb_paramsFamily-1];
         dS3=new double[model->nb_paramsMaintenance];
+        if(model->nb_paramsCov>0) dS4=new double[model->nb_paramsCov];
         d2S1=new double[(model->nb_paramsMaintenance+model->nb_paramsFamily-1)*(model->nb_paramsMaintenance+model->nb_paramsFamily)/2];//inferior diagonal part of the hessian matrice by lines
         d2S2=new double[(model->nb_paramsMaintenance+model->nb_paramsFamily-1)*(model->nb_paramsMaintenance+model->nb_paramsFamily)/2];//inferior diagonal part of the hessian matrice by lines
         d2S3=new double[(model->nb_paramsMaintenance)*(model->nb_paramsMaintenance+1)/2];
@@ -24,7 +25,7 @@ public:
 
     ~MLEVam() {
         //DEBUG: printf("MLEVAM: %p, %p, %p\n",model,dS1,dS2);
-        delete model;
+        if(model->nb_paramsCov) delete[] dS4;
         delete[] dS1;
         delete[] dS2;
         delete[] dS3;
@@ -32,6 +33,7 @@ public:
         delete[] d2S2;
         delete[] d2S3;
         if(leftCensors != NULL) delete[] leftCensors;
+        delete model;
     };
 
     void set_leftCensors(IntegerVector leftCensorsR) {
@@ -74,7 +76,8 @@ public:
   			model->models->at(type)->update(false,false);
   		}
         //model updated for current system: S1,S2,S0
-        S1 += model->S1;S2 += model->S2; S0 += model->S0; S3 += model->S3;
+        S1 += model->S1 *(model->nb_paramsCov > 0 ? exp(model->sum_cov) : 1.0 );S2 += model->S2; S0 += model->S0; S3 += model->S3;
+        if(model->nb_paramsCov>0) S4 += S0 * model->sum_cov;
         //printf("Conclusion : S1=%f, S2=%f, S0=%f\n",model->S1,model->S2,model->S0);
 
     }
@@ -89,12 +92,14 @@ public:
         model->set_params(param);
         //printf("System %d\n",1);
         model->select_data(0);
+        if(model->nb_paramsCov > 0) model->select_current_system(0,true);
         select_leftCensor(0);
         contrast_for_current_system();
         //only if multi-system
         for(int i=1;i<model->nb_system;i++) {
             //printf("System %d\n",i+1);
             model->select_data(i);
+            if(model->nb_paramsCov > 0) model->select_current_system(i,true);
             select_leftCensor(i);
             contrast_for_current_system();
         }
@@ -106,6 +111,7 @@ public:
         } else {
           res[0]=log(alpha)*S0+S2-alpha*S1+S3;
         }
+        if(model->nb_paramsCov>0) res[0] += S4;
 
         param[0]=alpha;//LD:changed for bayesian
         return res;
@@ -125,6 +131,7 @@ public:
     	}
         //model updated for current system: S1,S2,S0,dS1,dS2
         S1 += model->S1;S2 += model->S2; S0 += model->S0; S3 += model->S3;
+        if(model->nb_paramsCov>0) S4 += S0 * model->sum_cov;
         for(i=0;i<(model->nb_paramsMaintenance);i++) {
             dS1[i] += model->dS1[i]; dS2[i] += model->dS2[i]; dS3[i] += model->dS3[i];
         }
@@ -142,12 +149,14 @@ public:
         init_mle_vam(true,false);
         model->set_params(param);
         model->select_data(0);
+        if(model->nb_paramsCov > 0) model->select_current_system(0,true);
         select_leftCensor(0);
         gradient_for_current_system();
 
         //only if multi-system
         for(int i=1;i<model->nb_system;i++) {
             model->select_data(i);
+            if(model->nb_paramsCov > 0) model->select_current_system(i,true);
             select_leftCensor(i);
             gradient_for_current_system();
         }
@@ -214,12 +223,14 @@ public:
         init_mle_vam(true,true);
         model->set_params(param);
         model->select_data(0);
+        if(model->nb_paramsCov > 0) model->select_current_system(0,true);
         select_leftCensor(0);
         hessian_for_current_system();
 
         //only if multi-system
         for(int i=1;i<model->nb_system;i++) {
             model->select_data(i);
+            if(model->nb_paramsCov > 0) model->select_current_system(i,true);
             select_leftCensor(i);
             hessian_for_current_system();
         }
@@ -310,7 +321,7 @@ private:
 
 	VamModel* model;
 
-    double S1, S2, S0, S3, *dS1, *dS2, *dS3;//Accumulator!
+    double S1, S2, S0, S3, S4, *dS1, *dS2, *dS3, *dS4;//Accumulator!
     double *d2S1, *d2S2, *d2S3;//Accumulator!
     int* leftCensors; //CAREFUL: this is a vector of indices!
     int leftCensor; //leftCensor for current system
@@ -318,10 +329,10 @@ private:
     void init_mle_vam(bool with_gradient,bool with_hessian) {
         int i;
         int j;
-        S1 = 0; S2 = 0; S0 = 0; S3=0;
+        S1 = 0; S2 = 0; S0 = 0; S3=0; S4=0;
         if(with_hessian) {
             for(i=0;i<(model->nb_paramsMaintenance);i++) {
-                dS1[i] = 0; dS2[i] = 0; dS3[i] = 0;
+                dS1[i] = 0; dS2[i] = 0; dS3[i] = 0; dS4[i] = 0;
                 for(j=0;j<=i;j++) {
                     //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
                     d2S1[i*(i+1)/2+j] = 0; d2S2[i*(i+1)/2+j] = 0; d2S3[i*(i+1)/2+j] = 0;
@@ -352,18 +363,19 @@ private:
         for(i=0;i<model->nbPM + 1;i++) model->models->at(i)->init();
 
     	model->Vright = 0; //100000.;
-      model->A=1;
+        model->A=1;
     	model->k=0;
     	model->idMod=0; //id of current model
     	model->S1 = 0;
     	model->S2 = 0;
-      model->S3 = 0;
+        model->S3 = 0;
+        model->S4 = 0;
     	model->S0 = 0;for(i=0;i<model->type.size();i++) if(model->type[i] < 0) (model->S0) += 1; //TO COMPUTE from model->type
         if(with_hessian) {
             for(i=0;i<(model->nb_paramsMaintenance);i++) {
                 model->dS1[i]=0;
                 model->dS2[i]=0;
-                model->dS3[i]=0;
+                model->dS3[i]=0; 
                 model->dVright[i]=0;
                 model->dA[i]=0;
                 //for(k=0;k<model->mu;k++) model->dVR_prec[k*model->nb_paramsMaintenance+i]=0;
@@ -399,6 +411,11 @@ private:
                 model->dS1[i]=0;
                 model->dS2[i]=0;
             }
+
+            for(j=0;j<model->nb_paramsCov;i++,j++) {
+                model->dS1[i]=0;
+                model->dS4[j]=0;
+            }
     	}
     }
 
@@ -412,7 +429,7 @@ private:
     	// printf("indType,S2,hVleft:%lf,%lf,%lf\n",model->indType,model->S1,model->hVleft);
     	if(model->k >= leftCensor) model->S1 += model->family->cumulative_hazardRate(model->Vleft) - model->family->cumulative_hazardRate(model->Vright);
     	model->S2 += log(model->hVleft)* model->indType;
-        model->S3 += log(model->A)* model->indType;
+        model->S3 += log(model->A)* model->indType; 
     	//for(int i=0;i<(model->nbPM)+2;i++) model->dS1[i] += cdVleft[i] - cdVright[i];
     	//model->dS1 += (models->at(0))
     }

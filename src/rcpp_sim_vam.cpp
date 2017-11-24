@@ -34,7 +34,7 @@ DataFrame SimVam::simulate(int nbsim) {
         //# Here, obj$model$k means k-1
         //#print(c(obj$model$Vleft,obj$model$Vright))
         double u=log(runif(1))[0];
-        if(model->nb_paramsCov>0) u *= compute_covariates();
+        if(model->nb_paramsCov>0) u *= compute_covariates();//set_current_system launched in R for simulation
         double timePM= 0.0, timeCM = model->virtual_age_inverse(model->family->inverse_cumulative_hazardRate(model->family->cumulative_hazardRate(model->virtual_age(model->time[model->k]))-u));
         //TODO: submodels
         int idMod;

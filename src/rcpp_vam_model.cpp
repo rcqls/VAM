@@ -10,6 +10,7 @@ VamModel::~VamModel() {
 	delete[] dS1;
 	delete[] dS2;
 	delete[] dS3;
+	if(nb_paramsCov>0) delete[] dS4;
 	delete[] d2S1;
 	delete[] d2S2;
 	delete[] d2S3;
@@ -168,7 +169,7 @@ void VamModel::set_maintenance_policy(List maintenance_policy_) {
 
 void VamModel::init_computation_values() {
 	int i;
-	S1=0;S2=0;S0=0;S3=0;
+	S1=0;S2=0;S0=0;S3=0;S4=0;
 	Vleft=0;Vright=0;
 	hVleft=0;
 	A=1;
@@ -197,9 +198,10 @@ void VamModel::init(List model_) {
 	// Vleft=0;Vright=0;
 	// hVleft=0;
 	init_computation_values();
-	dS1=new double[nb_paramsMaintenance+nb_paramsFamily-1];
+	dS1=new double[nb_paramsMaintenance+nb_paramsFamily-1+nb_paramsCov];
 	dS2=new double[nb_paramsMaintenance+nb_paramsFamily-1];
 	dS3=new double[nb_paramsMaintenance];
+	if(nb_paramsCov>0) dS4=new double[nb_paramsCov];
 	d2S1=new double[(nb_paramsMaintenance+nb_paramsFamily-1)*(nb_paramsMaintenance+nb_paramsFamily)/2];//inferior diagonal part of the hessian matrice by lines
 	d2S2=new double[(nb_paramsMaintenance+nb_paramsFamily-1)*(nb_paramsMaintenance+nb_paramsFamily)/2];//inferior diagonal part of the hessian matrice by lines
 	d2S3=new double[(nb_paramsMaintenance)*(nb_paramsMaintenance+1)/2];//inferior diagonal part of the hessian matrice by lines
@@ -302,11 +304,11 @@ void VamModel::set_covariates(List model) {
 	}
 }
 
-double VamModel::compute_covariates(int i) {
+double VamModel::compute_covariates() {
 	double sum_cov=0.0;
 	for(int j=0;j<nb_paramsCov;j++) {
 		NumericVector var=data_cov[j];
-		sum_cov += params_cov[j] * var[i-1]; //i-1 because R start from 1
+		sum_cov += params_cov[j] * var[current_system];
 	}
 	return sum_cov;
 }

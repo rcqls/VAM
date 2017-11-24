@@ -67,7 +67,7 @@ simulate.sim.vam <- function(sim, stop.policy, nb.system, cache.size=500,as.list
 		# multisystem
 		if(as.list) df<-list()
 		for(i in 1:nb.system) {
-			rcpp$set_current_system(i)
+			rcpp$select_current_system(i-1) # i-1 because it is c++
 			df2 <- rcpp$simulate(stop.policy$cache.size)[-1,]
 			names(df2) <- sim$response.names
 			if(as.list) {
