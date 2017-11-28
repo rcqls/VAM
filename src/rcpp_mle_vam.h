@@ -77,7 +77,7 @@ public:
   		}
         //model updated for current system: S1,S2,S0
         S1 += model->S1 *(model->nb_paramsCov > 0 ? exp(model->sum_cov) : 1.0 );S2 += model->S2; S0 += model->S0; S3 += model->S3;
-        if(model->nb_paramsCov>0) S4 += S0 * model->sum_cov;
+        if(model->nb_paramsCov>0) S4 += model->S0 * model->sum_cov;
         //printf("Conclusion : S1=%f, S2=%f, S0=%f\n",model->S1,model->S2,model->S0);
 
     }
@@ -131,7 +131,7 @@ public:
     	}
         //model updated for current system: S1,S2,S0,dS1,dS2
         S1 += model->S1;S2 += model->S2; S0 += model->S0; S3 += model->S3;
-        if(model->nb_paramsCov>0) S4 += S0 * model->sum_cov;
+        if(model->nb_paramsCov>0) S4 += model->S0 * model->sum_cov;
         for(i=0;i<(model->nb_paramsMaintenance);i++) {
             dS1[i] += model->dS1[i]; dS2[i] += model->dS2[i]; dS3[i] += model->dS3[i];
         }
