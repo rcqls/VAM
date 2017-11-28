@@ -119,7 +119,7 @@ public:
     }
 
     void gradient_for_current_system() {
-        int i;
+        int i,j;
     	init_mle_vam_for_current_system(true,false);
     	int n=(model->time).size() - 1;
     	while(model->k < n) {
@@ -132,11 +132,17 @@ public:
         //model updated for current system: S1,S2,S0,dS1,dS2
         S1 += model->S1;S2 += model->S2; S0 += model->S0; S3 += model->S3;
         if(model->nb_paramsCov>0) S4 += model->S0 * model->sum_cov;
+        //precomputation of covariate term to multiply (in fact just exp)
         for(i=0;i<(model->nb_paramsMaintenance);i++) {
-            dS1[i] += model->dS1[i]; dS2[i] += model->dS2[i]; dS3[i] += model->dS3[i];
+            dS1[i] += model->dS1[i] * (model->nb_paramsCov > 0 ? exp(model->sum_cov) : 1.0); dS2[i] += model->dS2[i]; dS3[i] += model->dS3[i];
+
         }
         for(i=(model->nb_paramsMaintenance);i<(model->nb_paramsMaintenance+model->nb_paramsFamily-1);i++) {
-            dS1[i] += model->dS1[i]; dS2[i] += model->dS2[i];
+            dS1[i] += model->dS1[i] * (model->nb_paramsCov > 0 ? exp(model->sum_cov) : 1.0); dS2[i] += model->dS2[i];
+        }
+        for(j=0;j<model->nb_paramsCov;i++,j++) {
+            dS1[i] += model->dS1[i] * (model->nb_paramsCov > 0 ? model->get_covariate(j) * exp(model->sum_cov) : 1.0); dS2[i] += model->dS2[i];
+            dS4[j] += model->S0 * model->get_covariate(j);
         }
     }
 

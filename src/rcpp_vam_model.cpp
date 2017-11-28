@@ -312,3 +312,8 @@ double VamModel::compute_covariates() {
 	}
 	return sum_cov;
 }
+
+double VamModel::get_covariate(int j) {
+	NumericVector var=data_cov[j];
+	return var[current_system];
+}

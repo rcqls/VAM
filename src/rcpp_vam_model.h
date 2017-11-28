@@ -212,6 +212,8 @@ public:
 
 	double compute_covariates(); //output maybe useful inside R
 
+	double get_covariate(int j);
+
 
 private:
 	void set_models(List models_);
