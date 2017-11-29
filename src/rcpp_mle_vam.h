@@ -142,6 +142,7 @@ public:
     NumericVector gradient(NumericVector param, bool alpha_fixed=false) {
         NumericVector res(model->nb_paramsMaintenance+model->nb_paramsFamily+model->nb_paramsCov);
         double alpha=param[0];//save current value of alpha
+        int i,ii;
 
         param[0]=1;
 
@@ -153,7 +154,7 @@ public:
         gradient_for_current_system();
 
         //only if multi-system
-        for(int i=1;i<model->nb_system;i++) {
+        for(i=1;i<model->nb_system;i++) {
             model->select_data(i);
             if(model->nb_paramsCov > 0) model->select_current_system(i,true);
             select_leftCensor(i);
@@ -161,24 +162,19 @@ public:
         }
 
         //compute gradient
-        if(!alpha_fixed) {
-            res[0] = 0;
-            for(int i=0;i<(model->nb_paramsFamily-1);i++) {
-                res[i+1] = -dS1[i]/S1 * S0 + dS2[i];
-            }
-            for(int i=(model->nb_paramsFamily-1);i<(model->nb_paramsMaintenance+model->nb_paramsFamily-1);i++) {
-                res[i+1] = -dS1[i]/S1 * S0 + dS2[i]+dS3[i-(model->nb_paramsFamily-1)];
-            }
-        } else {
-
-            res[0] = S0/alpha-S1;
-            for(int i=0;i<(model->nb_paramsFamily-1);i++) {
-                res[i+1] = -dS1[i]*alpha + dS2[i];
-            }
-            for(int i=(model->nb_paramsFamily-1);i<(model->nb_paramsMaintenance+model->nb_paramsFamily-1);i++) {
-                res[i+1] = -dS1[i]*alpha + dS2[i]+dS3[i-(model->nb_paramsFamily-1)];
-            }
+        double alphaTmp = (alpha_fixed ? alpha : S0 / S1);
+        
+        res[0] = 0;
+        for(i=0;i<model->nb_paramsFamily-1;i++) {
+            res[i+1] = -dS1[i]*alphaTmp + dS2[i];
         }
+        for(ii=0;ii<model->nb_paramsMaintenance;ii++,i++) {
+            res[i+1] = -dS1[i]*alphaTmp + dS2[i]+dS3[ii];
+        }
+        for(ii=0;ii<model->nb_paramsCov;ii++,i++) {
+            res[i+1] = -dS1[i]*alphaTmp + dS4[ii] ;
+        }
+        
         param[0]=alpha;//LD:changed for bayesian
         return res;
     }
