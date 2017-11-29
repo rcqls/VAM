@@ -115,7 +115,7 @@ public:
     }
 
     void gradient_for_current_system() {
-        int i,j;
+        int i,ii;
     	init_mle_vam_for_current_system(true,false);
     	int n=(model->time).size() - 1;
     	while(model->k < n) {
@@ -127,15 +127,14 @@ public:
     	}
         contrast_S_update();
         //precomputation of covariate term to multiply (in fact just exp)
-        for(i=0;i<(model->nb_paramsMaintenance);i++) {
-            gradient_dS_maintenance_update(i);
-
-        }
-        for(i=(model->nb_paramsMaintenance);i<(model->nb_paramsMaintenance+model->nb_paramsFamily-1);i++) {
+        for(i=0;i<model->nb_paramsFamily-1;i++) {
             gradient_dS_family_update(i);
         }
-        for(j=0;j<model->nb_paramsCov;i++,j++) {
-            gradient_dS_covariate_update(i,j);
+        for(ii=0;ii<model->nb_paramsMaintenance;ii++,i++) {
+            gradient_dS_maintenance_update(i);
+        }
+        for(ii=0;ii<model->nb_paramsCov;ii++,i++) {
+            gradient_dS_covariate_update(i,ii);
         }
     }
 
@@ -165,6 +164,7 @@ public:
         double alphaTmp = (alpha_fixed ? alpha : S0 / S1);
         
         res[0] = 0;
+        //
         for(i=0;i<model->nb_paramsFamily-1;i++) {
             res[i+1] = -dS1[i]*alphaTmp + dS2[i];
         }
@@ -174,13 +174,13 @@ public:
         for(ii=0;ii<model->nb_paramsCov;ii++,i++) {
             res[i+1] = -dS1[i]*alphaTmp + dS4[ii] ;
         }
-        
+
         param[0]=alpha;//LD:changed for bayesian
         return res;
     }
 
     void hessian_for_current_system() {
-        int j;
+        int j,i,ii,k;
         init_mle_vam_for_current_system(true,true);
         int n=(model->time).size() - 1;
         while(model->k < n) {
@@ -191,18 +191,20 @@ public:
             model->models->at(type)->update(true,true);
         }
         contrast_S_update();
-        for(int i=0;i<(model->nb_paramsMaintenance);i++) {
+        for(i=0;i<model->nb_paramsMaintenance;i++) {
             gradient_dS_maintenance_update(i);
             for(j=0;j<=i;j++) {
                 //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
-                d2S1[i*(i+1)/2+j] += model->d2S1[i*(i+1)/2+j]; d2S2[i*(i+1)/2+j] += model->d2S2[i*(i+1)/2+j]; d2S3[i*(i+1)/2+j] += model->d2S3[i*(i+1)/2+j];
+                k=i*(i+1)/2+j;
+                d2S1[k] += model->d2S1[k] * (model->nb_paramsCov > 0 ? exp(model->sum_cov) : 1.0); d2S2[k] += model->d2S2[k]; d2S3[k] += model->d2S3[k];
             }
         }
-        for(int i=(model->nb_paramsMaintenance);i<(model->nb_paramsMaintenance+model->nb_paramsFamily-1);i++) {
+        for(ii=0;ii<model->nb_paramsFamily-1;ii++,i++) {
             gradient_dS_family_update(i);
             for(j=0;j<=i;j++) {
                 //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
-                d2S1[i*(i+1)/2+j] += model->d2S1[i*(i+1)/2+j]; d2S2[i*(i+1)/2+j] += model->d2S2[i*(i+1)/2+j];
+                k=i*(i+1)/2+j;
+                d2S1[k] += model->d2S1[k]; d2S2[k] += model->d2S2[k];
             }
         }
     }
@@ -514,9 +516,9 @@ private:
         dS1[i] += model->dS1[i] * (model->nb_paramsCov > 0 ? exp(model->sum_cov) : 1.0); dS2[i] += model->dS2[i];
     }
 
-    void gradient_dS_covariate_update(int i,int j) {
-        dS1[i] += model->dS1[i] * (model->nb_paramsCov > 0 ? model->get_covariate(j) * exp(model->sum_cov) : 1.0); dS2[i] += model->dS2[i];
-            dS4[j] += model->S0 * model->get_covariate(j);
+    void gradient_dS_covariate_update(int i,int ii) {
+        dS1[i] += model->dS1[i] * (model->nb_paramsCov > 0 ? model->get_covariate(ii) * exp(model->sum_cov) : 1.0); dS2[i] += model->dS2[i];
+            dS4[ii] += model->S0 * model->get_covariate(ii);
     }
 
 };
