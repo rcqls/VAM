@@ -147,7 +147,7 @@ public:
     }
 
     NumericVector gradient(NumericVector param, bool alpha_fixed=false) {
-        NumericVector res(model->nb_paramsMaintenance+model->nb_paramsFamily);
+        NumericVector res(model->nb_paramsMaintenance+model->nb_paramsFamily+model->nb_paramsCov);
         double alpha=param[0];//save current value of alpha
 
         param[0]=1;
@@ -221,7 +221,7 @@ public:
 
     NumericMatrix hessian(NumericVector param, bool alpha_fixed=false) {
         int j;
-        NumericMatrix res(model->nb_paramsMaintenance+model->nb_paramsFamily,model->nb_paramsMaintenance+model->nb_paramsFamily);
+        NumericMatrix res(model->nb_paramsMaintenance+model->nb_paramsFamily+model->nb_paramsCov,model->nb_paramsMaintenance+model->nb_paramsFamily+model->nb_paramsCov);
         double alpha=param[0];//save current value of alpha
 
         param[0]=1;

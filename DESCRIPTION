@@ -2,8 +2,11 @@ Package: VAM
 Version: 0.3.5
 Date: 2016-11-15
 Title: Virtual Age Models
-Author: Remy.Drouilhet@imag.fr, Laurent.Doyen@imag.fr
-Maintainer: Remy Drouilhet <Remy.Drouilhet@imag.fr>
+Authors@R: c(
+    person("Laurent", "Doyen", email = "Laurent.Doyen@univ-grenoble-alpes.fr", role = c("aut")),
+    person("Remy", "Drouilhet", email = "Remy.Drouilhet@univ-grenoble-alpes.fr", role = c("aut", "cre")),
+	person("Lea", "Breniere", email = "lea.breniere@univ-grenoble-alpes.fr", role = c("ctb"))
+	)
 Description: Package dealing with Virtual Age Models.
 License: GPL (>= 2)
 Depends: R (>= 3.0.0), Rcpp (>= 0.9.10)
