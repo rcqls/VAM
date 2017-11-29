@@ -208,7 +208,7 @@ public:
             }
         }
         for(ii=0;ii<model->nb_paramsCov;ii++,i++) {
-            gradient_dS_covariate_update(i);
+            gradient_dS_covariate_update(i,ii);
             for(j=0;j<=i;j++) {
                 //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
                 k=i*(i+1)/2+j;
