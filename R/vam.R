@@ -729,7 +729,8 @@ parse.vam.formula <- function(formula) {
 	}
 
 	convert.family <- function(fam) {
-		if(has.covariates <- fam[[length(fam)]][[1]] == as.name("|")) {
+		# eval.vam is here to evaluate the value if it is a symbol!
+		if(has.covariates <- eval.vam(fam[[length(fam)]])[[1]] == as.name("|")) {
 			covariates_expr<-fam[[length(fam)]][[3]]
 			fam[[length(fam)]] <- fam[[length(fam)]][[2]] # first argument of last terms becomes last argument of family
 		} 
