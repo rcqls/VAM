@@ -163,7 +163,7 @@ public:
         //compute gradient
         double alphaTmp = (alpha_fixed ? alpha : S0 / S1);
         
-        res[0] = 0;
+        res[0] = (alpha_fixed ? S0/alpha-S1 : 0);
         //
         for(i=0;i<model->nb_paramsFamily-1;i++) {
             res[i+1] = -dS1[i]*alphaTmp + dS2[i];
