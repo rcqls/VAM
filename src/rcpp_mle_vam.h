@@ -223,7 +223,6 @@ public:
         double alpha=param[0];//save current value of alpha
 
         param[0]=1;
-
         init_mle_vam(true,true);
         model->set_params(param);
         model->select_data(0);
@@ -336,7 +335,8 @@ private:
         S1 = 0; S2 = 0; S0 = 0; S3=0; S4=0;
         if(with_hessian) {
             for(i=0;i<(model->nb_paramsMaintenance);i++) {
-                dS1[i] = 0; dS2[i] = 0; dS3[i] = 0; dS4[i] = 0;
+                dS1[i] = 0; dS2[i] = 0; dS3[i] = 0; 
+                if(model->nb_paramsCov>0) dS4[i] = 0;
                 for(j=0;j<=i;j++) {
                     //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
                     d2S1[i*(i+1)/2+j] = 0; d2S2[i*(i+1)/2+j] = 0; d2S3[i*(i+1)/2+j] = 0;
