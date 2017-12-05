@@ -402,6 +402,10 @@ private:
                     model->d2S2[i*(i+1)/2+j]=0;
                 }
             }
+            for(j=0;j<model->nb_paramsCov;i++,j++) {
+                model->dS1[i]=0;
+                model->dS4[j]=0;
+            }
         }
         else if(with_gradient) {
             for(i=0;i<(model->nb_paramsMaintenance);i++) {
