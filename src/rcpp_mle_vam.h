@@ -140,7 +140,7 @@ public:
     }
 
     NumericVector gradient(NumericVector param, bool alpha_fixed=false) {
-        NumericVector res(model->nb_paramsMaintenance+model->nb_paramsFamily+model->nb_paramsCov);
+        NumericVector res(model->nb_paramsFamily+model->nb_paramsMaintenance+model->nb_paramsCov);
         double alpha=param[0];//save current value of alpha
         int i,ii;
 
@@ -217,7 +217,7 @@ public:
 
     NumericMatrix hessian(NumericVector param, bool alpha_fixed=false) {
         int j;
-        NumericMatrix res(model->nb_paramsMaintenance+model->nb_paramsFamily+model->nb_paramsCov,model->nb_paramsMaintenance+model->nb_paramsFamily+model->nb_paramsCov);
+        NumericMatrix res(model->nb_paramsFamily+model->nb_paramsMaintenance+model->nb_paramsCov,model->nb_paramsFamily+model->nb_paramsMaintenance+model->nb_paramsCov);
         double alpha=param[0];//save current value of alpha
 
         param[0]=1;
@@ -239,7 +239,7 @@ public:
         //compute hessian
         if(!alpha_fixed) {
             res(0,0) = 0;
-            for(int i=0;i<(model->nb_paramsFamily-1);i++) {
+            for(int i=0;i<model->nb_paramsFamily-1;i++) {
                 res(0,i+1) = 0;
                 res(i+1,0) = 0;
                 res(i+1,i+1) = pow(dS1[i],2)/pow(S1,2) * S0-d2S1[i*(i+1)/2+i]/S1 * S0 + d2S2[i*(i+1)/2+i];
@@ -351,14 +351,14 @@ private:
             }
         }
         else if(with_gradient) {
-            for(i=0;i<(model->nb_paramsMaintenance);i++) {
-                dS1[i] = 0; dS2[i] = 0; dS3[i] = 0;
-            }
-            for(i=(model->nb_paramsMaintenance);i<(model->nb_paramsMaintenance+model->nb_paramsFamily-1);i++) {
+            for(i=0;i<model->nb_paramsFamily-1;i++) {
                 dS1[i] = 0; dS2[i] = 0;
             }
+            for(ii=0;ii<model->nb_paramsMaintenance ;i++,ii++) {
+                dS1[i] = 0; dS2[i] = 0; dS3[ii] = 0;
+            }
             for(ii=0;ii<model->nb_paramsCov;i++,ii++) {
-                dS4[ii] = 0;dS1[i] = 0;
+                dS1[i] = 0; dS4[ii] = 0;
             }
         }
     }
@@ -436,7 +436,7 @@ private:
                 model->dA[j]=0;
             }
             
-            for(j=0;j<model->nb_paramsCov;i++,j++) {
+            for(j=0;j<model->nb_paramsCov;j++,i++) {
                 model->dS1[i]=0;
                 model->dS4[j]=0;
             }
@@ -459,7 +459,7 @@ private:
     }
 
     void gradient_update_for_current_system() {
-        int i;
+        int i,ii;
     	contrast_update_for_current_system(true,false);
 
         double *cumhVright_param_derivative=model->family->cumulative_hazardRate_param_derivative(model->Vright,true);
@@ -472,12 +472,12 @@ private:
     	double hVright=model->family->hazardRate(model->Vright);
     	double dhVleft=model->family->hazardRate_derivative(model->Vleft);
     	  //printf("k:%d,hVright:%lf,dhVleft:%lf,indType:%lf\n",model->k,hVright,dhVleft,model->indType);
-    	for(i=0;i<model->nb_paramsMaintenance;i++) {
-    		if(model->k >= leftCensor) model->dS1[i+model->nb_paramsFamily-1] += model->hVleft * model->dVleft[i] - hVright * model->dVright[i];
-    		//printf("dS1[%d]=(%lf,%lf,%lf),%lf,",i+1,model->hVleft,model->dVleft[i],model->dVright[i],model->dS1[i+1]);
-    		model->dS2[i+model->nb_paramsFamily-1] +=  dhVleft * model->dVleft[i]/model->hVleft * model->indType;
-    		//printf("dS2[%d]=%lf,",i+1,model->dS2[i+1]);
-            model->dS3[i] +=  model->dA[i]/model->A * model->indType;
+    	for(ii=0;ii<model->nb_paramsMaintenance;ii++,i++) {
+    		if(model->k >= leftCensor) model->dS1[i] += model->hVleft * model->dVleft[ii] - hVright * model->dVright[ii];
+    		//printf("dS1[%d]=(%lf,%lf,%lf),%lf,",ii+1,model->hVleft,model->dVleft[ii],model->dVright[ii],model->dS1[ii+1]);
+    		model->dS2[i] +=  dhVleft * model->dVleft[ii]/model->hVleft * model->indType;
+    		//printf("dS2[%d]=%lf,",ii+1,model->dS2[ii+1]);
+            model->dS3[ii] +=  model->dA[ii]/model->A * model->indType;
     	}
     	//printf("\n");
     }
