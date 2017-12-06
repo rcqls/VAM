@@ -83,9 +83,8 @@ void VamModel::set_params(NumericVector pars) {
 			vam->set_params(pars2,j);
 			j=j+vam->nb_params();
 		}
-		for(i=0;i<nb_paramsCov;i++) {
+		for(i=0;i<nb_paramsCov;i++,j++) {
 			params_cov[i]=pars2[j];
-			j++;
 		}
 	} else {
 		if(nb_paramsFamily>0){
@@ -97,9 +96,8 @@ void VamModel::set_params(NumericVector pars) {
 			vam->set_params(pars,j);
 			j=j+vam->nb_params();
 		}
-		for(i=0;i<nb_paramsCov;i++) {
+		for(i=0;i<nb_paramsCov;i++,j++) {
 			params_cov[i]=pars[j];
-			j++;
 		}
 	}
 }

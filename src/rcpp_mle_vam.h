@@ -101,7 +101,8 @@ public:
             contrast_for_current_system();
         }
 
-        //DEBUG: printf("alpha=%lf,S0=%lf,S1=%lf,S2=%lf,S3=%lf\n",alpha,S0,S1,S2,S3);
+        //DEBUG: printf("alpha=%lf,S0=%lf,S1=%lf,S2=%lf,S3=%lf,S4=%lf\n",alpha,S0,S1,S2,S3,S4);
+        // printf("params=(%lf,%lf)\n",model->params_cov[0],model->params_cov[1]);
         // log-likelihood (with constant +S0*(log(S0)-1))
         if(!alpha_fixed) {
           res[0]=-log(S1) * S0 + S2 +S0*(log(S0)-1)+S3;
@@ -453,7 +454,7 @@ private:
     	// printf("indType,S2,hVleft:%lf,%lf,%lf\n",model->indType,model->S1,model->hVleft);
     	if(model->k >= leftCensor) model->S1 += model->family->cumulative_hazardRate(model->Vleft) - model->family->cumulative_hazardRate(model->Vright);
     	model->S2 += log(model->hVleft)* model->indType;
-        model->S3 += log(model->A)* model->indType; 
+        model->S3 += log(model->A)* model->indType;
     	//for(int i=0;i<(model->nbPM)+2;i++) model->dS1[i] += cdVleft[i] - cdVright[i];
     	//model->dS1 += (models->at(0))
     }
@@ -559,8 +560,9 @@ private:
 
     void contrast_S_update() {
         //model updated for current system: S1,S2,S0,dS1,dS2
-        S1 += model->S1;S2 += model->S2; S0 += model->S0; S3 += model->S3;
-        if(model->nb_paramsCov>0) S4 += model->S0 * model->sum_cov;
+        model->compute_covariates();
+        S1 += model->S1*(model->nb_paramsCov > 0 ? exp(model->sum_cov) : 1.0);S2 += model->S2; S0 += model->S0; S3 += model->S3;
+        if(model->nb_paramsCov>0) S4 += model->S0 * model->sum_cov;//initialize model->sum_cov
         //printf("Conclusion : S1=%f, S2=%f, S0=%f, S4=%f\n",model->S1,model->S2,model->S0,model->S4);
     }
 
@@ -574,7 +576,7 @@ private:
 
     void gradient_dS_covariate_update(int i,int ii) {
         //nb_paramsCov > 0 necessarily
-        dS1[i] += model->dS1[i] * model->get_covariate(ii) * exp(model->sum_cov); dS2[i] += model->dS2[i];
+        dS1[i] += model->S1 * model->get_covariate(ii) * exp(model->sum_cov); dS2[i] += model->dS2[i];
         dS4[ii] += model->S0 * model->get_covariate(ii);
     }
 

@@ -1,0 +1,31 @@
+double LogLikelihood_ARA1(List par, DataFrame dt, int m, int nj){
+  int n = m*nj;
+  double b01 = par[0];
+  double b02 = par[1];
+  double b = par[2];
+  double rho = par[3];
+  double sum1 = 0;
+  double sum2 = 0;
+  double sum3 = 0;
+  NumericVector Tij = dt["Time"];
+  NumericVector Cov1 = dt["Cov1"];
+  NumericVector Cov2 = dt["Cov2"];
+  for (int j=1; j<m+1; j++){
+    sum1 += log(Tij[(j-1)*nj]);
+    for (int i=2; i<nj+1; i++){
+      sum1 += log(Tij[(j-1)*nj+i-1] - rho*Tij[(j-1)*nj+i-2]);
+    }
+  }
+  for (int j=1; j<m+1; j++){
+    double tmp = pow(Tij[(j-1)*nj],b);
+    for (int i=2; i<nj+1; i++){
+      tmp += pow(Tij[(j-1)*nj+i-1] - rho*Tij[(j-1)*nj+i-2],b) - pow(Tij[(j-1)*nj+i-2] - rho*Tij[(j-1)*nj+i-2],b);
+    }
+    sum2 += exp(b01*Cov1[(j-1)*nj] + b02*Cov2[(j-1)*nj]) * tmp;
+  }
+  for (int j=1; j<m+1; j++){
+    sum3 += nj*(b01*Cov1[(j-1)*nj] + b02*Cov2[(j-1)*nj]);
+  }
+  double L = n*(log(n) - log(sum2) - 1 + log(b)) + sum1*(b-1) + sum3;
+  return -L;
+}

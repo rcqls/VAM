@@ -43,7 +43,7 @@ public:
 	std::vector<double> time;
 	std::vector<int> type;
 
-	double S1, S2, S0, S3, S4, indType;
+	double S1, S2, S0, S3, S4, indType;//TODO: remove S4 if unused!
 
 	double Vleft, Vright, hVleft;
 
