@@ -102,7 +102,7 @@ public:
         }
 
         //DEBUG: printf("alpha=%lf,S0=%lf,S1=%lf,S2=%lf,S3=%lf,S4=%lf\n",alpha,S0,S1,S2,S3,S4);
-        // printf("params=(%lf,%lf)\n",model->params_cov[0],model->params_cov[1]);
+        //printf("params=(%lf,%lf)\n",model->params_cov[0],model->params_cov[1]);
         // log-likelihood (with constant +S0*(log(S0)-1))
         if(!alpha_fixed) {
           res[0]=-log(S1) * S0 + S2 +S0*(log(S0)-1)+S3;
@@ -436,7 +436,6 @@ private:
                 model->dVright[j]=0;
                 model->dA[j]=0;
             }
-            
             for(j=0;j<model->nb_paramsCov;j++,i++) {
                 model->dS1[i]=0;
                 model->dS4[j]=0;
@@ -560,10 +559,15 @@ private:
 
     void contrast_S_update() {
         //model updated for current system: S1,S2,S0,dS1,dS2
-        model->compute_covariates();
-        S1 += model->S1*(model->nb_paramsCov > 0 ? exp(model->sum_cov) : 1.0);S2 += model->S2; S0 += model->S0; S3 += model->S3;
-        if(model->nb_paramsCov>0) S4 += model->S0 * model->sum_cov;//initialize model->sum_cov
+        S1 += model->S1;S2 += model->S2; S0 += model->S0; S3 += model->S3;
+        if(model->nb_paramsCov>0) {
+            model->compute_covariates();//initialize model->sum_cov
+            S1 += model->S1 * exp(model->sum_cov);
+            S4 += model->S0 * model->sum_cov;
+            //printf("(S0=%lf) * (sum_cov=%lf) = (S4 =%lf)\n",model->S0, model->sum_cov,model->S0 * model->sum_cov);
+        }
         //printf("Conclusion : S1=%f, S2=%f, S0=%f, S4=%f\n",model->S1,model->S2,model->S0,model->S4);
+
     }
 
     void gradient_dS_maintenance_update(int i,int ii) {

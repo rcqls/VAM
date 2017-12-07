@@ -303,10 +303,11 @@ void VamModel::set_covariates(List model) {
 }
 
 double VamModel::compute_covariates() {
-	double sum_cov=0.0;
+	sum_cov=0.0;
 	for(int j=0;j<nb_paramsCov;j++) {
 		NumericVector var=data_cov[j];
 		sum_cov += params_cov[j] * var[current_system];
+		//printf("syst=%d,j=%d,th=%lf,params_cov=%lf\n",current_system,j,params_cov[j],var[current_system]);
 	}
 	return sum_cov;
 }
