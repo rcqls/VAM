@@ -559,13 +559,15 @@ private:
 
     void contrast_S_update() {
         //model updated for current system: S1,S2,S0,dS1,dS2
-        S1 += model->S1;S2 += model->S2; S0 += model->S0; S3 += model->S3;
+        double tmp=model->S1;
+        S2 += model->S2; S0 += model->S0; S3 += model->S3;
         if(model->nb_paramsCov>0) {
             model->compute_covariates();//initialize model->sum_cov
-            S1 += model->S1 * exp(model->sum_cov);
+            tmp *= exp(model->sum_cov);
             S4 += model->S0 * model->sum_cov;
             //printf("(S0=%lf) * (sum_cov=%lf) = (S4 =%lf)\n",model->S0, model->sum_cov,model->S0 * model->sum_cov);
         }
+        S1 += tmp;
         //printf("Conclusion : S1=%f, S2=%f, S0=%f, S4=%f\n",model->S1,model->S2,model->S0,model->S4);
 
     }
@@ -580,8 +582,10 @@ private:
 
     void gradient_dS_covariate_update(int i,int ii) {
         //nb_paramsCov > 0 necessarily
-        dS1[i] += model->S1 * model->get_covariate(ii) * exp(model->sum_cov); dS2[i] += model->dS2[i];
-        dS4[ii] += model->S0 * model->get_covariate(ii);
+        double cov=model->get_covariate(ii);
+        dS1[i] += model->S1 * cov * exp(model->sum_cov); 
+        dS2[i] += model->dS2[i];
+        dS4[ii] += model->S0 * cov;
     }
 
 };
