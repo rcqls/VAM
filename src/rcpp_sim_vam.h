@@ -66,6 +66,10 @@ public:
         return exp(-model->compute_covariates());
     }; 
 
+    void set_covariates(List covariates_) {
+        model->set_covariates(covariates_);
+    }
+
 private:
     VamModel* model;
 

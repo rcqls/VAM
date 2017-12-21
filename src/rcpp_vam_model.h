@@ -214,6 +214,8 @@ public:
 
 	double get_covariate(int j);
 
+	void set_covariates(List covariates_);
+
 
 private:
 	void set_models(List models_);
@@ -227,9 +229,6 @@ private:
 	void init_virtual_age_infos();
 
 	DataFrame get_virtual_age_info(double from,double to,double by);
-
-	//Covariates related
-	void set_covariates(List covariates_);
 
 };
 

@@ -319,6 +319,11 @@ public:
         return model->get_selected_data(i);
     }
 
+    void set_covariates(List covariates_) {
+        model->set_covariates(covariates_);
+    }
+
+
 private:
 
 	VamModel* model;
@@ -583,9 +588,13 @@ private:
     void gradient_dS_covariate_update(int i,int ii) {
         //nb_paramsCov > 0 necessarily
         double cov=model->get_covariate(ii);
+        printf("1\n");
         dS1[i] += model->S1 * cov * exp(model->sum_cov); 
+        printf("2,%d-%d,%lf,%lf\n",i,ii,dS2[i], model->dS2[i]);
         dS2[i] += model->dS2[i];
+        printf("3,%d-%d\n",i,ii);
         dS4[ii] += model->S0 * cov;
+        printf("4\n");
     }
 
 };

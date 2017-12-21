@@ -967,7 +967,7 @@ substitute.vam.formula <- function(formula,coef,model) {
 
 priors.from.vam.formula <- function(model) {
 	flatten.params <- c(model$family$params,unlist(sapply(model$models,function(e) e$params)))
-	if(!is.null(mode$family$covariates)) flatten.params <- c(flatten.params,mode$family$covariates$params)
+	if(!is.null(model$family$covariates)) flatten.params <- c(flatten.params,mode$family$covariates$params)
 	if(all(sapply(flatten.params,class) == "formula") ) {
 		prior.families <- c("B","Beta","U","Unif","G","Gamma","Norm","N","NonInform","NInf","LNorm","LogNorm","LN")
 		## clear "|" expression
