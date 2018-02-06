@@ -160,10 +160,22 @@ class LogLinearFamilyModel : public FamilyModel {
       nb_params_=2;
       alpha=par[0];beta=par[1];
       init_Familiy();
+      
+      //see just above the explanation
+      //Why not this value (and also some visual check), may be that can be changed by user in further version ?
+      LDorder=5;
+      bxLim=0.000001;
     }
   
   double alpha, beta;
-  
+  //With the cumulative_hazardRate and its param derivaatives, 
+  //  theres is a numerical problem (due to undertermined limits) when beta*x tends to 0.
+  //  The problem is solved by replacing the functions values by their limited development in beta*x=0.
+  // LDorder corresponds to the order of the corresponding develomment
+  // bxLim corresponds to the limiting value above which the limited development is used.
+  int LDorder;
+  double bxLim;
+
   NumericVector get_params() {
     NumericVector out(2);
     out[0]=alpha;out[1]=beta;
@@ -183,7 +195,19 @@ class LogLinearFamilyModel : public FamilyModel {
   }
   
   double cumulative_hazardRate(double x) {
-    return alpha*(exp(beta*x)-1)/beta;
+    double res;
+    if(abs(beta*x)<bxLim){
+      double prec=beta*x/2;
+      res=1+prec;
+      for (int i=1; i< LDorder ;i++){
+        prec=prec*beta*x/(i+1);
+        res=res+prec;
+      }
+      res=alpha*res*x;
+    } else {
+      res=alpha*(exp(beta*x)-1)/beta;
+    }
+    return res;
   }
   
   double inverse_cumulative_hazardRate(double x) {
@@ -204,8 +228,23 @@ class LogLinearFamilyModel : public FamilyModel {
   
   double* cumulative_hazardRate_param_derivative(double x,bool R) {
     double *dH;
+    double res;
+    double prec;
     if(R) dH=dHR; else dH=dHL;
-    dH[0]=  alpha*(x*exp(x*beta)/beta-(exp(beta*x)-1)/pow(beta,2));
+
+    if(abs(beta*x)<bxLim){
+      prec=beta*x/6;
+      res=0.5+2*prec;
+      for (int i=1; i< LDorder ;i++){
+        prec=prec*beta*x/(i+3);
+        res=res+(i+2)*prec;
+      }
+      res=alpha*res*pow(x,2);
+    } else {
+      res=alpha*(x*exp(x*beta)/beta-(exp(beta*x)-1)/pow(beta,2));
+    }
+
+    dH[0]=  res;
     return dH;
   }
   
@@ -225,8 +264,23 @@ class LogLinearFamilyModel : public FamilyModel {
   
   double* cumulative_hazardRate_param_2derivative(double x,bool R) {
     double *d2H;
+    double res;
+    double prec;
     if(R) d2H=d2HR; else d2H=d2HL;
-    d2H[0]= alpha*(pow(x,2)*exp(x*beta)/beta-2*x*exp(x*beta)/pow(beta,2)+2*(exp(beta*x)-1)/pow(beta,3));
+    
+    if(abs(beta*x)<bxLim){
+      prec=beta*x/24;
+      res=(2/3)+6*prec;
+      for (int i=1; i< LDorder ;i++){
+        prec=prec*beta*x/(i+4);
+        res=res+(i+2)*(i+3)*prec;
+      }
+      res=alpha*res*pow(x,3);
+    } else {
+      res=alpha*(pow(x,2)*exp(x*beta)/beta-2*x*exp(x*beta)/pow(beta,2)+2*(exp(beta*x)-1)/pow(beta,3));
+    }
+
+    d2H[0]= res;
     return d2H;
   }
 

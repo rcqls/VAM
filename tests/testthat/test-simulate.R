@@ -373,7 +373,7 @@ test_that("Weibull+CM ARA1+PM GQR AtTimes_notcycle",{
 set.seed(0.5)
 PM<-c(10,15,20)
 simCMPM<-sim.vam(  ~ (ARA1(-1.2) | Weibull(.003,2.6)) & (GQR(.9|log) | AtTimes(c(10,15,20),FALSE)))
-Data<-simulate(simCMPM,16,nb.system=2)
+Data<-simulate(simCMPM,16,nb.system=2) ## nb.system=3 fails because PM not attained!
 Data1<-Data[Data$System==1,c(2,3)]
 Data2<-Data[Data$System==2,c(2,3)]
 Data3<-simulate(simCMPM,12)
