@@ -155,7 +155,7 @@ check.censorship <- function(data) {
 data.frame.to.list.multi.vam <- function(data,response) {
 	# return data if it is already only a list!
 	if(is.list(data) && !is.data.frame(data)) {
-		data.f<rame(Time=0,Type=1)->tmp
+		data.frame(Time=0,Type=1)->tmp
 		names(tmp) <- names(data[[1]])
 		return(lapply(data,function(df) rbind(tmp,df)))
 	}
