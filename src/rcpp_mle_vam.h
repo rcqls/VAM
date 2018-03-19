@@ -17,7 +17,7 @@ public:
         dS2=new double[model->nb_paramsMaintenance+model->nb_paramsFamily-1];
         dS3=new double[model->nb_paramsMaintenance];
         if(model->nb_paramsCov>0) dS4=new double[model->nb_paramsCov];
-        d2S1=new double[(model->nb_paramsMaintenance+model->nb_paramsFamily-1)*(model->nb_paramsMaintenance+model->nb_paramsFamily)/2];//inferior diagonal part of the hessian matrice by lines
+        d2S1=new double[(model->nb_paramsMaintenance+model->nb_paramsFamily-1+model->nb_paramsCov)*(model->nb_paramsMaintenance+model->nb_paramsFamily+model->nb_paramsCov)/2];//inferior diagonal part of the hessian matrice by lines
         d2S2=new double[(model->nb_paramsMaintenance+model->nb_paramsFamily-1)*(model->nb_paramsMaintenance+model->nb_paramsFamily)/2];//inferior diagonal part of the hessian matrice by lines
         d2S3=new double[(model->nb_paramsMaintenance)*(model->nb_paramsMaintenance+1)/2];
         leftCensors=NULL;
@@ -180,6 +180,7 @@ public:
 
     void hessian_for_current_system() {
         int j,i,ii,k,kk;
+        double tmp;
         init_mle_vam_for_current_system(true,true);
         int n=(model->time).size() - 1;
         while(model->k < n) {
@@ -222,7 +223,16 @@ public:
             for(j=0;j<=i;j++) {
                 //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
                 k=i*(i+1)/2+j;
-                d2S1[k] += model->d2S1[k] * (model->nb_paramsCov > 0 ? model->get_covariate(ii) * model->get_covariate(j) * exp(model->sum_cov) : 1.0); d2S2[k] += model->d2S2[k];
+                if(model->nb_paramsCov > 0) {
+                    if(j<model->nb_paramsFamily-1 + model->nb_paramsMaintenance) {
+                        tmp = model->get_covariate(ii)* exp(model->sum_cov);;
+                    } else {
+                        tmp=model->get_covariate(ii) * model->get_covariate(j - model->nb_paramsFamily+1 - model->nb_paramsMaintenance) * exp(model->sum_cov);
+                    }
+                    d2S1[k] += model->d2S1[k] * tmp;
+                } else {
+                    d2S1[k] += model->d2S1[k];
+                 } 
             }
         }
     }

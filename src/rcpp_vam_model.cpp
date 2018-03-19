@@ -200,7 +200,7 @@ void VamModel::init(List model_) {
 	dS2=new double[nb_paramsMaintenance+nb_paramsFamily-1];
 	dS3=new double[nb_paramsMaintenance];
 	if(nb_paramsCov>0) dS4=new double[nb_paramsCov];
-	d2S1=new double[(nb_paramsMaintenance+nb_paramsFamily-1)*(nb_paramsMaintenance+nb_paramsFamily)/2];//inferior diagonal part of the hessian matrice by lines
+	d2S1=new double[(nb_paramsMaintenance+nb_paramsFamily-1+nb_paramsCov)*(nb_paramsMaintenance+nb_paramsFamily+nb_paramsCov)/2];//inferior diagonal part of the hessian matrice by lines
 	d2S2=new double[(nb_paramsMaintenance+nb_paramsFamily-1)*(nb_paramsMaintenance+nb_paramsFamily)/2];//inferior diagonal part of the hessian matrice by lines
 	d2S3=new double[(nb_paramsMaintenance)*(nb_paramsMaintenance+1)/2];//inferior diagonal part of the hessian matrice by lines
 	dVright=new double[nb_paramsMaintenance];
