@@ -179,7 +179,7 @@ public:
     }
 
     void hessian_for_current_system() {
-        int j,i,ii,k;
+        int j,i,ii,k,kk;
         init_mle_vam_for_current_system(true,true);
         int n=(model->time).size() - 1;
         while(model->k < n) {
@@ -195,15 +195,26 @@ public:
             for(j=0;j<=i;j++) {
                 //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
                 k=i*(i+1)/2+j;
-                d2S1[k] += model->d2S1[k] * (model->nb_paramsCov > 0 ? exp(model->sum_cov) : 1.0); d2S2[k] += model->d2S2[k]; d2S3[k] += model->d2S3[k];
+                d2S1[k] += model->d2S1[k] * (model->nb_paramsCov > 0 ? exp(model->sum_cov) : 1.0); 
+                d2S2[k] += model->d2S2[k];
             }
         }
         for(ii=0;ii<model->nb_paramsMaintenance;ii++,i++) {
             gradient_dS_maintenance_update(i,ii);
-            for(j=0;j<=i;j++) {
+            for(j=0;j<=ii;j++) {
+                 //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
+                k=i*(i+1)/2+j;
+                d2S1[k] += model->d2S1[k] * (model->nb_paramsCov > 0 ? exp(model->sum_cov) : 1.0); 
+                d2S2[k] += model->d2S2[k];
+                //ii and j(<=ii) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
+                kk=ii*(ii+1)/2+j;
+                d2S3[kk] += model->d2S3[kk];
+            }
+            for(j=ii+1;j<=i;j++) {
                 //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
                 k=i*(i+1)/2+j;
-                d2S1[k] += model->d2S1[k] * (model->nb_paramsCov > 0 ? exp(model->sum_cov) : 1.0); d2S2[k] += model->d2S2[k];
+                d2S1[k] += model->d2S1[k] * (model->nb_paramsCov > 0 ? exp(model->sum_cov) : 1.0); 
+                d2S2[k] += model->d2S2[k];
             }
         }
         for(ii=0;ii<model->nb_paramsCov;ii++,i++) {
@@ -588,13 +599,9 @@ private:
     void gradient_dS_covariate_update(int i,int ii) {
         //nb_paramsCov > 0 necessarily
         double cov=model->get_covariate(ii);
-        //printf("1\n");
         dS1[i] += model->S1 * cov * exp(model->sum_cov); 
-        //printf("2,%d-%d,%lf,%lf\n",i,ii,dS2[i], model->dS2[i]);
-        //dS2[i]=0; dS2[i] += model->dS2[i];
-        //printf("3,%d-%d\n",i,ii);
+        //dS2[i]=0
         dS4[ii] += model->S0 * cov;
-        //printf("4\n");
     }
 
 };
