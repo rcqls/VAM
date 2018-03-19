@@ -7,10 +7,10 @@ using namespace Rcpp ;
 
 VamModel::~VamModel() {
 	//DEBUG: printf("VamModel: %p, %p, %p, %p, %p, %p, %p\n",dVright,dVleft,dS1,dS2,models,family,maintenance_policy);
+	if(nb_paramsCov>0) delete[] dS4;
 	delete[] dS1;
 	delete[] dS2;
 	delete[] dS3;
-	if(nb_paramsCov>0) delete[] dS4;
 	delete[] d2S1;
 	delete[] d2S2;
 	delete[] d2S3;
