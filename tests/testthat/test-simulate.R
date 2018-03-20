@@ -675,7 +675,7 @@ test<-function(Data,n){
       A<-0.9^(sqrt(iCM))*1.2^(log(iPM+1))
     } else {
       iPM=iPM+1
-      if(abs(15*floor(Tcour/15)-Tcour)){PMnotOK<-PMnotOK+1;print(h(A*(Tcour-Tprec)+V)*A)}
+if(abs(15*floor(Tcour/15)-Tcour)){PMnotOK<-PMnotOK+1;print(h(A*(Tcour-Tprec)+V)*A)}
       V<-V+(1-0.8)*A*(Tcour-Tprec)-0.8*V2-0.8*V3-0.8*V4
       V4<-(1-0.8)*V3
       V3<-(1-0.8)*V2
@@ -692,9 +692,9 @@ set.seed(0.5)
 res1<-test(Data1,dim(Data1)[1]);U1<-res1[[2]]
 res2<-test(Data2,dim(Data2)[1]);U2<-res2[[2]]
 res3<-test(Data3,dim(Data3)[1]);U3<-res3[[2]]
-U1bis<-runif(dim(Data1)[1])[Data1$Type==-1]
-U2bis<-runif(dim(Data2)[1])[Data2$Type==-1]
-U3bis<-runif(dim(Data3)[1])[Data3$Type==-1]
+U1bis<-runif(2*dim(Data1)[1])[2*(1:dim(Data1))-1][Data1$Type==-1]
+U2bis<-runif(2*dim(Data2)[1])[2*(1:dim(Data2))-1][Data2$Type==-1]
+U3bis<-runif(2*dim(Data3)[1])[2*(1:dim(Data3))-1][Data3$Type==-1]
 
 expect_that(res1[[1]],equals(0,tolerance=0.00000000000001))
 expect_that(sort(Data1$Time),equals(Data1$Time,tolerance=0.00000000000001))
@@ -742,7 +742,7 @@ test<-function(Data,n){
       V2<-(1-0.8)*A*(Tcour-Tprec)
       A<-1.5^(sqrt(iCM))*1.2^(log(iPM+1))
     } else {
-      if(abs(h(A*(Tcour-Tprec)+V)*A-1.8)>0.0000001){PMnotOK<-PMnotOK+1}
+if(abs(h(A*(Tcour-Tprec)+V)*A-1.8)>0.0000001){PMnotOK<-PMnotOK+1}
       V<-0
       V4<-0
       V3<-0
@@ -761,9 +761,9 @@ set.seed(0.5)
 res1<-test(Data1,dim(Data1)[1]);U1<-res1[[2]]
 res2<-test(Data2,dim(Data2)[1]);U2<-res2[[2]]
 res3<-test(Data3,dim(Data3)[1]);U3<-res3[[2]]
-U1bis<-runif(dim(Data1)[1])[Data1$Type==-1]
-U2bis<-runif(dim(Data2)[1])[Data2$Type==-1]
-U3bis<-runif(dim(Data3)[1])[Data3$Type==-1]
+U1bis<-runif(2*dim(Data1)[1])[2*(1:dim(Data1))-1][Data1$Type==-1]
+U2bis<-runif(2*dim(Data2)[1])[2*(1:dim(Data2))-1][Data2$Type==-1]
+U3bis<-runif(2*dim(Data3)[1])[2*(1:dim(Data3))-1][Data3$Type==-1]
 
 expect_that(res1[[1]],equals(0,tolerance=0.00000000000001))
 expect_that(sort(Data1$Time),equals(Data1$Time,tolerance=0.00000000000001))
