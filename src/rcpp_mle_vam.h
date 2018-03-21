@@ -105,9 +105,13 @@ public:
         //printf("params=(%lf,%lf)\n",model->params_cov[0],model->params_cov[1]);
         // log-likelihood (with constant +S0*(log(S0)-1))
         if(!alpha_fixed) {
+          param[0]=S0/S1;
           res[0]=-log(S1) * S0 + S2 +S0*(log(S0)-1)+S3;
+          model->set_params(param);//also memorize the current value for alpha which is not 1 in fact
         } else {
+          param[0]=alpha;
           res[0]=log(alpha)*S0+S2-alpha*S1+S3;
+          model->set_params(param);//also memorize the current value for alpha which is not 1 in fact
         }
         if(model->nb_paramsCov>0) res[0] += S4;
 
@@ -160,18 +164,20 @@ public:
             gradient_for_current_system();
         }
         //compute gradient
-        double alphaTmp = (alpha_fixed ? alpha : S0 / S1);
-        
+        param[0] = (alpha_fixed ? alpha : S0 / S1);
+
+        model->set_params(param);//also memorize the current value for alpha which is not 1 in fact
+
         res[0] = (alpha_fixed ? S0/alpha-S1 : 0);
         //
         for(i=0;i<model->nb_paramsFamily-1;i++) {
-            res[i+1] = -dS1[i]*alphaTmp + dS2[i];
+            res[i+1] = -dS1[i]*param[0] + dS2[i];
         }
         for(ii=0;ii<model->nb_paramsMaintenance;ii++,i++) {
-            res[i+1] = -dS1[i]*alphaTmp + dS2[i]+dS3[ii];
+            res[i+1] = -dS1[i]*param[0] + dS2[i]+dS3[ii];
         }
         for(ii=0;ii<model->nb_paramsCov;ii++,i++) {
-            res[i+1] = -dS1[i]*alphaTmp + dS4[ii] ;
+            res[i+1] = -dS1[i]*param[0] + dS4[ii] ;
         }
 
         param[0]=alpha;//LD:changed for bayesian
@@ -196,7 +202,7 @@ public:
             for(j=0;j<=i;j++) {
                 //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
                 k=i*(i+1)/2+j;
-                d2S1[k] += model->d2S1[k] * (model->nb_paramsCov > 0 ? exp(model->sum_cov) : 1.0); 
+                d2S1[k] += model->d2S1[k] * (model->nb_paramsCov > 0 ? exp(model->sum_cov) : 1.0);
                 d2S2[k] += model->d2S2[k];
             }
         }
@@ -205,7 +211,7 @@ public:
             for(j=0;j<=ii;j++) {
                  //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
                 k=i*(i+1)/2+j;
-                d2S1[k] += model->d2S1[k] * (model->nb_paramsCov > 0 ? exp(model->sum_cov) : 1.0); 
+                d2S1[k] += model->d2S1[k] * (model->nb_paramsCov > 0 ? exp(model->sum_cov) : 1.0);
                 d2S2[k] += model->d2S2[k];
                 //ii and j(<=ii) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
                 kk=ii*(ii+1)/2+j;
@@ -214,7 +220,7 @@ public:
             for(j=ii+1;j<=i;j++) {
                 //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
                 k=i*(i+1)/2+j;
-                d2S1[k] += model->d2S1[k] * (model->nb_paramsCov > 0 ? exp(model->sum_cov) : 1.0); 
+                d2S1[k] += model->d2S1[k] * (model->nb_paramsCov > 0 ? exp(model->sum_cov) : 1.0);
                 d2S2[k] += model->d2S2[k];
             }
         }
@@ -232,7 +238,7 @@ public:
                     d2S1[k] += model->d2S1[k] * tmp;
                 } else {
                     d2S1[k] += model->d2S1[k];
-                 } 
+                 }
             }
         }
     }
@@ -286,6 +292,8 @@ public:
                     res(j+1,i+1) = res(i+1,j+1);
                 }
             }
+            param[0]=S0/S1;
+            model->set_params(param);//also memorize the current value for alpha which is not 1 in fact
         } else {
 
             res(0,0) = -S0/pow(alpha,2);
@@ -314,6 +322,9 @@ public:
                     res(j+1,i+1) = res(i+1,j+1);
                 }
             }
+            param[0]=alpha;
+            model->set_params(param);//also memorize the current value for alpha which is not 1 in fact
+
         }
         param[0]=alpha;//LD:changed for bayesian
         return res;
@@ -360,7 +371,7 @@ private:
         S1 = 0; S2 = 0; S0 = 0; S3=0; S4=0;
         if(with_hessian) {
             for(i=0;i<(model->nb_paramsMaintenance);i++) {
-                dS1[i] = 0; dS2[i] = 0; dS3[i] = 0; 
+                dS1[i] = 0; dS2[i] = 0; dS3[i] = 0;
                 for(j=0;j<=i;j++) {
                     //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
                     d2S1[i*(i+1)/2+j] = 0; d2S2[i*(i+1)/2+j] = 0; d2S3[i*(i+1)/2+j] = 0;
@@ -409,7 +420,7 @@ private:
             for(i=0;i<(model->nb_paramsMaintenance);i++) {
                 model->dS1[i]=0;
                 model->dS2[i]=0;
-                model->dS3[i]=0; 
+                model->dS3[i]=0;
                 model->dVright[i]=0;
                 model->dA[i]=0;
                 //for(k=0;k<model->mu;k++) model->dVR_prec[k*model->nb_paramsMaintenance+i]=0;
@@ -555,7 +566,7 @@ private:
         //covariates
 
         // double *cumhVright_param_derivative=model->family->cumulative_hazardRate_param_derivative(model->Vright,true);
-        // double *cumhVleft_param_derivative=model->family->cumulative_hazardRate_param_derivative(model->Vleft,false); 
+        // double *cumhVleft_param_derivative=model->family->cumulative_hazardRate_param_derivative(model->Vleft,false);
 
         // for(i=0;i<model->nb_paramsCov;i++) {
         //     if(model->k >= leftCensor) model->dS1[i+model->nb_paramsFamily-1] += model->hVleft * model->dVleft[i] - hVright * model->dVright[i];
@@ -609,7 +620,7 @@ private:
     void gradient_dS_covariate_update(int i,int ii) {
         //nb_paramsCov > 0 necessarily
         double cov=model->get_covariate(ii);
-        dS1[i] += model->S1 * cov * exp(model->sum_cov); 
+        dS1[i] += model->S1 * cov * exp(model->sum_cov);
         //dS2[i]=0
         dS4[ii] += model->S0 * cov;
     }

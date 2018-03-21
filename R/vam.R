@@ -734,7 +734,7 @@ parse.vam.formula <- function(formula) {
 		if(has.covariates <- (length(fam[[length(fam)]])>1 && fam[[length(fam)]][[1]] == as.name("|"))) {
 			covariates_expr <- fam[[length(fam)]][[3]]
 			fam[[length(fam)]] <- fam[[length(fam)]][[2]] # first argument of last terms becomes last argument of family
-		} 
+		}
 
 		res<-list(
 				name=as.character(fam[[1]]),
@@ -899,13 +899,14 @@ substitute.vam.formula <- function(formula,coef,model) {
 	if(missing(model)) model <- parse.vam.formula(formula)
 	if(missing(coef)) {
 		coef <- c(model$family$params,sapply(model$models,function(m) m$params))
-		if(!is.null(model$covariates)) {
+	}
+	if(!is.null(model$covariates)) {
 			coef <- c(coef,model$covariates$params)
 			nb_paramsCovariates <- length(model$covariates$params)
 		} else {
 			nb_paramsCovariates <- 0
-		}
 	}
+
 	nb_paramsFamily <- length(model$family$params)
 	nb_paramsCM <- length(model$models[[1]]$params)
 	nb_paramsPM <- sapply(model$models[-1],function(m) length(m$params))
@@ -927,7 +928,7 @@ substitute.vam.formula <- function(formula,coef,model) {
 							"(",
 							 paste(coef[1:nb_paramsFamily],collapse=","),
 							 if(!is.null(model$covariates)) {
-								 # unlist(nb_paramsPM) since nb_paramsPM is list() when no PM 
+								 # unlist(nb_paramsPM) since nb_paramsPM is list() when no PM
 								 tmp<-coef[nb_paramsFamily + nb_paramsCM + sum(unlist(nb_paramsPM)) + (1:nb_paramsCovariates)]
 								 tmp[tmp<0] <- paste0("(",tmp[tmp<0],")")
 								 paste0("|",
