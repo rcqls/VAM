@@ -196,11 +196,13 @@ void VamModel::init(List model_) {
 	// Vleft=0;Vright=0;
 	// hVleft=0;
 	init_computation_values();
-	dS1=new double[nb_paramsMaintenance+nb_paramsFamily-1+nb_paramsCov];
+	//dS1=new double[nb_paramsMaintenance+nb_paramsFamily-1+nb_paramsCov];//for one trajectory we can factorize the effect of covariates on S1, consequently the derivatives on covariates parameters are only considered in the cumulator of S1 in the mle object.
+	dS1=new double[nb_paramsMaintenance+nb_paramsFamily-1];
 	dS2=new double[nb_paramsMaintenance+nb_paramsFamily-1];
 	dS3=new double[nb_paramsMaintenance];
 	if(nb_paramsCov>0) dS4=new double[nb_paramsCov];
-	d2S1=new double[(nb_paramsMaintenance+nb_paramsFamily-1+nb_paramsCov)*(nb_paramsMaintenance+nb_paramsFamily+nb_paramsCov)/2];//inferior diagonal part of the hessian matrice by lines
+	//d2S1=new double[(nb_paramsMaintenance+nb_paramsFamily-1+nb_paramsCov)*(nb_paramsMaintenance+nb_paramsFamily+nb_paramsCov)/2];//inferior diagonal part of the hessian matrice by lines //idem dS1
+	d2S1=new double[(nb_paramsMaintenance+nb_paramsFamily-1)*(nb_paramsMaintenance+nb_paramsFamily)/2];//inferior diagonal part of the hessian matrice by lines
 	d2S2=new double[(nb_paramsMaintenance+nb_paramsFamily-1)*(nb_paramsMaintenance+nb_paramsFamily)/2];//inferior diagonal part of the hessian matrice by lines
 	d2S3=new double[(nb_paramsMaintenance)*(nb_paramsMaintenance+1)/2];//inferior diagonal part of the hessian matrice by lines
 	dVright=new double[nb_paramsMaintenance];
