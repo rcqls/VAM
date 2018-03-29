@@ -80,6 +80,7 @@ simulate.sim.vam <- function(sim, stop.policy, nb.system, cache.size=500,as.list
 			}
 		}
 	} else {
+		rcpp$select_current_system(0) # added for covariates case
 		df <- rcpp$simulate(stop.policy$cache.size)[-1,]
 		names(df) <- sim$response.names
 		if(as.list) {rownames(df)<-1:nrow(df);df<-list(df)}
