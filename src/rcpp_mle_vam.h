@@ -186,7 +186,6 @@ public:
 
     void hessian_for_current_system() {
         int j,i,ii,k,kk;
-        double tmp;
         init_mle_vam_for_current_system(true,true);
         int n=(model->time).size() - 1;
         while(model->k < n) {
@@ -226,19 +225,13 @@ public:
         }
         for(ii=0;ii<model->nb_paramsCov;ii++,i++) {
             gradient_dS_covariate_update(i,ii);
-            for(j=0;j<=i;j++) {
-                //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
-                k=i*(i+1)/2+j;
-                if(model->nb_paramsCov > 0) {
-                    if(j<model->nb_paramsFamily-1 + model->nb_paramsMaintenance) {
-                        tmp = model->get_covariate(ii)* exp(model->sum_cov);;
-                    } else {
-                        tmp=model->get_covariate(ii) * model->get_covariate(j - model->nb_paramsFamily+1 - model->nb_paramsMaintenance) * exp(model->sum_cov);
-                    }
-                    d2S1[k] += model->d2S1[k] * tmp;
-                } else {
-                    d2S1[k] += model->d2S1[k];
-                 }
+            for(j=0;j<model->nb_paramsFamily-1 + model->nb_paramsMaintenance;j++) {
+              k=i*(i+1)/2+j;
+              d2S1[k] += model->get_covariate(ii)* exp(model->sum_cov)*model->dS1[j];
+            }
+            for(j=model->nb_paramsFamily-1 + model->nb_paramsMaintenance;j<=i;j++){
+              k=i*(i+1)/2+j;
+              d2S1[k] += model->get_covariate(ii) * model->get_covariate(j - model->nb_paramsFamily+1 - model->nb_paramsMaintenance) * exp(model->sum_cov)*model->S1;
             }
         }
     }
@@ -292,6 +285,14 @@ public:
                     res(j+1,i+1) = res(i+1,j+1);
                 }
             }
+            for(int i=(model->nb_paramsMaintenance+model->nb_paramsFamily-1);i<(model->nb_paramsMaintenance+model->nb_paramsFamily+model->nb_paramsCov-1);i++) {
+               res(0,i+1) = 0;
+               res(i+1,0) = 0;
+               res(i+1,i+1) = pow(dS1[i],2)/pow(S1,2) * S0-d2S1[i*(i+1)/2+i]/S1 * S0;
+               for(j=0;j<i;j++) {
+                 res(i+1,j+1) = dS1[i]*dS1[j]/pow(S1,2) * S0-d2S1[i*(i+1)/2+j]/S1 * S0;
+                 res(j+1,i+1) = res(i+1,j+1);               }
+            }
             param[0]=S0/S1;
             model->set_params(param);//also memorize the current value for alpha which is not 1 in fact
         } else {
@@ -321,6 +322,15 @@ public:
                     res(i+1,j+1) = d2S2[i*(i+1)/2+j]-alpha*d2S1[i*(i+1)/2+j]+d2S3[(i-(model->nb_paramsFamily-1))*(i- (model->nb_paramsFamily-1)+1)/2+j-(model->nb_paramsFamily-1)];
                     res(j+1,i+1) = res(i+1,j+1);
                 }
+            }
+            for(int i=(model->nb_paramsMaintenance+model->nb_paramsFamily-1);i<(model->nb_paramsMaintenance+model->nb_paramsFamily+model->nb_paramsCov-1);i++) {
+               res(0,i+1) = -dS1[i];
+               res(i+1,0) = -dS1[i];
+               res(i+1,i+1) = -alpha*d2S1[i*(i+1)/2+i];
+               for(j=0;j<i;j++) {
+                 res(i+1,j+1) = -alpha*d2S1[i*(i+1)/2+j];
+                 res(j+1,i+1) = res(i+1,j+1);
+               }
             }
             param[0]=alpha;
             model->set_params(param);//also memorize the current value for alpha which is not 1 in fact
@@ -386,6 +396,10 @@ private:
             }
             for(ii=0;ii<model->nb_paramsCov;i++,ii++) {
                 dS4[ii] = 0;dS1[i] = 0;
+                for(j=0;j<=i;j++) {
+                    //i and j(<=i) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
+                    d2S1[i*(i+1)/2+j] = 0;
+                }
             }
         }
         else if(with_gradient) {
@@ -444,7 +458,7 @@ private:
                 }
             }
             for(j=0;j<model->nb_paramsCov;i++,j++) {
-                model->dS1[i]=0;
+                //model->dS1[i]=0;
                 model->dS4[j]=0;
             }
         }
@@ -474,7 +488,7 @@ private:
                 model->dA[j]=0;
             }
             for(j=0;j<model->nb_paramsCov;j++,i++) {
-                model->dS1[i]=0;
+                //model->dS1[i]=0;
                 model->dS4[j]=0;
             }
     	}
@@ -563,35 +577,6 @@ private:
                 model->d2S3[i*(i+1)/2+j] += (model->d2A[i*(i+1)/2+j]/model->A -model->dA[i]*model->dA[j]/pow(model->A,2))* model->indType;
             }
         }
-        //covariates
-
-        // double *cumhVright_param_derivative=model->family->cumulative_hazardRate_param_derivative(model->Vright,true);
-        // double *cumhVleft_param_derivative=model->family->cumulative_hazardRate_param_derivative(model->Vleft,false);
-
-        // for(i=0;i<model->nb_paramsCov;i++) {
-        //     if(model->k >= leftCensor) model->dS1[i+model->nb_paramsFamily-1] += model->hVleft * model->dVleft[i] - hVright * model->dVright[i];
-        //     //printf("dS1[%d]=(%lf,%lf,%lf),%lf,",i+1,model->hVleft,model->dVleft[i],model->dVright[i],model->dS1[i+1]);
-        //     model->dS2[i+model->nb_paramsFamily-1] +=  dhVleft * model->dVleft[i]/model->hVleft * model->indType;
-        //     //printf("dS2[%d]=%lf,",i+1,model->dS2[i+1]);
-        //     //column 0 and i+1 corresponds to the line indice of (inferior diagonal part of) the hessian matrice
-        //     model->dS3[i] +=  model->dA[i]/model->A * model->indType;
-        //     for(j=0;j<model->nb_paramsFamily-1;j++){
-        //         if(model->k >= leftCensor) model->d2S1[(i+model->nb_paramsFamily-1)*(i+model->nb_paramsFamily)/2+j] += hVleft_param_derivative[j] * model->dVleft[i] - hVright_param_derivative[j] * model->dVright[i];
-        //         model->d2S2[(i+model->nb_paramsFamily-1)*(i+model->nb_paramsFamily)/2+j] +=  dhVleft_param_derivative[j] * model->dVleft[i]/model->hVleft * model->indType - hVleft_param_derivative[j]*dhVleft * model->dVleft[i]/pow(model->hVleft,2) * model->indType;
-        //     }
-        //     for(jj=0;jj<model->nb_paramsMaintenance;jj++,j++){
-        //         if(model->k >= leftCensor) model->d2S1[(i+model->nb_paramsFamily-1)*(i+model->nb_paramsFamily)/2+j] += hVleft_param_derivative[j] * model->dVleft[i] - hVright_param_derivative[j] * model->dVright[i];
-        //         model->d2S2[(i+model->nb_paramsFamily-1)*(i+model->nb_paramsFamily)/2+j] +=  dhVleft_param_derivative[j] * model->dVleft[i]/model->hVleft * model->indType - hVleft_param_derivative[j]*dhVleft * model->dVleft[i]/pow(model->hVleft,2) * model->indType;
-        //     }
-        //     for(j=0;j<=i;j++){
-        //         //i+1 and j+1(<=i+1) respectively correspond to the line and column indices of (inferior diagonal part of) the hessian matrice
-        //         if(model->k >= leftCensor) model->d2S1[(i+model->nb_paramsFamily-1)*(i+model->nb_paramsFamily)/2+j+model->nb_paramsFamily-1] += dhVleft*model->dVleft[i]*model->dVleft[j] + model->hVleft * model->d2Vleft[i*(i+1)/2+j] - dhVright*model->dVright[i]*model->dVright[j] - hVright * model->d2Vright[i*(i+1)/2+j];
-        //         model->d2S2[(i+model->nb_paramsFamily-1)*(i+model->nb_paramsFamily)/2+j+model->nb_paramsFamily-1] += ( model->dVleft[i]*model->dVleft[j]*(d2hVleft/model->hVleft-pow(dhVleft/model->hVleft,2)) + dhVleft * model->d2Vleft[i*(i+1)/2+j]/model->hVleft )* model->indType;
-        //         model->d2S3[i*(i+1)/2+j] += (model->d2A[i*(i+1)/2+j]/model->A -model->dA[i]*model->dA[j]/pow(model->A,2))* model->indType;
-        //     }
-        // }
-
-        //printf("\n");
     }
 
     void contrast_S_update() {
