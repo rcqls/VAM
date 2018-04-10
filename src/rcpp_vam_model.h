@@ -37,7 +37,7 @@ public:
 	//Additional Covariates stuff
 	DataFrame data_cov;
 	NumericVector params_cov;
-	double sum_cov; //to save the computation 
+	double sum_cov; //to save the computation
 
 	//NumericVector time, type;
 	std::vector<double> time;
@@ -197,7 +197,7 @@ public:
     List get_virtual_age_infos(double by, double from, double to);
 
 	void init_computation_values();
-	
+
 	//Covariates related
 
 	int current_system;
@@ -206,7 +206,7 @@ public:
         //Covariates related
         current_system=i;
 		//simulation: compute=false since only computation in c++ and set_current_system in R
-		//mle: compute=true since both computation and select_current_system in c++ 
+		//mle: compute=true since both computation and select_current_system in c++
 		if(compute) compute_covariates();
     }
 
@@ -228,7 +228,7 @@ private:
 
 	void init_virtual_age_infos();
 
-	DataFrame get_virtual_age_info(double from,double to,double by);
+	DataFrame get_virtual_age_info(double from,double to,double by, double expCov);
 
 };
 
