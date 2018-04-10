@@ -19,6 +19,7 @@ sim.vam <- function(formula,data.covariates) {
 				self$response.names <- model$response
 			}
 		}
+		self$model<-model#debuggage LD
 		self$formula <- substitute.vam.formula(model=model)
 		if(!is.null(model$covariates)) {
 			 model$covariates$data <- model.frame(model$covariates$formula,data=self$data.covariates) #ok even if data.covariates is null
@@ -907,6 +908,8 @@ substitute.vam.formula <- function(formula,coef,model) {
 		} else {
 			nb_paramsCovariates <- 0
 	}
+
+	coef<-unlist(coef)
 
 	nb_paramsFamily <- length(model$family$params)
 	nb_paramsCM <- length(model$models[[1]]$params)
