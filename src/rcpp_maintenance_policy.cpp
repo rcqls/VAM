@@ -67,6 +67,11 @@ VamModel* MaintenancePolicy::update_external_model(VamModel* model) {
             mod->idMod = model->idMod; //mod->idMod is then updated for the next task!
             mod->models->at(mod->idMod)->update(false,false);
         }
+				if(model->nb_paramsCov>0){
+					mod->data_cov=model->data_cov;
+					mod->params_cov=model->params_cov;
+					mod->nb_paramsCov=model->nb_paramsCov;
+				}
     } else mod=model;
     return mod;
 }
@@ -128,8 +133,10 @@ List AtIntensityMaintenancePolicy::update(VamModel* model) {
     List res;
 		//printf("ici\n");
     VamModel* mod=update_external_model(model);
+		double u=mod->A;
+		if(mod->nb_paramsCov>0) u *= exp(mod->compute_covariates());
 		//ToRemove: double next_time2=model->virtual_age_inverse(model->family->inverse_hazardRate(level[0]));
-		double next_time=mod->virtual_age_inverse(mod->family->inverse_hazardRate(level[0]/mod->A));
+		double next_time=mod->virtual_age_inverse(mod->family->inverse_hazardRate(level[0]/u));
 		//ToRemove: printf("next_time=(%lf,%lf,%lf,%lf,%lf,%lf)\n",next_time,next_time2,mod->Vright,model->Vright,mod->C,model->C );
 		//printf("at=%d\n",model->idMod);
     res["time"] = next_time ;//mod->virtual_age_inverse(mod->family->inverse_hazardRate(level[0]));
@@ -168,8 +175,9 @@ List AtFailureProbabilityMaintenancePolicy::update(VamModel* model) {
     List res;
     VamModel* mod=update_external_model(model);
 
-    res["time"] = mod->virtual_age_inverse(mod->family->inverse_cumulative_hazardRate(mod->family->cumulative_hazardRate(mod->virtual_age(mod->time[mod->k]))-log(1-level)[0]));
-    //First argument not automatically wrapped in RcppWin64bits
+    if(mod->nb_paramsCov>0) res["time"] = mod->virtual_age_inverse(mod->family->inverse_cumulative_hazardRate(mod->family->cumulative_hazardRate(mod->virtual_age(mod->time[mod->k]))-log(1-level)[0]*exp(-mod->compute_covariates())));
+		else res["time"] = mod->virtual_age_inverse(mod->family->inverse_cumulative_hazardRate(mod->family->cumulative_hazardRate(mod->virtual_age(mod->time[mod->k]))-log(1-level)[0]));
+		//First argument not automatically wrapped in RcppWin64bits
     res["type"]= 1+get_from_type(); //sample_int(NumericVector::create(prob.size()),1,true,prob);
     return res;
 };
