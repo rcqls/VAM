@@ -496,7 +496,7 @@ run.bayesian.vam <- function(obj,par0,fixed,sigma.proposal,nb=100000,burn=10000,
 
 	## init via mle: par0 is supposed first to be initialized by mle
 	if(missing(par0)) {
-		obj$mle <- mle.vam(obj$mle.formula,obj$data)
+		if(is.null(obj$model.parsed$covariates)) obj$mle <- mle.vam(obj$mle.formula,obj$data) else obj$mle <- mle.vam(obj$mle.formula,obj$data,obj$data.covariates)
 		obj$mle.init <- TRUE
 		obj$par0 <- coef(obj$mle,fixed=fixed,method=method,verbose=verbose,...)
 	} else {
@@ -716,8 +716,9 @@ parse.vam.formula <- function(formula) {
 			##print(term)
 			if(term[[1]]==as.name("*")) {
 				form <<- c(as.character(term[[3]]),form)
-				## TODO: eval.vam instead of eval???
-				param_expr <- eval.vam(parse(text=paste0(sign,as.character(eval(term[[2]])))))
+				if(sign == as.name("-")) {
+				 	if(!(is.numeric(eval(term[[2]])))) stop("Only + is admitted between covariates definition in Bayes case.") else param_expr <- eval.vam(parse(text=paste0(sign,as.character(eval(term[[2]])))))
+				} else param_expr <- as.vector(eval.vam(term[[2]]))
 				params<<- c(param_expr,params)
 			}
 			##print(list(form=form,params=params))
@@ -732,10 +733,17 @@ parse.vam.formula <- function(formula) {
 
 	convert.family <- function(fam) {
 		# eval.vam is here to evaluate the value if it is a symbol!
-
+		# We want to detect if there is covariates or not. Normally the operator | delimitating covariates has priority, expect possibly in Baysian case.
 		if(has.covariates <- (length(fam[[length(fam)]])>1 && fam[[length(fam)]][[1]] == as.name("|"))) {
 			covariates_expr <- fam[[length(fam)]][[3]]
 			fam[[length(fam)]] <- fam[[length(fam)]][[2]] # first argument of last terms becomes last argument of family
+		} else {
+		#In Bayesian case the ~ operator of the description of the prior distribution of the last argument of the family can possibly has priority on the operator | delimitating covariates
+			if(length(fam[[length(fam)]])>1 && fam[[length(fam)]][[1]] == as.name("~") && length(fam[[length(fam)]][[2]])>1 && fam[[length(fam)]][[2]][[1]] == as.name("|")){
+				has.covariates <- TRUE
+				covariates_expr <- fam[[length(fam)]][[2]][[3]]
+				fam[[length(fam)]][[2]] <- fam[[length(fam)]][[2]][[2]]
+			}
 		}
 
 		res<-list(
@@ -901,9 +909,9 @@ substitute.vam.formula <- function(formula,coef,model) {
 	if(missing(model)) model <- parse.vam.formula(formula)
 	if(missing(coef)) {
 		coef <- c(model$family$params,sapply(model$models,function(m) m$params))
+		if(!is.null(model$covariates)) coef <- c(coef,model$covariates$params)
 	}
 	if(!is.null(model$covariates)) {
-			coef <- c(coef,model$covariates$params)
 			nb_paramsCovariates <- length(model$covariates$params)
 		} else {
 			nb_paramsCovariates <- 0
@@ -934,10 +942,16 @@ substitute.vam.formula <- function(formula,coef,model) {
 							 if(!is.null(model$covariates)) {
 								 # unlist(nb_paramsPM) since nb_paramsPM is list() when no PM
 								 tmp<-coef[nb_paramsFamily + nb_paramsCM + sum(unlist(nb_paramsPM)) + (1:nb_paramsCovariates)]
-								 tmp[tmp<0] <- paste0("(",tmp[tmp<0],")")
-								 paste0("|",
-								 	paste(tmp,all.vars(model$covariates$formula),sep=" * ",collapse=" + ")
-								 )
+								 if(is.list(tmp)){##Bayesian case
+								 	 paste0("| (",
+									   paste(tmp,all.vars(model$covariates$formula),sep=") * ",collapse=" + (")
+								   )
+								 } else {
+								 	 tmp[tmp<0] <- paste0("(",tmp[tmp<0],")")
+								 	 paste0("|",
+								 		 paste(tmp,all.vars(model$covariates$formula),sep=" * ",collapse=" + ")
+								 	 )
+								 }
 							 } else "",
 							")",
 						")"
@@ -972,7 +986,8 @@ substitute.vam.formula <- function(formula,coef,model) {
 
 priors.from.vam.formula <- function(model) {
 	flatten.params <- c(model$family$params,unlist(sapply(model$models,function(e) e$params)))
-	if(!is.null(model$family$covariates)) flatten.params <- c(flatten.params,mode$family$covariates$params)
+	##if(!is.null(model$family$covariates)) flatten.params <- c(flatten.params,mode$family$covariates$params) ##Strange
+	if(!is.null(model$covariates)) flatten.params <- c(flatten.params,model$covariates$params)
 	if(all(sapply(flatten.params,class) == "formula") ) {
 		prior.families <- c("B","Beta","U","Unif","G","Gamma","Norm","N","NonInform","NInf","LNorm","LogNorm","LN")
 		## clear "|" expression

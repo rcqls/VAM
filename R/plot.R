@@ -218,7 +218,7 @@ plot.model.vam <- function(obj,type=c("v","virtual.age","i","intensity","I","cum
 
 plot.mle.vam  <- plot.sim.vam  <- plot.model.vam
 
-preplots.bayesian.vam <- function(obj,from,to,length.out=101,by,system.index=1,type=c("97.5%","mean","2.5%"),filter=c("i","I"),nb.proposal=500) {
+preplots.bayesian.vam <- function(obj,from,to,length.out=101,by,system.index=1,type=c("97.5%","mean","2.5%"),filter=c("v","i","I","F","S","f"),nb.proposal=500) {
 	rcpp <- rcpp(obj)
 	## IMPORTANT: sim.vam is now
 	# d <- if(inherits(obj,"sim.vam")) rcpp$get_data() else
@@ -257,7 +257,8 @@ preplots.bayesian.vam <- function(obj,from,to,length.out=101,by,system.index=1,t
 	for(mode in type) {
 		preplots[[mode]] <- list(d=d,mask=mask,from=from,to=to,by=by,infos=list())
 		for(i in seq(res)) {
-			preplots[[mode]]$infos[[i]] <- infos[[i]][c("t","v")]
+			#preplots[[mode]]$infos[[i]] <- infos[[i]][c("t","v")]#v has to be estimated as other characteristics
+			preplots[[mode]]$infos[[i]] <- infos[[i]]["t"]
 			for(f in filter) {
 				if(substr(mode,nchar(mode),nchar(mode))=="%") {
 					alpha <- as.numeric(substr(mode,1,nchar(mode)-1))/100
