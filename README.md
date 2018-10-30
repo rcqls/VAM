@@ -2,7 +2,7 @@
 
 ## Quick install from source (dépendant de `devtools`)
 
-```{bash}
+```{R}
 devtools::install_github("rcqls/VAM")
 ```
 
