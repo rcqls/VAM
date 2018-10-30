@@ -1,9 +1,9 @@
 # First prototype for virtual age models. 
 
-## Quick install from source (dépendant de `devtools`)
+## Quick install from source (depends on `devtools`)
 
 ```{R}
-devtools::install_github("rcqls/VAM")
+R> devtools::install_github("rcqls/VAM")
 ```
 
 ## Introduction of tools
