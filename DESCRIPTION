@@ -7,6 +7,8 @@ Authors@R: c(
     person("Remy", "Drouilhet", email = "Remy.Drouilhet@univ-grenoble-alpes.fr", role = c("aut", "cre")),
 	person("Lea", "Breniere", email = "lea.breniere@univ-grenoble-alpes.fr", role = c("ctb"))
 	)
+Author: Laurent Doyen <Laurent.Doyen@univ-grenoble-alpes.fr>, Remy Drouilhet <Remy.Drouilhet@univ-grenoble-alpes.fr>
+Maintainer: Remy Drouilhet <Remy.Drouilhet@univ-grenoble-alpes.fr>
 Description: Package dealing with Virtual Age Models.
 License: GPL (>= 2)
 Depends: R (>= 3.0.0), Rcpp (>= 0.9.10)

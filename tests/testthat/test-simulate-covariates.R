@@ -60,6 +60,7 @@ test_that("Weibull+ARA1+1cov+1system",{
 
 test_that("Weibull+ARA1+2cov+1system",{
 	set.seed(3)
+	n<-5
     SimCov<-data.frame(cov1=-0.4,cov2=0.3)
     set.seed(4)
 	simARAC<-sim.vam(~(ARA1(0.6)|Weibull(0.1,2.2|-0.2*cov1-0.1*cov2)),data.covariates=SimCov)
