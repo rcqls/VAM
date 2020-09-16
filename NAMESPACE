@@ -31,6 +31,7 @@ S3method(run,mle.vam)
 S3method(coef,mle.vam)
 
 S3method(run,bayesian.vam)
+S3method(plot,bayesian.vam)
 S3method(coef,bayesian.vam)
 S3method(hist,bayesian.vam)
 S3method(summary,bayesian.vam)
