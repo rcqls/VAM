@@ -1,14 +1,40 @@
-useDynLib(VAM)
-
 # Export all names
-exportPattern(".")
+# exportPattern(".")
 
-# export(
-# 	lmm.cqls,
-#   lmer.cqls,
-#  	lm.cqls
-# )
+export(params)
+export(run)
+export(contrast)
+export(newEnv)
+export(rcpp)
 
-#export("VAM","rcpp","newEnv")
+export(sim.vam)
+export(model.vam)
+export(mle.vam)
+export(bayesian.vam)
+
+S3method(simulate,sim.vam)
+S3method(params,sim.vam)
+S3method(plot,sim.vam)
+
+S3method(plot,model.vam)
+S3method(update,model.vam)
+S3method(params,model.vam)
+S3method(plot,model.vam)
+
+S3method(params,mle.vam)
+S3method(plot,mle.vam)
+S3method(contrast,mle.vam)
+S3method(formula,mle.vam)
+S3method(update,mle.vam)
+S3method(logLik,mle.vam)
+S3method(run,mle.vam)
+S3method(coef,mle.vam)
+
+S3method(run,bayesian.vam)
+S3method(coef,bayesian.vam)
+S3method(hist,bayesian.vam)
+S3method(summary,bayesian.vam)
 
 import(Rcpp)
+
+useDynLib(VAM)
