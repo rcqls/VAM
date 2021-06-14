@@ -105,6 +105,7 @@ void AtTimesMaintenancePolicy::first() {
 
 List AtTimesMaintenancePolicy::update(VamModel* model) {
     double current=model->time[model->k];
+    int current_type=model->type[model->k];
     int size=(int)times.size();
     List res;
     if (size==0) {
@@ -124,7 +125,11 @@ List AtTimesMaintenancePolicy::update(VamModel* model) {
             else {res["time"]=times[i]; }
         }
     }
-    res["type"]= 1+get_from_type();
+    int t=1;
+    if (differentTypeIfCM && (current_type==-1)) {
+        t=2;
+    }
+    res["type"]= t+get_from_type();
     return res;
 };
 
@@ -242,3 +247,4 @@ List MaintenancePolicyList::update(VamModel* model) {
     }
     return res;
 };
+

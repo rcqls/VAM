@@ -103,20 +103,26 @@ public:
     NumericVector times;
     int i,k;
     bool cycle;
+    bool differentTypeIfCM;
 
     List get_params() {
         List out;
-        out["times"]=NumericVector(times);out["cycle"]=cycle;
+        out["times"]=NumericVector(times);out["cycle"]=cycle;out["differentTypeIfCM"]=differentTypeIfCM;
         return out;
     }
 
     void set_params(List params) {
         cycle=params["cycle"];
         times=params["times"];
+        differentTypeIfCM=params["differentTypeIfCM"];
     }
 
     int type_size() {
-        return 1;
+        int t=1;
+        if (differentTypeIfCM){
+            t=2;
+        }
+        return t;
     }
 
     List update(VamModel* model);
@@ -124,6 +130,7 @@ public:
         void first();
 
 };
+
 
 class AtIntensityMaintenancePolicy : public MaintenancePolicy {
 public:
@@ -275,3 +282,4 @@ protected:
 MaintenancePolicy* newMaintenancePolicy(List policy);
 
 #endif //RCPP_MAINTENANCE_POLICY_H
+
