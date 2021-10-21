@@ -12,7 +12,6 @@ Maintainer: Remy Drouilhet <Remy.Drouilhet@univ-grenoble-alpes.fr>
 Description: Package dealing with Virtual Age Models.
 License: GPL (>= 2)
 Depends: R (>= 3.0.0), Rcpp (>= 0.9.10)
-Imports: plotly
 LinkingTo: Rcpp
 Suggests: testthat
 RcppModules: vam_module,tools_module
