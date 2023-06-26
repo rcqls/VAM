@@ -19,11 +19,11 @@ MaintenancePolicy* newMaintenancePolicy(List policy) {
 		//DEBUG:printf("Params:alpha=%lf,beta=%lf\n",alpha,beta);
 		List pars=policy["params"];
 		mp=new AtIntensityMaintenancePolicy(pars);
-    if(as<bool>(policy["with.model"])) {
-        VamModel* ext_mod_= as<VamModel*>(policy["model"]);
-        ext_mod_->idMod=0;
-        mp->set_external_model(ext_mod_);
-    }
+        if(as<bool>(policy["with.model"])) {
+            VamModel* ext_mod_= as<VamModel*>(policy["model"]);
+            ext_mod_->idMod=0;
+            mp->set_external_model(ext_mod_);
+        }
 	} else if(name.compare("AtVirtualAge.maintenance.policy") == 0) {
 		//DEBUG:printf("Params:alpha=%lf,beta=%lf\n",alpha,beta);
 		List pars=policy["params"];

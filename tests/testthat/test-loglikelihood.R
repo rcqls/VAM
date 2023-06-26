@@ -1527,9 +1527,9 @@ test_that("Weibull + CM ABAO + PM ARAInf + mutlisystems + LeftCens",{
 )
 
 # test_that("Weibull3",{
-# 	simData<-data.frame(Time=c(3.36),Type=c(-1),row.names=1:1)
-#     mle <- mle.vam(Time & Type ~ (ARAInf(0.4) | Weibull3(0.001,2.5,5)),data=simData)
-#     theta<-c(0.3,1.8,4,0.6)
+	# simData<-data.frame(Time=c(3.36),Type=c(-1),row.names=1:1)
+    # mle <- mle.vam(Time & Type ~ (ARAInf(0.4) | Weibull3(0.001,2.5,5)),data=simData)
+    # theta<-c(0.3,1.8,4,0.6)
 # 	lnL<- -6.28349650594271
 # 	dlnL<- c(-20.8805277090384,-14.1662361334174,-0.920550636729322,0)
 # 	d2lnL<- matrix(c(-11.1111111111111,-55.726172072379,-3.43082096301078,0,-55.726172072379,-36.7534932861936,-3.48854152770058,0,-3.43082096301078,-3.48854152770058,0.0228198059801746,0,0,0,0,0),nrow=4,byrow=TRUE)

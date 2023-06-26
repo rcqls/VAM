@@ -415,8 +415,8 @@ run.mle.vam <-function(obj,par0,fixed,method=NULL,verbose=FALSE,...) {
 
 	## optim stuff!
 	if(is.null(method) || method=="fast") {
-  	if(length(param[!fixed])>1) param[!fixed]<-(res <- optim(param[!fixed],fn,gr,method="Ne",...))$par
-  	if(is.null(method)) res<-optim(param[!fixed],fn,gr,method="CG",...)
+		if(length(param[!fixed])>1) param[!fixed]<-(res <- optim(param[!fixed],fn,gr,method="Ne",...))$par
+		if(is.null(method)) res<-optim(param[!fixed],fn,gr,method="CG",...)
 	} else {
 		res<-optim(param[!fixed],fn,gr,method=method,...)
 	}

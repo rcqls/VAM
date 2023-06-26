@@ -91,10 +91,11 @@ public:
         model->select_data(0);
         if(model->nb_paramsCov > 0) model->select_current_system(0,true);
         select_leftCensor(0);
+        // printf("System 1\n");
         contrast_for_current_system();
         //only if multi-system
         for(int i=1;i<model->nb_system;i++) {
-            //printf("System %d\n",i+1);
+            // printf("System %d\n",i+1);
             model->select_data(i);
             if(model->nb_paramsCov > 0) model->select_current_system(i,true);
             select_leftCensor(i);
@@ -121,6 +122,7 @@ public:
     }
 
     void gradient_for_current_system() {
+        // printf("gradient\n");
         int i,ii;
     	init_mle_vam_for_current_system(true,false);
     	int n=(model->time).size() - 1;
@@ -178,6 +180,7 @@ public:
         }
         for(ii=0;ii<model->nb_paramsCov;ii++,i++) {
             res[i+1] = -dS1[i]*param[0] + dS4[ii] ;
+            // printf("res[%d]= %lf * %lf + %lf \n", i+1,-dS1[i], param[0], dS4[ii]);
         }
 
         param[0]=alpha;//LD:changed for bayesian
@@ -497,6 +500,7 @@ private:
     void contrast_update_for_current_system(bool with_gradient, bool with_hessian) {
     	model->update_Vleft(with_gradient,with_hessian);
     	model->hVleft=model->family->hazardRate(model->Vleft);
+        // printf("hVleft (%d, %d) = %lf\n", with_gradient, with_hessian, model->hVleft);
     	model->indType = ((model->type)[(model->k) + 1] < 0 ? 1.0 : 0.0);
     	// printf("HVleft:%d,%lf,%lf\n",model->k,model->Vleft,model->family->cumulative_hazardRate(model->Vleft));
     	// printf("HVright:%lf,%lf\n",model->Vright,model->family->cumulative_hazardRate(model->Vright));
@@ -522,7 +526,7 @@ private:
         }
     	double hVright=model->family->hazardRate(model->Vright);
     	double dhVleft=model->family->hazardRate_derivative(model->Vleft);
-    	  //printf("k:%d,hVright:%lf,dhVleft:%lf,indType:%lf\n",model->k,hVright,dhVleft,model->indType);
+    	// printf("gradient k:%d,hVright:%lf,dhVleft:%lf,indType:%lf\n",model->k,hVright,dhVleft,model->indType);
     	for(ii=0;ii<model->nb_paramsMaintenance;ii++,i++) {
     		if(model->k >= leftCensor) model->dS1[i] += model->hVleft * model->dVleft[ii] - hVright * model->dVright[ii];
     		//printf("dS1[%d]=(%lf,%lf,%lf),%lf,",ii+1,model->hVleft,model->dVleft[ii],model->dVright[ii],model->dS1[ii+1]);
@@ -608,6 +612,7 @@ private:
         dS1[i] += model->S1 * cov * exp(model->sum_cov);
         //dS2[i]=0
         dS4[ii] += model->S0 * cov;
+        // printf("R: dS4[%d]:%lf\n",ii,dS4[ii]);
     }
 
 };

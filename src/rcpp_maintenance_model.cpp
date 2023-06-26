@@ -49,7 +49,7 @@ void ARA1::update(bool with_gradient,bool with_hessian) {
     if(nk>model->mu){
         nk=model->mu;
     }
-    //printf("ARAinf k=%d,max_mem=%d, nk=%d\n",model->k,model->max_mem,nk);
+    //printf("ARA1 k=%d,max_mem=%d, nk=%d\n",model->k,model->mu,nk);
     if (with_hessian){
         for(k=nk-1;k>0;k--){
             for(i=0;i<model->nb_paramsMaintenance;i++) {
@@ -101,6 +101,7 @@ void ARA1::update(bool with_gradient,bool with_hessian) {
                 prov=(1-rho)*model->dA[i]*(model->time[model->k]-model->time[model->k - 1]);
                 model->dVR_prec[i]=prov;
                 model->dVright[i]+=prov;
+                // printf("ARA1: model->dVright[i=%d]=%lf prov=%lf\n",i, model->dVright[i], prov);
             }
             prov=model->A*(model->time[model->k]-model->time[model->k - 1]);
             model->dVR_prec[id_params]-= prov;
@@ -108,6 +109,7 @@ void ARA1::update(bool with_gradient,bool with_hessian) {
         } else {
             for(i=0;i<model->nb_paramsMaintenance;i++) {
                 model->dVright[i]+=(1-rho)*model->dA[i]*(model->time[model->k]-model->time[model->k - 1]);
+                // if (i == 1 && model->dA[i] > 0) printf("ARA1: model->dVright[i=%d]=%lf dA[i]=%lf\n",i, model->dVright[i], model->dA[i]);
             }
             model->dVright[id_params]-=model->A*(model->time[model->k]-model->time[model->k - 1]);
         }
@@ -132,7 +134,7 @@ void ARAInf::update(bool with_gradient,bool with_hessian) {
     if(nk>model->mu){
         nk=model->mu;
     }
-    //printf("ARAinf k=%d,max_mem=%d, nk=%d\n",model->k,model->max_mem,nk);
+    //printf("ARAinf k=%d,max_mem=%d, nk=%d\n",model->k,model->mu,nk);
     if (with_hessian){
         for(k=nk-1;k>0;k--){
             for(i=0;i<model->nb_paramsMaintenance;i++) {
@@ -187,14 +189,18 @@ void ARAInf::update(bool with_gradient,bool with_hessian) {
             for(i=0;i<model->nb_paramsMaintenance;i++) {
                 model->dVR_prec[i]=(1-rho)*model->dA[i]*(model->time[model->k]-model->time[model->k - 1]);
                 model->dVright[i]=(1-rho)*model->dVleft[i];
+                // if (i == 1 && model->dVleft[i] > 0) printf("ARAInf: model->dVright[i=%d]=%lf model->dVleft[i]=%lf\n",i, model->dVright[i], model->dVleft[i]);
             }
             model->dVR_prec[id_params]-= model->A*(model->time[model->k]-model->time[model->k - 1]);
             model->dVright[id_params]-= model->Vleft;
+            // if(id_params == 1 && model->Vleft != 0) printf("ARAInf (nk=%d): model->dVright[i=%d]=%lf model->Vleft=%lf\n",nk, id_params, model->dVright[id_params], model->Vleft);
         } else {
             for(i=0;i<model->nb_paramsMaintenance;i++) {
                 model->dVright[i]=(1-rho)*model->dVleft[i];
+                // if (i == 1 && model->dVleft[i] > 0) printf("ARAInf: model->dVright[i=%d]=%lf model->dVleft[i]=%lf\n",i, model->dVright[i], model->dVleft[i]);
             }
             model->dVright[id_params]-= model->Vleft;
+            // if(id_params == 1 && model->Vleft != 0) printf("ARAInf (nk=%d): model->dVright[i=%d]=%lf model->Vleft=%lf\n",nk, id_params, model->dVright[id_params], model->Vleft);
         }
     }
     model->Vright=(1-rho)*model->Vleft;
@@ -309,7 +315,9 @@ void ABAO::update(bool with_gradient,bool with_hessian) {
     for(k=nk-1;k>0;k--) model->VR_prec[k]=model->VR_prec[k-1];
     prov=model->A*(model->time[model->k]-model->time[model->k - 1]);
     if(nk>0) model->VR_prec[0]=prov;
-    model->Vright+=prov;    
+    model->Vright+=prov;  
+
+    printf("ABAO Vright = %lf\n", model->Vright);  
 
     // save old model
     model->idMod = id;
@@ -456,6 +464,7 @@ void GQR::update(bool with_gradient,bool with_hessian) {
         nk=model->mu;
     }
     K++;
+    // printf("K=%lf delta=%lf\n",K,f->eval(K)-f->eval(K-1));
     if (with_hessian){
         for(i=0;i<model->nb_paramsMaintenance;i++) {
             for(j=0;j<=i;j++) {
@@ -721,8 +730,8 @@ void ARAm::update(bool with_gradient,bool with_hessian) {
     if(nk>m-1){
         nk2=m-1;
     }
-
-    //printf("ARAinf k=%d,max_mem=%d, nk=%d\n",model->k,model->max_mem,nk);
+    
+    // printf("ARAm=%d, k=%d,max_mem=%d, nk=%d, nk2=%d\n",m,model->k,model->mu,nk, nk2);
     if (with_hessian){
         for(k=nk-1;k>nk2;k--){
             for(i=0;i<model->nb_paramsMaintenance;i++) {
