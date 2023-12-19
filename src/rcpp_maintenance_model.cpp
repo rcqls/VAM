@@ -317,7 +317,7 @@ void ABAO::update(bool with_gradient,bool with_hessian) {
     if(nk>0) model->VR_prec[0]=prov;
     model->Vright+=prov;  
 
-    printf("ABAO Vright = %lf\n", model->Vright);  
+    // printf("ABAO Vright = %lf\n", model->Vright);  
 
     // save old model
     model->idMod = id;
